@@ -22,6 +22,7 @@ dotnet-ai-blueprint/
 ├── .cursorrules                  ← AI IDE rule entry point (slim, ~5KB)
 ├── .ai-modes                     ← Toggle AI behaviour modes
 ├── .gitignore
+├── COPILOT_PROMPT.md             ← Paste into Copilot Chat at session start
 │
 ├── docs/
 │   ├── ARCHITECTURE.md           ← Folder structure, patterns, implementation rules
@@ -30,10 +31,10 @@ dotnet-ai-blueprint/
 │   │   ├── mapping.md            ← Mapperly patterns, DTO ↔ API model boundaries
 │   │   ├── code-quality.md       ← Fowler smells, async rules, nesting, null safety
 │   │   ├── testing.md            ← NUnit + Moq patterns, naming, coverage
-│   │   └── review-learning.md    ← Code Review Mode, Learning Mode
+│   │   ├── review-learning.md    ← Code Review Mode, Learning Mode, Blind Spot Mode
+│   │   └── not-implemented-pattern.md ← How to handle code the AI cannot implement
 │   ├── specs/                    ← Feature specs (one .md per feature)
 │   │   └── feature-spec-template.md ← Copy this when starting a new feature
-│   ├── NOT_IMPLEMENTED_PATTERN.md ← How to handle code the AI cannot implement
 │   └── diagrams/                 ← ER diagrams, flow diagrams
 │
 ├── templates/                    ← Canonical code patterns — AI always follows these
@@ -44,6 +45,8 @@ dotnet-ai-blueprint/
 │   ├── GlobalExceptionHandler.cs
 │   ├── ServiceExtensions.cs
 │   ├── ApiResponse.cs
+│   ├── NotImplementedPattern.cs
+│   ├── PaginationTemplate.cs
 │   ├── Program.cs
 │   ├── Startup.cs
 │   ├── appsettings.json
@@ -51,7 +54,7 @@ dotnet-ai-blueprint/
 │   ├── nlog.config
 │   └── Project.Api.http
 │
-└── COPILOT_PROMPT.md             ← Condensed rules for Copilot Chat (paste at session start)
+
 ```
 
 > `src/` is not in the seed — that's your project-specific code.

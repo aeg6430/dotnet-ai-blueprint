@@ -17,17 +17,36 @@
 
 ```text
 docs/
-├── ARCHITECTURE.md          (This file — architecture rules and standards)
-├── rules/                   (Detailed rule files — read on demand by AI IDE and Copilot Chat)
-│   ├── sql.md               (SQL ownership, parameter declaration, ORDER BY, optimization)
-│   ├── mapping.md           (Mapperly patterns, DTO ↔ API model boundaries)
-│   ├── code-quality.md      (Fowler smells, async rules, nesting, null safety)
-│   ├── testing.md           (NUnit + Moq patterns, naming, coverage requirements)
-│   └── review-learning.md   (Code Review Mode, Learning Mode toggle)
-├── specs/                   (Feature specifications — one file per feature)
+├── ARCHITECTURE.md               (This file — architecture rules and standards)
+├── rules/                        (Detailed rule files — read on demand by AI IDE and Copilot Chat)
+│   ├── sql.md                    (SQL ownership, parameter declaration, ORDER BY, batch, optimization)
+│   ├── mapping.md                (Mapperly patterns, DTO ↔ API model boundaries)
+│   ├── code-quality.md           (Fowler smells, async rules, nesting, null safety)
+│   ├── testing.md                (NUnit + Moq patterns, naming, coverage requirements)
+│   ├── review-learning.md        (Code Review Mode, Learning Mode, Blind Spot Mode)
+│   └── not-implemented-pattern.md(How to handle code the AI or developer cannot implement)
+├── specs/                        (Feature specifications — one file per feature)
+│   ├── feature-spec-template.md  (Copy this when starting a new feature)
 │   └── {feature-name}.md
-└── diagrams/                (Visual references — ER diagrams, system overview, flow diagrams)
+└── diagrams/                     (Visual references — ER diagrams, system overview, flow diagrams)
     └── {diagram-name}.png
+
+templates/                        (Canonical code patterns — AI always reads these during bootstrap)
+├── BaseRepository.cs             (Abstract base — all repositories inherit this)
+├── WarehouseRepository.cs        (Dapper repository — 3 parameter cases + logging pattern)
+├── StockService.cs               (Service with transaction orchestration pattern)
+├── WarehouseMapper.cs            (Mapperly — 5 mapping cases)
+├── GlobalExceptionHandler.cs     (IExceptionHandler implementation)
+├── ServiceExtensions.cs          (DI registration — copy and extend per project)
+├── ApiResponse.cs                (Unified API response wrapper)
+├── NotImplementedPattern.cs      (How to stub unimplemented code safely)
+├── PaginationTemplate.cs         (Offset-based and cursor-based pagination patterns)
+├── Program.cs                    (Lean entry point with NLog setup)
+├── Startup.cs                    (JWT, Swagger, CORS, middleware pipeline)
+├── appsettings.json              (Base config — no secrets)
+├── appsettings.Development.json  (Dev config — placeholder values only)
+├── nlog.config                   (NLog — console + file + error file targets)
+└── Project.Api.http              (HTTP request file placeholder)
 
 src/
 ├── Project.Api/                    (Entry Point & Configuration)
