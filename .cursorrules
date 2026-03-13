@@ -1,0 +1,129 @@
+# .cursorrules
+
+## 🚀 Bootstrap — Do This Before Anything Else
+
+Before starting any task, always:
+
+1. Read `.ai-modes` — load active mode configuration before anything else
+2. Read `docs/ARCHITECTURE.md` — folder structure, patterns, implementation rules
+3. Read `docs/specs/` if exists — feature specifications for the current task
+4. Read `docs/diagrams/` if exists — visual context for system structure
+5. Read all files in `templates/` — canonical code reference, always follow these patterns
+6. Summarize what you loaded and confirm:
+   - Active modes from `.ai-modes` (Learning, Code Review, Blind Spot strictness)
+   - Folder structure understood
+   - SOLID rules loaded — including refuse + suggest behavior
+   - All rule files in `docs/rules/` noted
+7. Report **what you know** and any **blind spots** — things the spec doesn't cover that could cause inconsistent code
+8. If blind spots found → behaviour depends on `BLIND_SPOT_MODE` in `.ai-modes`:
+   - `STRICT` → stop and ask before writing any code
+   - `WARN` → flag blind spot as a comment at top of generated code, proceed with best-guess defaults
+9. Only then proceed
+
+**Never silently assume. Always surface blind spots first.**
+
+---
+
+## 🧹 Project Cleanup — On First Setup
+
+- Delete WeatherForecast controller, model, and any default .NET template files
+- Replace default `.http` file with clean placeholder — see `templates/Project.Api.http`
+
+---
+
+## 📋 Spec Override — Global Rule
+
+**Specs in `docs/specs/` always override any default rule — no exceptions.**
+
+- Spec defines it → follow the spec
+- Spec is silent → fall back to defaults in `docs/ARCHITECTURE.md` and `docs/rules/`
+- Spec conflicts with a hard rule (SOLID, no magic numbers, etc.) → flag and ask before proceeding
+- Spec is ambiguous → flag as blind spot, ask first
+
+---
+
+## 1. SOLID — Non-Negotiable
+
+If a request violates SOLID → **refuse, explain why, suggest the correct approach.**
+This applies even if the user says "just do it anyway."
+
+- **S — Single Responsibility**: One class, one job. One Service per domain. One Repository per feature context. If a repository exceeds ~5-7 methods → warn and suggest splitting by feature.
+- **O — Open/Closed**: Never modify existing classes for unrelated behavior. New use case = new class or method.
+- **L — Liskov Substitution**: Never implement interface methods as no-op. If a class can't fulfill the contract → split the interface.
+- **I — Interface Segregation**: No fat interfaces. Split by feature context. See `docs/rules/sql.md` for repository split guidance.
+- **D — Dependency Inversion**: Always inject interfaces, never concrete classes. Everywhere — Controllers, Services, Repositories.
+
+---
+
+## 2. Never Delete Code 🚫
+
+If the assistant cannot fix something:
+1. Stop and explain what the problem is and why it can't be solved
+2. Suggest approaches or ask for guidance
+3. Leave existing code completely untouched
+4. Use a detailed comment (what/why/what's needed) + `throw new NotImplementedException("reason")` as the only acceptable placeholder
+
+**Never:** delete files, comment out code, remove methods/classes to make something compile, or replace working code with silent `// TODO`.
+
+Only delete when user **explicitly** instructs it.
+
+> *Deleting code to make a problem disappear is the equivalent of executing the person who raised the bug — the bug is still there, you just got rid of the witness.*
+
+---
+
+## 3. No Magic Numbers 🚫
+
+- Never use raw numeric literals for state, type, status, or category
+- Always use the corresponding enum from `Project.Core/Enums/`
+- If enum doesn't exist → create it first, then use it
+- If a property named `StatusId`, `TypeId`, `CategoryId` is typed as `int` → flag as enum candidate
+- If magic number detected in existing code during review → refuse to proceed until replaced with enum
+
+---
+
+## 4. Coding Style
+
+- `catch (Exception e)` — always `e`, never `ex`
+- `readonly` on all constructor-injected fields
+- Full variable names: `_warehouseRepository` not `_warehouseRepo`
+- `IEnumerable<T>` not `List<T>` in return types
+- `nameof()` not hardcoded strings in exceptions and logging
+- No `async void` — always `async Task`
+- No `.Result` or `.Wait()` — always `await`
+- No commented-out code — delete it
+- No hardcoded config values — use `IConfiguration`
+- No `Thread.Sleep` — use `await Task.Delay`
+- No `out` / `ref` parameters
+- Max ~2 nesting levels — extract to private method if deeper
+- Max ~30 lines per method — extract if longer
+- Early return / guard clauses first, happy path last
+- No nested ternary operators
+- No `if (x == true)` — use `if (x)`
+- No `return condition ? true : false` — use `return condition`
+- If method name contains "And" → split into two methods
+- Never `static` classes except extension methods and pure utility helpers
+- Use pattern matching `switch` expressions over long `if/else` chains
+- Use `string.IsNullOrWhiteSpace()` — never `== null` or `== ""`
+- Never return `null` from a Service method — throw a meaningful exception or return empty result
+- Throw specific exceptions with context: `throw new KeyNotFoundException($"Warehouse {id} not found")`
+- Never throw generic `Exception`
+
+---
+
+## 5. Detail Rules — Read On Demand
+
+Read the relevant file from `docs/rules/` when working on that area:
+
+| Working on | Read |
+|---|---|
+| SQL queries, Dapper, repositories | `docs/rules/sql.md` |
+| Mapperly, DTO ↔ API model mapping | `docs/rules/mapping.md` |
+| Code quality, smells, async, null safety | `docs/rules/code-quality.md` |
+| Unit tests, NUnit, Moq | `docs/rules/testing.md` |
+| Code review or learning mode | `docs/rules/review-learning.md` |
+
+---
+
+## 6. Background Knowledge
+
+Apply **Martin Fowler's "Refactoring: Improving the Design of Existing Code"** as a continuous lens — not a checklist. Silently avoid producing smells during generation. Flag smells by name during code review. See `docs/rules/code-quality.md` for the full smell reference table.

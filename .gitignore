@@ -1,0 +1,45 @@
+# Build outputs
+bin/
+obj/
+out/
+
+# Logs
+logs/
+*.log
+
+# User-specific files
+*.user
+*.suo
+.vs/
+.idea/
+*.DS_Store
+
+# Environment & secrets
+.env
+.env.local
+*.local.json
+appsettings.Local.json
+appsettings.Production.json
+
+# NuGet
+*.nupkg
+.nuget/
+packages/
+
+# Test results
+TestResults/
+coverage/
+*.trx
+*.coverage
+
+# Publish output
+publish/
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+
+# OS
+Thumbs.db

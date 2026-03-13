@@ -1,0 +1,31 @@
+# AI Mode Configuration
+# Read by AI IDE (Kiro, Cursor, Windsurf) on every session via bootstrap.
+# For Copilot Chat — paste this file content alongside COPILOT_PROMPT.md at session start.
+#
+# Values: true | false
+
+# -----------------------------------------------------------------------------
+# LEARNING MODE
+# When ON: append 3-5 bullet explanation after every code generation covering
+#          pattern applied, what was avoided, and trade-offs.
+# When OFF: generate silently, no explanations appended.
+# -----------------------------------------------------------------------------
+LEARNING_MODE=false
+
+# -----------------------------------------------------------------------------
+# CODE REVIEW MODE
+# When ON:  automatically enter review mode when message contains
+#           "review this", "check this", "is this good", "what do you think"
+#           Output order: 🚫 Problems → 💡 Improvements → ✅ What's good
+#           Review only — never implement unless explicitly asked.
+# When OFF: treat review phrases as normal conversation, no structured output.
+# -----------------------------------------------------------------------------
+CODE_REVIEW_MODE=true
+
+# -----------------------------------------------------------------------------
+# BLIND SPOT STRICTNESS
+# STRICT: stop and ask the user before writing any code when a blind spot is found
+# WARN:   flag the blind spot as a comment at the top of the generated code
+#         and proceed with best-guess defaults — do not stop
+# -----------------------------------------------------------------------------
+BLIND_SPOT_MODE=STRICT
