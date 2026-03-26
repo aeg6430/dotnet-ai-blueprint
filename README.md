@@ -39,8 +39,7 @@ dotnet-ai-blueprint/
 │   │   ├── mapping.md
 │   │   ├── code-quality.md
 │   │   ├── testing.md
-│   │   ├── review-learning.md
-│   │   └── not-implemented-pattern.md
+│   │   └── review-learning.md
 │   ├── specs/                    ← Feature specs (one .md per feature)
 │   │   └── feature-spec-template.md
 │   └── diagrams/                 ← ER diagrams, flow diagrams
