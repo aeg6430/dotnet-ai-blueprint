@@ -1,7 +1,7 @@
 # dotnet-ai-blueprint
 
 A reusable seed for .NET Clean Architecture projects with built-in AI IDE rules.  
-Works with **Kiro, Cursor, Windsurf** (automatic) and **Copilot Chat in Visual Studio / VS Code** (manual paste).
+Works with **Kiro** (automatic via steering) and **Cursor / Windsurf** (automatic via `.cursorrules`) and **Copilot Chat in Visual Studio / VS Code** (manual paste).
 
 ---
 
@@ -19,7 +19,15 @@ This seed gives every new project:
 
 ```
 dotnet-ai-blueprint/
-├── .cursorrules                  ← AI IDE rule entry point (slim, ~5KB)
+├── .kiro/
+│   └── steering/                 ← Kiro steering rules (auto-loaded by inclusion mode)
+│       ├── core-standards.md     ← [always] SOLID, coding style, modes, spec override
+│       ├── not-implemented.md    ← [always] not-implemented comment+throw pattern
+│       ├── sql.md                ← [fileMatch: **/Repositories/**/*.cs]
+│       ├── mapping.md            ← [fileMatch: **/Mappers/**/*.cs]
+│       ├── testing.md            ← [fileMatch: **/Tests/**/*.cs]
+│       └── code-quality.md       ← [manual] Fowler smells, review output format
+├── .cursorrules                  ← Cursor / Windsurf rule entry point
 ├── .ai-modes                     ← Toggle AI behaviour modes
 ├── .gitignore
 ├── COPILOT_PROMPT.md             ← Paste into Copilot Chat at session start
@@ -27,34 +35,32 @@ dotnet-ai-blueprint/
 ├── docs/
 │   ├── ARCHITECTURE.md           ← Folder structure, patterns, implementation rules
 │   ├── rules/                    ← Detailed rules — read on demand by AI
-│   │   ├── sql.md                ← SQL ownership, batch, parameters, optimization
-│   │   ├── mapping.md            ← Mapperly patterns, DTO ↔ API model boundaries
-│   │   ├── code-quality.md       ← Fowler smells, async rules, nesting, null safety
-│   │   ├── testing.md            ← NUnit + Moq patterns, naming, coverage
-│   │   ├── review-learning.md    ← Code Review Mode, Learning Mode, Blind Spot Mode
-│   │   └── not-implemented-pattern.md ← How to handle code the AI cannot implement
+│   │   ├── sql.md
+│   │   ├── mapping.md
+│   │   ├── code-quality.md
+│   │   ├── testing.md
+│   │   ├── review-learning.md
+│   │   └── not-implemented-pattern.md
 │   ├── specs/                    ← Feature specs (one .md per feature)
-│   │   └── feature-spec-template.md ← Copy this when starting a new feature
+│   │   └── feature-spec-template.md
 │   └── diagrams/                 ← ER diagrams, flow diagrams
 │
-├── templates/                    ← Canonical code patterns — AI always follows these
-│   ├── BaseRepository.cs
-│   ├── WarehouseRepository.cs
-│   ├── StockService.cs
-│   ├── WarehouseMapper.cs
-│   ├── GlobalExceptionHandler.cs
-│   ├── ServiceExtensions.cs
-│   ├── ApiResponse.cs
-│   ├── NotImplementedPattern.cs
-│   ├── PaginationTemplate.cs
-│   ├── Program.cs
-│   ├── Startup.cs
-│   ├── appsettings.json
-│   ├── appsettings.Development.json
-│   ├── nlog.config
-│   └── Project.Api.http
-│
-
+└── templates/                    ← Canonical code patterns — AI always follows these
+    ├── BaseRepository.cs
+    ├── WarehouseRepository.cs
+    ├── StockService.cs
+    ├── WarehouseMapper.cs
+    ├── GlobalExceptionHandler.cs
+    ├── ServiceExtensions.cs
+    ├── ApiResponse.cs
+    ├── NotImplementedPattern.cs
+    ├── PaginationTemplate.cs
+    ├── Program.cs
+    ├── Startup.cs
+    ├── appsettings.json
+    ├── appsettings.Development.json
+    ├── nlog.config
+    └── Project.Api.http
 ```
 
 > `src/` is not in the seed — that's your project-specific code.
@@ -81,7 +87,7 @@ dotnet new nunit -n MyProject.Tests
 Use the files in `templates/` as your starting point — rename namespaces from `Project.*` to your project name.
 
 ### 4. Configure AI modes
-Edit `.ai-modes` at the repo root to set your preferred behaviour:
+Edit `.ai-modes` at the repo root:
 
 ```env
 LEARNING_MODE=false        # true = AI explains every generation
@@ -90,19 +96,32 @@ BLIND_SPOT_MODE=STRICT     # STRICT = stop and ask | WARN = proceed with comment
 ```
 
 ### 5. Start your AI IDE
-Open the project in Kiro, Cursor, or Windsurf — the AI will bootstrap automatically from `.cursorrules` and `.ai-modes`.
+
+**Kiro** — open the project and Kiro reads `.kiro/steering/` automatically. `core-standards` and `not-implemented` load on every interaction. `sql`, `mapping`, and `testing` load only when you open a matching file. Call `#code-quality` manually when you want a code review.
+
+**Cursor / Windsurf** — open the project and `.cursorrules` is loaded automatically.
 
 ---
 
 ## Using with Copilot Chat (Visual Studio / VS Code)
 
-Copilot Chat does not read `.cursorrules` automatically. Instead:
+Copilot Chat does not read rule files automatically. Instead:
 
 1. Open `COPILOT_PROMPT.md`
 2. Paste the entire content as your **first message** in a new Copilot Chat session
 3. Then ask your question normally
 
 For mode toggles — paste the relevant lines from `.ai-modes` alongside the prompt.
+
+---
+
+## Kiro: Code Review
+
+`code-quality.md` is set to `manual` inclusion — it contains Fowler smell reference and review output format, which are only needed when reviewing code, not generating it.
+
+To trigger a review:
+1. Type `#code-quality` to load the steering file
+2. Say "review this" / "check this" / "is this good"
 
 ---
 
