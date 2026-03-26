@@ -115,13 +115,17 @@ For mode toggles — paste the relevant lines from `.ai-modes` alongside the pro
 
 ---
 
-## Kiro: Code Review
+## Code Review
 
-`code-quality.md` is set to `manual` inclusion — it contains Fowler smell reference and review output format, which are only needed when reviewing code, not generating it.
+Output order is always: Problems -> Improvements -> What's good. Review only — AI never implements fixes unless explicitly asked.
 
-To trigger a review:
+**Kiro** — `code-quality.md` is `manual` inclusion (Fowler smells + review format are only needed at review time, not during generation):
 1. Type `#code-quality` to load the steering file
 2. Say "review this" / "check this" / "is this good"
+
+**Cursor / Windsurf** — `code-quality.md` is listed in the on-demand table inside `.cursorrules`. Mention the file or use a trigger phrase and the AI will apply it.
+
+**Copilot Chat** — review format is already included in `COPILOT_PROMPT.md`. Just use a trigger phrase: "review this" / "check this" / "is this good".
 
 ---
 
