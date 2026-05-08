@@ -5,9 +5,40 @@ fileMatchPattern: "src/**/Repositories/**/*.cs"
 
 # SQL Rules
 
+These rules are intended to be **copyable** across layered .NET backends using Dapper.
+
+## Adoption profile (legacy-safe vs strict)
+
+- **Legacy-safe (default)**: do not rewrite working queries just to match style. Apply these rules to **new/changed repository methods** first (new files or touched methods).
+- **Strict (new project)**: enforce the full rule set globally from day 0.
+
+**Migration notes (legacy is messy):**
+
+- If repositories contain business shaping or JSON parsing, prefer a **strangler approach**: create new repository methods/helpers and migrate callers gradually.
+- Do not “fix everything” in one PR; start with the highest-risk bans first (interpolated SQL, `SELECT *`, missing parameters).
+
 ## Query Declaration
 - Always `const string sql = @"..."` never inline into Dapper calls
 - Verbatim string `@"..."` for multiline one clause per line
+
+Bad (stop):
+
+```csharp
+// inline SQL (hard to review, easy to interpolate accidentally)
+return await conn.QueryAsync<Row>("SELECT * FROM users WHERE id = @Id", new { id });
+```
+
+Good (follow):
+
+```csharp
+const string sql = @"
+SELECT id, email
+FROM users
+WHERE id = @Id
+";
+var parameters = new { Id = id };
+return await conn.QueryAsync<Row>(sql, parameters, transaction: tx);
+```
 
 ## Parameters
 1. Manual params `var parameters = new { }` declared separately
@@ -28,6 +59,20 @@ Split guidance: `IWarehouseRepository` (CRUD) | `IWarehouseStockRepository` (sto
 ## SQL Safety
 - Always parameterized string interpolation forbidden
 - Exception: ORDER BY direction only
+
+Bad (stop):
+
+```csharp
+// SQL injection risk
+const string sql = $"SELECT id FROM users WHERE email = '{email}'";
+```
+
+Good (follow):
+
+```csharp
+const string sql = @"SELECT id FROM users WHERE email = @Email";
+var parameters = new { Email = email };
+```
 
 ## No Repository Calls in Loops [N+1]
 N+1 at Service layer design a batch method instead:

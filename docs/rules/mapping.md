@@ -5,13 +5,40 @@ fileMatchPattern: "src/**/Mappers/**/*.cs"
 
 # Mapping Rules
 
+## Adoption profile (legacy-safe vs strict)
+
+- **Legacy-safe (default)**: do-not-touch existing mappers if they work. Apply mapping rules to new DTOs/endpoints first.
+- **Strict (new project)**: enforce mapping boundaries and naming conventions globally.
+
 ## Tool
 Use **Riok.Mapperly** exclusively. No AutoMapper, no manual mapping in Services/Repositories.
 Docs: https://mapperly.riok.app/docs/intro/
 
 ## Definition
 - `partial` classes with `[Mapper]` attribute
-- Location: `Project.Core/Mappers/` — one mapper per domain entity
+- Location: **`{InfrastructureNamespace}/Mappers/`** for persistence-facing maps, **`{ApiNamespace}/Mappers/`** for API-specific maps — see [`docs/ARCHITECTURE.md`](../ARCHITECTURE.md) §6. Cookbook files under `templates/` may use fictional namespaces such as `Project.Core.Mappers` for illustration only.
+
+Bad (stop):
+
+```csharp
+// service-level manual mapping (drifts over time)
+var dto = new UserDto
+{
+    Id = entity.Id,
+    Email = entity.Email,
+    // ... dozens of fields ...
+};
+```
+
+Good (follow):
+
+```csharp
+[Mapper]
+public partial class UserMapper
+{
+    public partial UserDto ToDto(UserEntity entity);
+}
+```
 
 ## Layer Boundaries
 - `Infrastructure/Entities` → `Core/DTOs`: Service or Repository layer
