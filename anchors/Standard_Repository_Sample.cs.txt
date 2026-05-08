@@ -1,0 +1,10 @@
+// COPILOT_GUIDE: Copy repository patterns (SQL + Dapper only).
+//
+// Canonical rules:
+// - docs/rules/sql.md
+// - docs/rules/architecture-protocol.md (repository firewall intent)
+//
+// Canonical examples:
+// - templates/BaseRepository.cs
+// - templates/WarehouseRepository.cs
+

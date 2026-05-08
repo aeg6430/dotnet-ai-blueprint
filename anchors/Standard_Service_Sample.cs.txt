@@ -1,0 +1,9 @@
+// COPILOT_GUIDE: Copy the service orchestration pattern.
+//
+// Canonical examples live under:
+// - docs/starter-pack/shadow-examples/
+// - templates/
+//
+// This file exists to anchor Copilot near the Core project.
+// See: docs/starter-pack/shadow-examples/Standard_UnitOfWork_Service_Sample.cs.txt
+

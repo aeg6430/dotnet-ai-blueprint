@@ -1,0 +1,13 @@
+// COPILOT_GUIDE: Cross-cutting ("AOP") boundary for ASP.NET Core.
+//
+// Use official mechanisms:
+// - middleware
+// - MVC filters
+// - (optionally) DI decorators
+//
+// Do NOT introduce IL-weaving aspect frameworks.
+//
+// See:
+// - docs/starter-pack/optional/security-owasp-asvs-template.md (evidence mapping)
+// - docs/starter-pack/optional/perf-k6-jmeter-acceptance-template.md
+
