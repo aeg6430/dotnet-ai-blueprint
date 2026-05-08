@@ -1,0 +1,158 @@
+// TEMPLATE: source-scan "repository firewall" checks.
+// Copy into your test project and adjust paths/placeholders.
+//
+// Why a source scan (regex) and not only bytecode/ArchUnit?
+// - Deterministic, fast, low-false-positive checks for common regressions:
+//   SELECT *, interpolated SQL, nested types, JSON parsing inside repositories, etc.
+
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using NUnit.Framework;
+
+namespace {TestsNamespace}.ArchRules;
+
+[TestFixture]
+public sealed class RepositoryFirewallArchitectureTests
+{
+    // Adjust to your repo layout.
+    private const string RepositoriesDirRelativePath =
+        "src/backend/{InfrastructureNamespace}/Repositories";
+
+    private static readonly Regex SelectStarRegex = new(
+        @"\bSELECT\s*\*\b",
+        RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled);
+
+    private static readonly Regex InterpolatedSqlStringRegex = new(
+        @"\$\@?""[^""]*\b(SELECT|INSERT|UPDATE|DELETE|WITH)\b",
+        RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled);
+
+    private static readonly Regex JsonUsageRegex = new(
+        @"\b(System\.Text\.Json|JsonSerializer|JsonDocument|JsonElement)\b",
+        RegexOptions.Multiline | RegexOptions.Compiled);
+
+    private static readonly Regex NestedTypeRegex = new(
+        @"^[ \t]{4,}(public|private|protected|internal)\s+.*\b(class|record|struct|interface)\b",
+        RegexOptions.Multiline | RegexOptions.Compiled);
+
+    private static readonly Regex PrivateMapMethodRegex = new(
+        @"^[ \t]{4,}private\s+.*\bMap[A-Za-z0-9_]*\s*\(",
+        RegexOptions.Multiline | RegexOptions.Compiled);
+
+    [Test]
+    public void Repositories_must_follow_firewall_rules()
+    {
+        var observe = string.Equals(
+            Environment.GetEnvironmentVariable("STARTER_PACK_OBSERVE"),
+            "1",
+            StringComparison.Ordinal);
+
+        var repoRoot = FindRepoRootOrFail();
+        var reposDir = Path.Combine(repoRoot, RepositoriesDirRelativePath.Replace('/', Path.DirectorySeparatorChar));
+
+        if (!Directory.Exists(reposDir))
+            Assert.Fail($"Repositories directory not found: {reposDir}");
+
+        var csFiles = Directory.EnumerateFiles(reposDir, "*.cs", SearchOption.AllDirectories)
+            .OrderBy(p => p, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        var violations = new List<(string RuleId, string RelPath, string Message)>();
+
+        foreach (var filePath in csFiles)
+        {
+            var relPath = NormalizeRelPath(repoRoot, filePath);
+            var text = File.ReadAllText(filePath, Encoding.UTF8);
+
+            if (JsonUsageRegex.IsMatch(text))
+                violations.Add(("RF-001", relPath, "Repository uses System.Text.Json APIs. Move JSON handling to Helpers/TypeHandlers."));
+
+            if (NestedTypeRegex.IsMatch(text))
+                violations.Add(("RF-002", relPath, "Repository declares nested types. Move row/projection types to named models."));
+
+            if (PrivateMapMethodRegex.IsMatch(text))
+                violations.Add(("RF-003", relPath, "Repository contains private Map* methods. Mapping belongs in helpers/mappers."));
+
+            if (SelectStarRegex.IsMatch(text))
+                violations.Add(("RF-004", relPath, "Repository contains SELECT *. List columns explicitly."));
+
+            if (InterpolatedSqlStringRegex.IsMatch(text))
+                violations.Add(("RF-005", relPath, "Repository contains interpolated SQL ($\"...\" / $@\"...\"). SQL must be parameterized."));
+        }
+
+        if (violations.Count == 0)
+            return;
+
+        WriteObservationReport(repoRoot, "RF", violations);
+
+        if (observe)
+        {
+            Assert.Pass(
+                $"Observation mode enabled (STARTER_PACK_OBSERVE=1). " +
+                $"Repository firewall violations: {violations.Count}. " +
+                "See artifacts/starter-pack-firewall-observation.json");
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine("Repository firewall violations detected.");
+        sb.AppendLine();
+        foreach (var group in violations.GroupBy(v => v.RuleId, StringComparer.Ordinal))
+        {
+            sb.AppendLine($"[{group.Key}]");
+            foreach (var v in group.OrderBy(x => x.RelPath, StringComparer.OrdinalIgnoreCase))
+                sb.AppendLine($"- {v.RelPath}: {v.Message}");
+            sb.AppendLine();
+        }
+
+        Assert.Fail(sb.ToString());
+    }
+
+    private static void WriteObservationReport(
+        string repoRoot,
+        string prefix,
+        List<(string RuleId, string RelPath, string Message)> violations)
+    {
+        var artifacts = Path.Combine(repoRoot, "artifacts");
+        Directory.CreateDirectory(artifacts);
+
+        var reportPath = Path.Combine(artifacts, "starter-pack-firewall-observation.json");
+        var payload = new
+        {
+            TimestampUtc = DateTimeOffset.UtcNow,
+            Category = $"{prefix}-REPO",
+            TotalViolations = violations.Count,
+            Violations = violations
+                .OrderBy(v => v.RuleId, StringComparer.Ordinal)
+                .ThenBy(v => v.RelPath, StringComparer.OrdinalIgnoreCase)
+                .Select(v => new { v.RuleId, v.RelPath, v.Message })
+                .ToList()
+        };
+
+        var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(reportPath, json, Encoding.UTF8);
+    }
+
+    private static string FindRepoRootOrFail()
+    {
+        var start = new DirectoryInfo(AppContext.BaseDirectory);
+        DirectoryInfo? current = start;
+        while (current is not null)
+        {
+            // Adjust if your repo doesn't have a backend solution at this path.
+            var marker = Path.Combine(current.FullName, "src", "backend");
+            if (Directory.Exists(marker))
+                return current.FullName;
+            current = current.Parent;
+        }
+
+        Assert.Fail($"Could not locate repo root starting from {start.FullName}.");
+        return string.Empty;
+    }
+
+    private static string NormalizeRelPath(string repoRoot, string fullPath)
+    {
+        var rel = Path.GetRelativePath(repoRoot, fullPath);
+        return rel.Replace('\\', '/');
+    }
+}
+

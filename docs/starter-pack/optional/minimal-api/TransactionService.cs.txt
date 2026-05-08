@@ -1,0 +1,35 @@
+using Microsoft.AspNetCore.Http;
+using {CoreNamespace}.Interfaces;
+
+namespace {ApiNamespace}.Filters;
+
+// Copy this into your host project; keep it small and predictable.
+// It mirrors MVC filter semantics: Begin -> invoke -> Commit; on exception: Rollback + rethrow.
+public sealed class TransactionService
+{
+    private readonly IDapperContext _db;
+
+    public TransactionService(IDapperContext db) => _db = db;
+
+    public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
+    {
+        var endpoint = context.HttpContext.GetEndpoint();
+        var hasMarker = endpoint?.Metadata.GetMetadata<TransactionalAttribute>() is not null;
+        if (!hasMarker)
+            return await next(context);
+
+        _db.Begin();
+        try
+        {
+            var result = await next(context);
+            _db.Commit();
+            return result;
+        }
+        catch
+        {
+            _db.Rollback();
+            throw;
+        }
+    }
+}
+

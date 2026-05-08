@@ -1,0 +1,27 @@
+using System;
+using NUnit.Framework;
+
+namespace {TestsNamespace}.Architecture;
+
+/// <summary>
+/// Optional helper for legacy onboarding: mark a test as temporarily ignorable on legacy codebases.
+/// Replace the condition with your repo's own signal (env var, build definition, etc.).
+/// </summary>
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
+public sealed class IgnoreOnLegacyAttribute : NUnitAttribute, IApplyToTest
+{
+    public void ApplyToTest(Test test)
+    {
+        var legacyMode = string.Equals(
+            Environment.GetEnvironmentVariable("STARTER_PACK_LEGACY_MODE"),
+            "1",
+            StringComparison.Ordinal);
+
+        if (!legacyMode)
+            return;
+
+        test.RunState = RunState.Ignored;
+        test.Properties.Set(PropertyNames.SkipReason, "Ignored in legacy mode (STARTER_PACK_LEGACY_MODE=1).");
+    }
+}
+

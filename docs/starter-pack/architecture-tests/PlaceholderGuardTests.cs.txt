@@ -1,0 +1,35 @@
+using NUnit.Framework;
+using System.IO;
+
+namespace {TestsNamespace}.Architecture;
+
+public sealed class PlaceholderGuardTests
+{
+    [Test]
+    public void Pack_placeholders_must_not_remain_in_repo()
+    {
+        // Defensive: prevent "false positive green" when placeholders were not replaced.
+        // This test is intentionally simple and repo-local.
+
+        var root = TestContext.CurrentContext.TestDirectory;
+
+        // Walk up until we find the solution root marker (adjust if your repo differs).
+        while (!File.Exists(Path.Combine(root, ".editorconfig")) && Directory.GetParent(root) is { } p)
+            root = p.FullName;
+
+        Assert.That(File.Exists(Path.Combine(root, ".editorconfig")), Is.True, "Could not locate repo root (.editorconfig).");
+
+        var text = string.Join(
+            '\n',
+            Directory.EnumerateFiles(root, "*.*", SearchOption.AllDirectories)
+                .Where(static f => f.EndsWith(".cs") || f.EndsWith(".md") || f.EndsWith(".json"))
+                .Select(static File.ReadAllText));
+
+        Assert.That(text, Does.Not.Contain("{Solution}"));
+        Assert.That(text, Does.Not.Contain("{CoreNamespace}"));
+        Assert.That(text, Does.Not.Contain("{InfrastructureNamespace}"));
+        Assert.That(text, Does.Not.Contain("{ApiNamespace}"));
+        Assert.That(text, Does.Not.Contain("{TestsNamespace}"));
+    }
+}
+

@@ -1,0 +1,118 @@
+using NUnit.Framework;
+using System.Text.Json;
+
+namespace {TestsNamespace}.Architecture;
+
+/// <summary>
+/// Observation mode (report-only) template.
+///
+/// - When STARTER_PACK_OBSERVE=1: writes a report and does not fail the test.
+/// - Otherwise: fails if violations are found.
+///
+/// This template is intentionally heuristic and repo-local. Customize the patterns and scan roots.
+/// </summary>
+[TestFixture]
+public sealed class ObservationModeSourceScanReportTests
+{
+    [Test]
+    public void SourceScan_ReportOnlyOrFail()
+    {
+        var observe = string.Equals(
+            Environment.GetEnvironmentVariable("STARTER_PACK_OBSERVE"),
+            "1",
+            StringComparison.Ordinal);
+
+        var repoRoot = FindRepoRoot();
+        var scanRoot = Path.Combine(repoRoot, "src");
+
+        var violations = new List<Violation>();
+
+        // Example: Exception leak risk surface (treat as high priority on legacy projects).
+        var forbiddenContains = new[]
+        {
+            "Microsoft.Data.SqlClient.",
+            "System.Data.SqlClient.",
+            "System.Data."
+        };
+
+        if (Directory.Exists(scanRoot))
+        {
+            foreach (var file in Directory.EnumerateFiles(scanRoot, "*.cs", SearchOption.AllDirectories))
+            {
+                if (IsIgnoredPath(file))
+                    continue;
+
+                var text = File.ReadAllText(file);
+                foreach (var token in forbiddenContains)
+                {
+                    if (!text.Contains(token, StringComparison.Ordinal))
+                        continue;
+
+                    violations.Add(new Violation(
+                        RuleId: "OBS-EX-001",
+                        Message: $"Forbidden token found: {token}",
+                        File: Path.GetRelativePath(repoRoot, file)));
+                }
+            }
+        }
+
+        WriteReport(repoRoot, violations);
+
+        if (observe)
+            Assert.Pass($"Observation mode enabled. Violations: {violations.Count}. See artifacts/starter-pack-observation-report.json");
+
+        if (violations.Count > 0)
+        {
+            Assert.Fail(
+                $"Observation scan found {violations.Count} violation(s). " +
+                "Either fix them or run with STARTER_PACK_OBSERVE=1 to collect a report without failing.");
+        }
+    }
+
+    private static string FindRepoRoot()
+    {
+        var dir = TestContext.CurrentContext.TestDirectory;
+        while (Directory.GetParent(dir) is { } p)
+        {
+            // Minimal marker: solution folder typically has .editorconfig or .git.
+            if (File.Exists(Path.Combine(dir, ".editorconfig")) || Directory.Exists(Path.Combine(dir, ".git")))
+                return dir;
+            dir = p.FullName;
+        }
+
+        return TestContext.CurrentContext.TestDirectory;
+    }
+
+    private static bool IsIgnoredPath(string file)
+    {
+        var sep = Path.DirectorySeparatorChar;
+        return file.Contains($"{sep}bin{sep}", StringComparison.Ordinal) ||
+               file.Contains($"{sep}obj{sep}", StringComparison.Ordinal);
+    }
+
+    private static void WriteReport(string repoRoot, List<Violation> violations)
+    {
+        var artifacts = Path.Combine(repoRoot, "artifacts");
+        Directory.CreateDirectory(artifacts);
+
+        var reportPath = Path.Combine(artifacts, "starter-pack-observation-report.json");
+        var payload = new Report(
+            TimestampUtc: DateTimeOffset.UtcNow,
+            TotalViolations: violations.Count,
+            Violations: violations);
+
+        var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(reportPath, json);
+    }
+
+    private sealed record Report(
+        DateTimeOffset TimestampUtc,
+        int TotalViolations,
+        IReadOnlyList<Violation> Violations);
+
+    private sealed record Violation(
+        string RuleId,
+        string Message,
+        string File);
+}
+

@@ -1,0 +1,16 @@
+using Microsoft.AspNetCore.Http;
+
+namespace {ApiNamespace}.Filters;
+
+// Copy this into your Minimal API host project.
+// Opt-in via endpoint metadata: .WithMetadata(new TransactionalAttribute())
+public sealed class TransactionEndpointFilter : IEndpointFilter
+{
+    private readonly TransactionService _tx;
+
+    public TransactionEndpointFilter(TransactionService tx) => _tx = tx;
+
+    public ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
+        => _tx.InvokeAsync(context, next);
+}
+

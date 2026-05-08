@@ -1,0 +1,121 @@
+using FluentAssertions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using NUnit.Framework;
+using System.Data.Common;
+using System.Reflection;
+using System.Text.Json;
+
+namespace {TestsNamespace}.Architecture;
+
+[TestFixture]
+public sealed class ExceptionLeakTests
+{
+    [Test]
+    public void Database_driver_exceptions_must_not_leak_to_api_clients()
+    {
+        // This is a template: wire it to your actual exception handler / ProblemDetails output.
+        // Goal: ensure DB driver types/messages do not reach the HTTP response.
+
+        var problem = MapToProblemDetails(new FakeDbException("driver: connection string ..."));
+
+        var json = JsonSerializer.Serialize(problem);
+        json.Should().NotContain("FakeDbException");
+        json.Should().NotContain("connection string");
+    }
+
+    [Test]
+    public void Api_contract_must_not_expose_db_driver_types()
+    {
+        // Gate idea: scan your API contract types and fail fast if any response DTO (or nested type)
+        // references DB driver types.
+        //
+        // Customize:
+        // - point `apiAssemblyName` to your API project assembly
+        // - narrow the type set to your response DTO namespace(s)
+
+        var apiAssemblyName = "{ApiNamespace}";
+        var api = Assembly.Load(apiAssemblyName);
+
+        var forbiddenPrefixes = new[]
+        {
+            "System.Data.",
+            "Microsoft.Data.SqlClient."
+        };
+
+        var contractTypes = api.GetTypes()
+            .Where(static t => t.IsPublic)
+            .Where(static t => t.Namespace is not null)
+            .Where(static t => t.Namespace!.StartsWith("{ApiNamespace}.", StringComparison.Ordinal));
+
+        foreach (var t in contractTypes)
+        {
+            foreach (var ft in GetAllReferencedTypes(t))
+            {
+                var name = ft.FullName ?? ft.Name;
+                forbiddenPrefixes.Any(p => name.StartsWith(p, StringComparison.Ordinal))
+                    .Should().BeFalse($"API contract must not expose DB driver type: {name} (from {t.FullName})");
+            }
+        }
+    }
+
+    private static ProblemDetails MapToProblemDetails(Exception ex)
+    {
+        // Replace with your real exception boundary mapping.
+        if (ex is DbException)
+        {
+            return new ProblemDetails
+            {
+                Status = StatusCodes.Status500InternalServerError,
+                Title = "Internal Server Error",
+                Detail = "Internal Server Error"
+            };
+        }
+
+        return new ProblemDetails
+        {
+            Status = StatusCodes.Status500InternalServerError,
+            Title = "Internal Server Error",
+            Detail = "Internal Server Error"
+        };
+    }
+
+    private sealed class FakeDbException(string message) : DbException(message)
+    {
+    }
+
+    private static IEnumerable<Type> GetAllReferencedTypes(Type root)
+    {
+        var seen = new HashSet<Type>();
+        var stack = new Stack<Type>();
+        stack.Push(root);
+
+        while (stack.Count > 0)
+        {
+            var t = stack.Pop();
+            if (!seen.Add(t))
+                continue;
+
+            yield return t;
+
+            if (t.IsArray)
+            {
+                stack.Push(t.GetElementType()!);
+                continue;
+            }
+
+            if (t.IsGenericType)
+            {
+                foreach (var ga in t.GetGenericArguments())
+                    stack.Push(ga);
+            }
+
+            foreach (var p in t.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                stack.Push(p.PropertyType);
+
+            foreach (var f in t.GetFields(BindingFlags.Public | BindingFlags.Instance))
+                stack.Push(f.FieldType);
+        }
+    }
+}
+

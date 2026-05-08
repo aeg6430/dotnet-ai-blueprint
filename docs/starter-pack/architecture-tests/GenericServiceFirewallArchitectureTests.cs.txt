@@ -1,0 +1,153 @@
+// TEMPLATE: source-scan "service firewall" checks.
+// Copy into your test project and adjust paths/placeholders.
+//
+// Intent: keep Core/Application services free of IO primitives and blocking async pitfalls.
+
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using NUnit.Framework;
+
+namespace {TestsNamespace}.ArchRules;
+
+[TestFixture]
+public sealed class ServiceFirewallArchitectureTests
+{
+    private const string CoreServicesDirRelativePath =
+        "src/backend/{CoreNamespace}/Services";
+
+    private static readonly Regex BlockingAsyncPitfallsRegex = new(
+        @"\b(Thread\.Sleep\b|async\s+void\b|\.Result\b|\.Wait\s*\()\b",
+        RegexOptions.Multiline | RegexOptions.Compiled);
+
+    private static readonly Regex ClockCouplingRegex = new(
+        @"\b(DateTime\.(Now|UtcNow)\b|TimeProvider\.System\b)\b",
+        RegexOptions.Multiline | RegexOptions.Compiled);
+
+    private static readonly Regex ExternalIoClientTokensRegex = new(
+        @"\b(HttpClient\b|IHttpClientFactory\b|HttpRequestMessage\b|HttpResponseMessage\b|System\.Net\.Http\b)\b",
+        RegexOptions.Multiline | RegexOptions.Compiled);
+
+    private static readonly Regex FileSystemIoTokensRegex = new(
+        @"(\bSystem\.IO\.(File|Directory|FileInfo|DirectoryInfo)\b|\b(File|Directory)\s*\.)",
+        RegexOptions.Multiline | RegexOptions.Compiled);
+
+    private static readonly Regex EnvironmentProcessTokensRegex = new(
+        @"(\bSystem\.(Environment|Diagnostics\.Process)\b|\bEnvironment\s*\.|\bProcess(StartInfo)?\s*\.)",
+        RegexOptions.Multiline | RegexOptions.Compiled);
+
+    [Test]
+    public void Core_Services_must_follow_service_firewall_rules()
+    {
+        var observe = string.Equals(
+            Environment.GetEnvironmentVariable("STARTER_PACK_OBSERVE"),
+            "1",
+            StringComparison.Ordinal);
+
+        var repoRoot = FindRepoRootOrFail();
+        var servicesDir = Path.Combine(repoRoot, CoreServicesDirRelativePath.Replace('/', Path.DirectorySeparatorChar));
+
+        if (!Directory.Exists(servicesDir))
+            Assert.Fail($"Core services directory not found: {servicesDir}");
+
+        var csFiles = Directory.EnumerateFiles(servicesDir, "*.cs", SearchOption.AllDirectories)
+            .OrderBy(p => p, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        var violations = new List<(string RuleId, string RelPath, string Message)>();
+        foreach (var filePath in csFiles)
+        {
+            var relPath = NormalizeRelPath(repoRoot, filePath);
+            var text = File.ReadAllText(filePath, Encoding.UTF8);
+
+            if (BlockingAsyncPitfallsRegex.IsMatch(text))
+                violations.Add(("SF-001", relPath, "Blocking/async pitfall detected (.Result/.Wait/Thread.Sleep/async void)."));
+
+            if (ClockCouplingRegex.IsMatch(text))
+                violations.Add(("SF-002", relPath, "Service reads wall-clock directly (DateTime.Now/UtcNow or TimeProvider.System). Use an injected clock."));
+
+            if (ExternalIoClientTokensRegex.IsMatch(text))
+                violations.Add(("SF-003", relPath, "Service references direct external IO primitives (HttpClient/etc.). Use ports (interfaces) + adapters."));
+
+            if (FileSystemIoTokensRegex.IsMatch(text))
+                violations.Add(("SF-004", relPath, "Service references direct filesystem IO primitives. Use ports (interfaces) + adapters."));
+
+            if (EnvironmentProcessTokensRegex.IsMatch(text))
+                violations.Add(("SF-005", relPath, "Service references host environment/process primitives. Use ports (interfaces) + adapters."));
+        }
+
+        if (violations.Count == 0)
+            return;
+
+        WriteObservationReport(repoRoot, "SF", violations);
+
+        if (observe)
+        {
+            Assert.Pass(
+                $"Observation mode enabled (STARTER_PACK_OBSERVE=1). " +
+                $"Service firewall violations: {violations.Count}. " +
+                "See artifacts/starter-pack-firewall-observation.json");
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine("Service firewall violations detected (Core/Services).");
+        sb.AppendLine();
+        foreach (var group in violations.GroupBy(v => v.RuleId, StringComparer.Ordinal))
+        {
+            sb.AppendLine($"[{group.Key}]");
+            foreach (var v in group.OrderBy(x => x.RelPath, StringComparer.OrdinalIgnoreCase))
+                sb.AppendLine($"- {v.RelPath}: {v.Message}");
+            sb.AppendLine();
+        }
+
+        Assert.Fail(sb.ToString());
+    }
+
+    private static void WriteObservationReport(
+        string repoRoot,
+        string prefix,
+        List<(string RuleId, string RelPath, string Message)> violations)
+    {
+        var artifacts = Path.Combine(repoRoot, "artifacts");
+        Directory.CreateDirectory(artifacts);
+
+        var reportPath = Path.Combine(artifacts, "starter-pack-firewall-observation.json");
+        var payload = new
+        {
+            TimestampUtc = DateTimeOffset.UtcNow,
+            Category = $"{prefix}-SERVICE",
+            TotalViolations = violations.Count,
+            Violations = violations
+                .OrderBy(v => v.RuleId, StringComparer.Ordinal)
+                .ThenBy(v => v.RelPath, StringComparer.OrdinalIgnoreCase)
+                .Select(v => new { v.RuleId, v.RelPath, v.Message })
+                .ToList()
+        };
+
+        var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(reportPath, json, Encoding.UTF8);
+    }
+
+    private static string FindRepoRootOrFail()
+    {
+        var start = new DirectoryInfo(AppContext.BaseDirectory);
+        DirectoryInfo? current = start;
+        while (current is not null)
+        {
+            var marker = Path.Combine(current.FullName, "src", "backend");
+            if (Directory.Exists(marker))
+                return current.FullName;
+            current = current.Parent;
+        }
+
+        Assert.Fail($"Could not locate repo root starting from {start.FullName}.");
+        return string.Empty;
+    }
+
+    private static string NormalizeRelPath(string repoRoot, string fullPath)
+    {
+        var rel = Path.GetRelativePath(repoRoot, fullPath);
+        return rel.Replace('\\', '/');
+    }
+}
+

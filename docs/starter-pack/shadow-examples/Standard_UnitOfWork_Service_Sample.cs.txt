@@ -1,0 +1,38 @@
+// COPILOT_GUIDE: Application service participates in the ambient unit of work only.
+// Binding rule: HTTP boundary owns Begin/Commit/Rollback — services must NOT call them.
+// See docs/rules/transactions.md and docs/starter-pack/core/transactions.md.
+
+using Microsoft.Extensions.Logging;
+using {CoreNamespace}.Interfaces;
+
+namespace {CoreNamespace}.Services;
+
+public sealed class ExampleService
+{
+    private readonly IDapperContext _context;
+    private readonly ILogger<ExampleService> _logger;
+    private readonly IExampleRepository _repo;
+
+    public ExampleService(
+        IDapperContext context,
+        ILogger<ExampleService> logger,
+        IExampleRepository repo)
+    {
+        _context = context;
+        _logger = logger;
+        _repo = repo;
+    }
+
+    public async Task DoWorkAsync(ExampleCommand command)
+    {
+        // Repositories use _context.Connection / enlisted transaction provided by the boundary.
+        await _repo.UpsertAsync(command);
+    }
+}
+
+public sealed record ExampleCommand(string Id);
+
+public interface IExampleRepository
+{
+    Task UpsertAsync(ExampleCommand command);
+}

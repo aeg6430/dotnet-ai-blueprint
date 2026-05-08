@@ -1,0 +1,155 @@
+// TEMPLATE: copy into your test project and rename namespaces/types.
+// Placeholders: {CoreNamespace} {InfrastructureNamespace} {ApiNamespace} {TestsNamespace}
+//
+// Purpose: fail fast in CI when layering rules are violated.
+// This is intentionally "boring": a small set of hard boundaries with clear messages.
+
+using ArchUnitNET.Domain;
+using ArchUnitNET.Fluent;
+using ArchUnitNET.Loader;
+using NUnit.Framework;
+using System.Text.Json;
+
+using static ArchUnitNET.Fluent.ArchRuleDefinition;
+
+namespace {TestsNamespace}.ArchRules;
+
+[TestFixture]
+public sealed class LayeringArchitectureTests
+{
+    private static readonly Architecture ArchitectureModel = new ArchLoader()
+        .LoadAssemblies(
+            typeof({CoreNamespace}.AssemblyMarker).Assembly,
+            typeof({InfrastructureNamespace}.AssemblyMarker).Assembly,
+            typeof({ApiNamespace}.AssemblyMarker).Assembly)
+        .Build();
+
+    private static readonly IObjectProvider<IType> CoreLayer =
+        Types().That().HaveFullNameStartingWith("{CoreNamespace}.").As("{CoreNamespace}");
+
+    private static readonly IObjectProvider<IType> InfrastructureLayer =
+        Types().That().HaveFullNameStartingWith("{InfrastructureNamespace}.").As("{InfrastructureNamespace}");
+
+    private static readonly IObjectProvider<IType> ApiLayer =
+        Types().That().HaveFullNameStartingWith("{ApiNamespace}.").As("{ApiNamespace}");
+
+    private static readonly IObjectProvider<IType> TestsLayer =
+        Types().That().HaveFullNameStartingWith("{TestsNamespace}.").As("{TestsNamespace}");
+
+    [Test]
+    public void Core_must_not_depend_on_Infrastructure()
+    {
+        var rule = Types().That()
+            .Are(CoreLayer)
+            .Should()
+            .NotDependOnAny(InfrastructureLayer)
+            .Because("Core must be reusable and persistence-agnostic.")
+            ;
+
+        RunArchRule(rule, "LA-001", "Core must not depend on Infrastructure.");
+    }
+
+    [Test]
+    public void Core_must_not_depend_on_Api()
+    {
+        var rule = Types().That()
+            .Are(CoreLayer)
+            .Should()
+            .NotDependOnAny(ApiLayer)
+            .Because("Core must not depend on the host/API layer.")
+            ;
+
+        RunArchRule(rule, "LA-002", "Core must not depend on Api.");
+    }
+
+    [Test]
+    public void Infrastructure_must_not_depend_on_Api()
+    {
+        var rule = Types().That()
+            .Are(InfrastructureLayer)
+            .Should()
+            .NotDependOnAny(ApiLayer)
+            .Because("Infrastructure must stay host-agnostic; only API composes it.")
+            ;
+
+        RunArchRule(rule, "LA-003", "Infrastructure must not depend on Api.");
+    }
+
+    [Test]
+    public void Production_code_must_not_depend_on_Tests()
+    {
+        var rule = Types().That()
+            .Are(ApiLayer).Or().Are(CoreLayer).Or().Are(InfrastructureLayer)
+            .Should()
+            .NotDependOnAny(TestsLayer)
+            .Because("Production code must not depend on test assemblies.")
+            ;
+
+        RunArchRule(rule, "LA-004", "Production code must not depend on Tests.");
+    }
+
+    private static void RunArchRule(IArchRule rule, string ruleId, string title)
+    {
+        var observe = string.Equals(
+            Environment.GetEnvironmentVariable("STARTER_PACK_OBSERVE"),
+            "1",
+            StringComparison.Ordinal);
+
+        var result = rule.Evaluate(ArchitectureModel);
+        if (result.Passed)
+            return;
+
+        WriteObservationReport(ruleId, title, result);
+
+        if (observe)
+        {
+            Assert.Pass(
+                $"Observation mode enabled (STARTER_PACK_OBSERVE=1). {ruleId} failed; report written to artifacts/starter-pack-archunit-observation.json");
+        }
+
+        result.ThrowIfFailed();
+    }
+
+    private static void WriteObservationReport(string ruleId, string title, IArchRuleResult result)
+    {
+        var repoRoot = FindRepoRoot();
+        var artifacts = Path.Combine(repoRoot, "artifacts");
+        Directory.CreateDirectory(artifacts);
+
+        var reportPath = Path.Combine(artifacts, "starter-pack-archunit-observation.json");
+
+        var failingTypes = result.FailingTypeDependencies
+            .Select(d => new
+            {
+                Origin = d.Origin.FullName,
+                Target = d.Target.FullName
+            })
+            .ToList();
+
+        var payload = new
+        {
+            TimestampUtc = DateTimeOffset.UtcNow,
+            RuleId = ruleId,
+            Title = title,
+            Passed = result.Passed,
+            FailingDependencies = failingTypes
+        };
+
+        var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(reportPath, json);
+    }
+
+    private static string FindRepoRoot()
+    {
+        var dir = TestContext.CurrentContext.TestDirectory;
+        while (Directory.GetParent(dir) is { } p)
+        {
+            if (File.Exists(Path.Combine(dir, ".editorconfig")) || Directory.Exists(Path.Combine(dir, ".git")))
+                return dir;
+            dir = p.FullName;
+        }
+
+        return TestContext.CurrentContext.TestDirectory;
+    }
+}
+

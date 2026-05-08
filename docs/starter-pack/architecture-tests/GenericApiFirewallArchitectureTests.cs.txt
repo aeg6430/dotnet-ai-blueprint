@@ -1,0 +1,191 @@
+// TEMPLATE: source-scan "API firewall" checks.
+// Copy into your test project and adjust paths/placeholders.
+//
+// Intent: keep API controllers thin and prevent sync-over-async.
+
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using NUnit.Framework;
+
+namespace {TestsNamespace}.ArchRules;
+
+[TestFixture]
+public sealed class ApiFirewallArchitectureTests
+{
+    private const string ApiControllersDirRelativePath =
+        "src/backend/{ApiNamespace}/Controllers";
+
+    private const string ApiDirRelativePath =
+        "src/backend/{ApiNamespace}";
+
+    // Adjust if your policy allows Infra references in DI composition only.
+    private static readonly Regex InfrastructureUsingRegex = new(
+        @"^\s*using\s+{InfrastructureNamespace}\.",
+        RegexOptions.Multiline | RegexOptions.Compiled);
+
+    private static readonly Regex ApiSyncOverAsyncRegex = new(
+        @"(\.Wait\s*\(|\.GetAwaiter\s*\(\s*\)\s*\.GetResult\s*\(|\)\s*\.Result\b)",
+        RegexOptions.Multiline | RegexOptions.Compiled);
+
+    [Test]
+    public void Api_Controllers_must_not_reference_Infrastructure_namespaces()
+    {
+        var observe = string.Equals(
+            Environment.GetEnvironmentVariable("STARTER_PACK_OBSERVE"),
+            "1",
+            StringComparison.Ordinal);
+
+        var repoRoot = FindRepoRootOrFail();
+        var controllersDir = Path.Combine(repoRoot, ApiControllersDirRelativePath.Replace('/', Path.DirectorySeparatorChar));
+
+        if (!Directory.Exists(controllersDir))
+            Assert.Fail($"API Controllers directory not found: {controllersDir}");
+
+        var csFiles = Directory.EnumerateFiles(controllersDir, "*.cs", SearchOption.AllDirectories)
+            .OrderBy(p => p, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        var violations = new List<(string RelPath, string Message)>();
+        foreach (var filePath in csFiles)
+        {
+            var relPath = NormalizeRelPath(repoRoot, filePath);
+            var text = File.ReadAllText(filePath, Encoding.UTF8);
+
+            if (InfrastructureUsingRegex.IsMatch(text))
+            {
+                violations.Add((
+                    relPath,
+                    "Controller references Infrastructure via using-directive. Infrastructure wiring must stay in composition/DI."
+                ));
+            }
+        }
+
+        if (violations.Count == 0)
+            return;
+
+        WriteObservationReport(repoRoot, "AF-001", violations);
+
+        if (observe)
+        {
+            Assert.Pass(
+                $"Observation mode enabled (STARTER_PACK_OBSERVE=1). " +
+                $"API firewall violations: {violations.Count}. " +
+                "See artifacts/starter-pack-firewall-observation.json");
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine("API firewall violations detected (Controllers).");
+        sb.AppendLine();
+        sb.AppendLine("[AF-001]");
+        foreach (var v in violations.OrderBy(v => v.RelPath, StringComparer.OrdinalIgnoreCase))
+            sb.AppendLine($"- {v.RelPath}: {v.Message}");
+        sb.AppendLine();
+
+        Assert.Fail(sb.ToString());
+    }
+
+    [Test]
+    public void Api_must_not_use_sync_over_async_primitives()
+    {
+        var observe = string.Equals(
+            Environment.GetEnvironmentVariable("STARTER_PACK_OBSERVE"),
+            "1",
+            StringComparison.Ordinal);
+
+        var repoRoot = FindRepoRootOrFail();
+        var apiDir = Path.Combine(repoRoot, ApiDirRelativePath.Replace('/', Path.DirectorySeparatorChar));
+
+        if (!Directory.Exists(apiDir))
+            Assert.Fail($"API directory not found: {apiDir}");
+
+        var csFiles = Directory.EnumerateFiles(apiDir, "*.cs", SearchOption.AllDirectories)
+            .OrderBy(p => p, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        var violations = new List<(string RelPath, string Message)>();
+        foreach (var filePath in csFiles)
+        {
+            var relPath = NormalizeRelPath(repoRoot, filePath);
+            var text = File.ReadAllText(filePath, Encoding.UTF8);
+
+            if (ApiSyncOverAsyncRegex.IsMatch(text))
+            {
+                violations.Add((
+                    relPath,
+                    "Sync-over-async detected (.Wait / GetAwaiter().GetResult / invocation.Result). Use async/await and propagate async APIs."
+                ));
+            }
+        }
+
+        if (violations.Count == 0)
+            return;
+
+        WriteObservationReport(repoRoot, "AF-002", violations);
+
+        if (observe)
+        {
+            Assert.Pass(
+                $"Observation mode enabled (STARTER_PACK_OBSERVE=1). " +
+                $"API sync-over-async violations: {violations.Count}. " +
+                "See artifacts/starter-pack-firewall-observation.json");
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine("API firewall violations detected (sync-over-async).");
+        sb.AppendLine();
+        sb.AppendLine("[AF-002]");
+        foreach (var v in violations.OrderBy(v => v.RelPath, StringComparer.OrdinalIgnoreCase))
+            sb.AppendLine($"- {v.RelPath}: {v.Message}");
+        sb.AppendLine();
+
+        Assert.Fail(sb.ToString());
+    }
+
+    private static void WriteObservationReport(
+        string repoRoot,
+        string ruleId,
+        List<(string RelPath, string Message)> violations)
+    {
+        var artifacts = Path.Combine(repoRoot, "artifacts");
+        Directory.CreateDirectory(artifacts);
+
+        var reportPath = Path.Combine(artifacts, "starter-pack-firewall-observation.json");
+        var payload = new
+        {
+            TimestampUtc = DateTimeOffset.UtcNow,
+            Category = $"API-{ruleId}",
+            TotalViolations = violations.Count,
+            Violations = violations
+                .OrderBy(v => v.RelPath, StringComparer.OrdinalIgnoreCase)
+                .Select(v => new { RelPath = v.RelPath, Message = v.Message })
+                .ToList()
+        };
+
+        var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(reportPath, json, Encoding.UTF8);
+    }
+
+    private static string FindRepoRootOrFail()
+    {
+        var start = new DirectoryInfo(AppContext.BaseDirectory);
+        DirectoryInfo? current = start;
+        while (current is not null)
+        {
+            var marker = Path.Combine(current.FullName, "src", "backend");
+            if (Directory.Exists(marker))
+                return current.FullName;
+            current = current.Parent;
+        }
+
+        Assert.Fail($"Could not locate repo root starting from {start.FullName}.");
+        return string.Empty;
+    }
+
+    private static string NormalizeRelPath(string repoRoot, string fullPath)
+    {
+        var rel = Path.GetRelativePath(repoRoot, fullPath);
+        return rel.Replace('\\', '/');
+    }
+}
+
