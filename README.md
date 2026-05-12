@@ -1,46 +1,72 @@
-# dotnet-ai-blueprint — Starter Pack 導入手冊（Phase A–D）
+# dotnet-ai-blueprint — Starter Pack Guide / 導入手冊（Phases A-D / Phase A–D）
 
 > 本檔位於 **repository 根目錄**。中路徑若無特別說明，皆相對於 repo root。若要匯出精簡 seed 給其他 repo，請在 **本 repo root** 執行 `_starter-pack-seed/build-seed.ps1`（預設輸出於 `_starter-pack-seed/out/`，見 §3.1）。部署前請先閱：[docs/starter-pack/README.md](docs/starter-pack/README.md)。
+>
+> This file lives at the **repository root**. Unless stated otherwise, paths are relative to repo root. To export a minimal seed for another repo, run `_starter-pack-seed/build-seed.ps1` from this repo root (default output: `_starter-pack-seed/out/`; see §3.1). Before rollout, read [docs/starter-pack/README.md](docs/starter-pack/README.md).
 
-## IDE：Cursor、Copilot
+## Quick Start / 快速開始：Three-Folder Workflow / 三資料夾工作流
+
+### 中文
+
+本 repo 是 **Blueprint（規範與樣板來源）**。不建議直接把這份原始碼樹併入你的業務專案。建議採用以下工作流：
+
+1. **Blueprint（規範與樣板）**：本 repository，存放 `docs/rules/`、`.cursor/rules/`、`templates/` 與 starter-pack 指南。
+2. **Seed（原型專案）**：先用 `_starter-pack-seed/build-seed.ps1` 匯出，再用 `initialize.ps1` 完成 placeholder 替換，產生乾淨且理想的參考實作。
+3. **Target（目標專案）**：你的實際產品 repo，不論是 legacy 還是新專案。將 Seed 的邏輯整合回這裡，同時保留 Target 原本的命名、風格與邊界。
+
+> **需求管理**：原始需求文件建議放在 Target repo 的 `docs/requirements/raw/`；AI 可執行規格放在 `docs/specs/`。若 `docs/specs/` 已定義 feature spec，實作時以 spec 優先。
+
+### English
+
+This repo is the **Blueprint** layer. Do not merge its source tree directly into your business codebase. The recommended workflow is:
+
+1. **Blueprint**: this repository, which holds `docs/rules/`, `.cursor/rules/`, `templates/`, and the starter-pack guidance.
+2. **Seed**: a clean exported project created from `_starter-pack-seed/build-seed.ps1`, then initialized with `initialize.ps1` to replace placeholders and produce an ideal reference implementation.
+3. **Target**: your actual product repo, whether legacy or new. Translate the Seed logic into this repo while preserving Target naming, style, and boundaries.
+
+> **Requirements management**: keep raw requirement documents in the Target repo under `docs/requirements/raw/`; keep AI-ready implementation specs under `docs/specs/`. If `docs/specs/` defines a feature spec, follow that spec first.
+
+## IDE / IDE Setup：Cursor、Copilot
 
 - **Cursor**：優先讀取 [`.cursor/rules/`](.cursor/rules/)；這是 repo 唯一受支援的 Cursor 規則入口。
 - **GitHub Copilot（Visual Studio / VS Code）**：以 [`.github/copilot-instructions.md`](.github/copilot-instructions.md) 為專案指引（內含 **Plan-first**：先在 Chat 選 **Plan** / `/plan`，核准後再 **Agent** 或手改）；聊天可搭配 [`COPILOT_PROMPT.md`](COPILOT_PROMPT.md)（短索引貼上）。
 
 > 入口檔負責讀序與索引；工程規則仍以 `docs/ARCHITECTURE.md`、`docs/rules/*`、`templates/`、`skeleton/` 為準。
 
-### Cursor 規則分層
+### Cursor Rule Layers / Cursor 規則分層
 
 - **常駐規則**：`00-entrypoint.mdc`、`pattern-match.mdc`、`rule-guard.mdc`、`shadow-ref.mdc`、`context-discovery.mdc`、`skeleton-sync.mdc`
-- **手動 SOP**：`refactor-uow.mdc`、`add-resilience.mdc`、`api-standard.mdc`
+- **手動 SOP**：`refactor-uow.mdc`、`add-resilience.mdc`、`api-standard.mdc`、`seed-to-legacy-target-translation.mdc`、`seed-to-new-project-target-translation.mdc`
 - **建議進入方式**：先讀 [`.cursor/rules/README.md`](.cursor/rules/README.md)，再進入 [`00-entrypoint.mdc`](.cursor/rules/00-entrypoint.mdc)；若 `rule-guard.mdc` 發現違規，再載入對應手動 SOP 修正
 
-## 簡介
+## Overview / 簡介
 
 本 repository 提供一套**可複製的分層 .NET 後端 Starter Pack**：文件、規範、可執行的架構測試模板（`*.cs.txt`）、AI 引導入口（Cursor/Copilot）、以及安全/效能交付模板。它**不是 runtime library**；用途是將工程約束與驗收證據落地為可移植資產。
 
-### 摘要
+This repository provides a **copyable layered .NET backend starter pack**: docs, rules, executable architecture test templates (`*.cs.txt`), AI entrypoints (Cursor/Copilot), and security/performance delivery templates. It is **not** a runtime library; its purpose is to turn engineering constraints and acceptance evidence into portable assets.
 
-- 以 Phase A–D 建立可複製的導入流程與驗收基線。
-- 以可執行測試與文件模板提供可追溯之交付證據。
-- 以漸進導入方式支援新專案與既有專案之落地。
+### Summary / 摘要
 
-### 成熟度：從手動到自動（精簡版）
+- Build a reusable adoption flow and acceptance baseline through Phase A-D. / 以 Phase A–D 建立可複製的導入流程與驗收基線。
+- Provide traceable delivery evidence through executable tests and documentation templates. / 以可執行測試與文件模板提供可追溯之交付證據。
+- Support both new projects and existing codebases through incremental adoption. / 以漸進導入方式支援新專案與既有專案之落地。
 
-- **手動階段（形成一致基線）**：以規範入口與 `templates/`、`docs/starter-pack/shadow-examples/` 固化寫法與責任邊界，降低差異。
-- **CI 品質門檻（自動化攔截）**：將 layering/firewall/defensive tests 落地為測試與 pipeline 品質門檻，使違規於本機或 CI 階段被阻擋。
-- **交付證據（可追溯）**：將安全/效能驗收模板納入每次交付的固定附件（流程化），再視需要將產出物接入 pipeline 要求（可稽核）。
+### Maturity Model / 成熟度：從手動到自動（精簡版）
 
-## 大綱
-- **可交付內容**：能力（功能）、規範（規則）、執行手段
-- **導入路線（Phase A–D）**：各階段目的、產出物、驗收條件
-- **落地步驟**：seed 匯出 → 搬入 → 初始化 → 啟用測試品質門檻 → 納入交付流程
-- **風險與控管**：初始化、既有專案導入策略、常見問題排查
-- **結論**：適用情境與下一步建議
+- **Manual foundation / 手動階段（形成一致基線）**：以規範入口與 `templates/`、`docs/starter-pack/shadow-examples/` 固化寫法與責任邊界，降低差異。
+- **CI quality gates / CI 品質門檻（自動化攔截）**：將 layering/firewall/defensive tests 落地為測試與 pipeline 品質門檻，使違規於本機或 CI 階段被攔截。
+- **Delivery evidence / 交付證據（可追溯）**：將安全/效能驗收模板納入每次交付的固定附件（流程化），再視需要將產出物接入 pipeline 要求（可稽核）。
 
-## 細節
+## Outline / 大綱
+- **Deliverables / 可交付內容**：能力（功能）、規範（規則）、執行手段
+- **Adoption phases / 導入路線（Phase A–D）**：各階段目的、產出物、驗收條件
+- **Implementation steps / 落地步驟**：seed 匯出 → 搬入 → 初始化 → 啟用測試品質門檻 → 納入交付流程
+- **Risks and controls / 風險與控管**：初始化、既有專案導入策略、常見問題排查
+- **Conclusion / 結論**：適用情境與下一步建議
 
-### 1) 你會得到什麼（能力 / 規範 / 手段對齊）
+## Details / 細節
+
+### 1) What You Get / 你會得到什麼（能力 / 規範 / 手段對齊）
 - **能力（功能）**
   - 架構越界可由 CI 攔截（分層/防火牆規則以測試落地）
   - 團隊具備可複製的標準寫法（patterns / samples）
@@ -59,7 +85,7 @@
   - [`.cursor/rules/`](.cursor/rules/)：Cursor/Agent 主入口
   - `docs/starter-pack/optional/**`：安全/效能/Minimal API 可選模組
 
-### 1.0 分層依賴方向圖（視覺化，降低溝通誤解）
+### 1.0 Layer Dependency Diagram / 分層依賴方向圖（視覺化，降低溝通誤解）
 
 > 目標：用一張圖說清楚「依賴方向」與「禁忌路徑」，避免光靠文字造成的理解落差。
 
@@ -74,7 +100,7 @@ flowchart LR
 - **箭頭方向**：一律由外向內（API → Service → Core/Infrastructure）。
 - **禁忌路徑**：API 禁止橫跨 Service 直接觸碰 Infrastructure（圖中 `Api -.X.-> Infra`）。
 
-### 1.0a 視覺化導覽：先看概念圖，再看 generated graph
+### 1.0a Visual Guide / 視覺化導覽：先看概念圖，再看 generated graph
 
 > 目標：把「規範上的責任邊界」與「實際專案相依輸出」放在同一條 onboarding 路徑，降低新人與 AI 對分層規則的誤讀。
 
@@ -104,7 +130,7 @@ dot -Tsvg artifacts/deps.dot -o artifacts/deps.svg
 - `docs/optional/visualization/dependency-graph.md`
 - `tools/dependency-graph/`
 
-### 1.1 Overview（用什麼方式/套件達成什麼）— 全部 / 舊案 / 新案
+### 1.1 Overview / 用什麼方式與套件達成什麼 — 全部 / 舊案 / 新案
 
 > 目標：讓工程師（或 AI）不用先讀完整細節，就能知道「用哪些手段」達成「哪些約束與效果」，以及舊案/新案的預設策略差異。
 
@@ -175,7 +201,7 @@ dot -Tsvg artifacts/deps.dot -o artifacts/deps.svg
 - **Day0 基線**：讀序入口 + templates + 最小架構測試（Phase A/B）先上線，再逐步加 firewall（Phase C）。
 - **一致性優先**：可全域啟用嚴格規則（analyzers/architecture tests）避免累積歷史包袱。
 
-### 2) 導入路線（Phase A–D）
+### 2) Adoption Phases / 導入路線（Phase A–D）
 
 > 每個 Phase 都用同一套規格寫法：**目的 → 產出物 → 規範 → 達成方式 → 驗收 → 風險/對策**。
 > 這樣你把它交給別的工程師，他只要照規格就能落地。
@@ -269,7 +295,7 @@ dot -Tsvg artifacts/deps.dot -o artifacts/deps.svg
   - 至少 1 個版本/里程碑以模板完成一次安全對照或效能驗收。
 - **風險/對策**：模板未納入流程 → 將其轉為 release 檢查門檻（例如必填 checklist），或將產出物納入里程碑定義。
 
-### 3) 工程落地步驟（把 pack 真正導入目標 repo）
+### 3) Implementation Steps / 工程落地步驟（把 pack 真正導入目標 repo）
 
 #### 3.1 匯出 seed（從來源 repo 產生 out/）
 在來源 repo root 執行：
@@ -342,7 +368,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "./initialize.ps1" `
 - 把安全/效能模板掛到 PR template / release checklist / DoD。
 - Minimal API（若採用）再導入其 local-write transaction wrapper 模板。
 
-### 4) 既有專案導入策略（降低導入衝擊）
+### 4) Existing Project Adoption Strategy / 既有專案導入策略（降低導入衝擊）
 - **先使 Phase B 可執行**（完成現況盤點），再逐步收斂。
 - Phase C 的 firewall 規則先選擇 1～2 條高風險禁忌先行攔截，避免一次性引入過多限制。
 - 將違規清單納入 backlog，分期改善。
@@ -363,22 +389,24 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "./initialize.ps1" `
 - 在測試中允許 `IgnoreOnLegacy`（或等價標記）做暫時性豁免，讓新增/修改路徑先被嚴格約束，舊路徑逐步清理。
 - 舊案早期可採「負面清單（ban list）」優先於「正面清單（allow list）」：先禁止高風險行為，再逐步補齊完整分層約束。
 
-### 5) 驗收總表（最小可行導入）
+### 5) Acceptance Checklist / 驗收總表（最小可行導入）
 - Phase A：規範入口與 AI 入口存在且可被找到。
 - Phase B：Layering tests 在 CI 會執行，並可攔截越界。
 - Phase C：至少 1 條 firewall 禁忌可由 CI 攔截。
 - Phase D：安全或效能模板至少落地一次（有產出物）。
 
-### 6) 常見問題與排查
+### 6) FAQ and Troubleshooting / 常見問題與排查
 - **測試未能攔截越界**：常見原因為 placeholders 未完整替換，或測試規則指向錯誤的 assembly/namespace。
 - **導入後 CI 大量失敗**：可先以較寬鬆規則確立基線並完成盤點，再採逐步收斂策略加嚴。
 - **AI 產出仍偏離規範**：應確認入口索引明確列出禁忌與參考模板，並在 repo 中提供固定的「Start here」路徑。
 
 
-## 結論
+## Conclusion / 結論
 這份 starter pack 的核心不是「提供可使用的專案」，而是「提供可複製、可驗證、可逐步收緊的工程治理方法」。建議採 **Phase A → B → C → D**，先建立入口與品質門檻，再把安全/效能納入交付流程，最後用逐步收斂策略治理既有 codebase。
 
-### Before vs After（極簡對照）
+In short, this starter pack is not a ready-made application. It is a portable engineering system: copyable rules, templates, and executable quality gates that can be adopted in phases.
+
+### Before vs After / Before 與 After（極簡對照）
 
 - **導入前（未形成統一基線）**
   - 新案起手：參考既有程式碼或口頭約定，容易產生不一致結構

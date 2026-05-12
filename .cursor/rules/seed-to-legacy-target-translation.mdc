@@ -1,0 +1,30 @@
+---
+description: Translate Seed implementations into an existing Target repo safely.
+alwaysApply: false
+---
+
+# Seed to Legacy Target Translation
+
+## Trigger Checklist
+
+- User asks to port, adapt, translate, or integrate Seed logic into an existing product repo.
+- The Target repo already has established naming, file placement, service shapes, or repository shapes.
+- The request prefers minimal diffs, in-place edits, or compatibility with legacy conventions.
+- The request explicitly says to avoid importing blueprint-specific abstractions verbatim.
+
+## Enforce
+
+- Treat the Target repo's `docs/specs/`, existing naming, file placement, and boundaries as the immediate source of truth.
+- Port behavior and safeguards from Seed; do not copy Seed structure blindly.
+- Prefer editing existing Target files over adding new abstraction layers.
+- Keep Target naming and dependency direction, even when Seed uses cleaner or more decomposed shapes.
+- If Seed depends on blueprint-only helpers or base classes, inline the minimum necessary logic or create a Target-native equivalent.
+- Keep the change set narrow, reviewable, and compatible with the Target repo's existing conventions.
+- Re-check layering, transaction boundaries, and outbound rules after translation.
+
+## References
+
+- `docs/ARCHITECTURE.md`
+- `docs/rules/architecture-protocol.md`
+- `docs/rules/transactions.md`
+- `templates/`

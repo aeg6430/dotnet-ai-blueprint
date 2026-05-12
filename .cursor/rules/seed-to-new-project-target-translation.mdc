@@ -1,0 +1,31 @@
+---
+description: Translate Seed implementations into a new Target repo with target-native structure.
+alwaysApply: false
+---
+
+# Seed to New Project Target Translation
+
+## Trigger Checklist
+
+- User asks to port, adapt, translate, or integrate Seed logic into a new product repo.
+- The Target repo is greenfield or early-stage, even if it is separate from the Blueprint repo.
+- The Target repo wants Seed behavior but under its own namespaces, specs, and structure.
+- The request allows creating or reshaping files as long as they align with the Target repo.
+
+## Enforce
+
+- Treat the Target repo's `docs/specs/`, namespaces, file placement, and boundaries as the immediate source of truth.
+- Port behavior and safeguards from Seed, but rename and place types to match the Target repo's own structure.
+- Create new files or folders only when they fit the Target repo's intended architecture.
+- Remove fictional sample names, placeholder terminology, and blueprint-only helper dependencies during translation.
+- Carry over necessary DI wiring, architecture tests, and supporting docs when the Target repo adopts the corresponding pattern.
+- Keep the resulting implementation target-native rather than leaving Seed as an embedded sub-structure.
+- Re-check layering, transaction boundaries, and outbound rules after translation.
+
+## References
+
+- `docs/ARCHITECTURE.md`
+- `docs/rules/architecture-protocol.md`
+- `docs/rules/transactions.md`
+- `docs/starter-pack/README.md`
+- `templates/`

@@ -19,6 +19,8 @@ Supported Cursor entrypoint and read-order index for this repository.
 - [`refactor-uow.mdc`](refactor-uow.mdc) — transaction boundaries and UoW flows
 - [`add-resilience.mdc`](add-resilience.mdc) — timeout, retry, breaker, outbound safeguards
 - [`api-standard.mdc`](api-standard.mdc) — thin controllers and API response handling
+- [`seed-to-legacy-target-translation.mdc`](seed-to-legacy-target-translation.mdc) — translate Seed logic into an existing Target repo safely
+- [`seed-to-new-project-target-translation.mdc`](seed-to-new-project-target-translation.mdc) — translate Seed logic into a new Target repo with target-native structure
 
 ## Use Order
 
@@ -26,6 +28,16 @@ Supported Cursor entrypoint and read-order index for this repository.
 2. Use [`pattern-match.mdc`](pattern-match.mdc) before inventing structures.
 3. Run [`rule-guard.mdc`](rule-guard.mdc) after backend C# changes.
 4. Load a manual workflow rule when the request or audit matches.
+
+## Recommended Workspace Model
+
+These rules support both a single-repo workflow and a three-folder workflow:
+
+- **Blueprint**: this repo; rules, templates, and source-of-truth examples.
+- **Seed / Sandbox**: a clean exported project used to prototype the ideal implementation.
+- **Target**: the real product repo, whether it is a legacy codebase or a new project.
+
+When all three are present, treat the target repo's `docs/specs/` as the feature-level source of truth. Use Blueprint rules and templates to shape the design, use Seed to explore a clean implementation, and translate the logic back into Target without importing blueprint-specific abstractions unless the target repo explicitly adopts them.
 
 ## Maintenance
 

@@ -21,6 +21,22 @@ For Cursor, the equivalent repository guidance lives under [`.cursor/rules/`](..
    - [`docs/starter-pack/shadow-examples/`](../docs/starter-pack/shadow-examples/)
    - [`templates/`](../templates/)
 
+## Recommended workspace model
+
+When using this starter pack with a separate product repository, prefer a three-folder workflow:
+
+- **Blueprint**: this repository; rules, templates, and source-of-truth docs live here.
+- **Seed / Sandbox**: a clean exported starter-pack project used to prototype the ideal implementation.
+- **Target**: the real product repository (legacy or new project) where final changes are integrated.
+
+Default behavior:
+
+1. Read the target repo's `docs/specs/` first, if present.
+2. Use the target repo's `docs/requirements/raw/` as source material, not as the final coding contract.
+3. If the spec is incomplete, fall back to this blueprint's rules and templates.
+4. If the target codebase is noisy or legacy-heavy, prototype the clean version in Seed first.
+5. Integrate the logic back into Target using Target naming, style, and boundaries rather than copying blueprint-specific abstractions verbatim.
+
 ## Plan-first workflow (VS Code & Visual Studio)
 
 This repository’s rules live in markdown; **Plan mode** is how you get a Cursor-style “plan before edits” flow in Copilot: the plan agent uses read-only exploration, produces steps and open questions, and **does not apply code changes** until you approve and hand off to **Agent** mode (or you implement manually). Plan may be **preview** and can be disabled by org policy—check your IDE version and Copilot settings.
@@ -60,6 +76,7 @@ Use official ASP.NET Core mechanisms: middleware + MVC filters + (optionally) DI
 When generating code:
 
 - For **multi-file** work or anything that touches **layering / transactions / security**, prefer **Plan mode first** (see above), then **Agent** mode or manual edits.
+- If a target repo provides `docs/specs/`, follow the feature spec before applying default blueprint assumptions.
 - Prefer patterns from `docs/starter-pack/shadow-examples/` or `templates/`.
 - Keep changes minimal and consistent with analyzers and architecture tests.
 - If a rule is unclear, add an ADR or update the rule instead of inventing a new convention.
