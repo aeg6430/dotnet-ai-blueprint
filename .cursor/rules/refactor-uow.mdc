@@ -1,0 +1,27 @@
+---
+description: Refactor transaction boundaries and Unit of Work flows.
+alwaysApply: false
+---
+
+# Refactor UoW
+
+## Trigger Checklist
+
+- User asks to refactor transactions, fix Unit of Work behavior, or clean up transaction boundaries.
+- `Rule Guard` finds a `docs/rules/transactions.md` violation.
+- A service overlaps remote IO with an active DB transaction.
+- A read-only flow starts a transaction without a documented exception.
+
+## Enforce
+
+- Move remote verification or fetch before `Begin()`.
+- Keep the transaction around the smallest local atomic write block.
+- Repositories share `IDapperContext`; they never own transactions.
+- Prefer outbox writes for cross-system side effects.
+- Re-audit against `docs/rules/transactions.md`.
+
+## References
+
+- `templates/StockTransferUseCase.cs`
+- `templates/StockService.cs`
+- `templates/ServiceExtensions.cs`

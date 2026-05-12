@@ -1,0 +1,12 @@
+---
+description: Use shadow examples for complex backend pattern replication.
+globs: **/*.cs
+alwaysApply: false
+---
+
+# Shadow Ref
+
+- Treat `.cs.txt` files under `docs/starter-pack/shadow-examples/` and `anchors/` as valid architectural references.
+- Use them when the template shape is too small or the change is end-to-end.
+- Copy architecture, dependency direction, and error-handling shape.
+- Do not copy placeholder namespaces, fictional entities, or sample identifiers unchanged.

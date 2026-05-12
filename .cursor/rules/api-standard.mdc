@@ -1,0 +1,27 @@
+---
+description: Standardize thin controllers and API response handling.
+alwaysApply: false
+---
+
+# API Standard
+
+## Trigger Checklist
+
+- User asks to standardize API responses or controller style.
+- `Rule Guard` finds an API contract or controller-boundary violation.
+- A controller accumulates orchestration, mapping, or Infrastructure wiring.
+- A new endpoint needs consistent success and error response behavior.
+
+## Enforce
+
+- Keep controllers thin; move orchestration into Core services or use cases.
+- Use the standard response envelope when the project expects one.
+- Keep Infrastructure wiring in DI composition, not in controllers.
+- Route unhandled failures through a global exception handler with safe client output.
+- Re-check layering against `docs/rules/architecture-protocol.md`.
+
+## References
+
+- `templates/ApiResponse.cs`
+- `templates/GlobalExceptionHandler.cs`
+- `templates/ServiceExtensions.cs`

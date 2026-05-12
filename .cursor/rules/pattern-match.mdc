@@ -1,0 +1,12 @@
+---
+description: Use templates before inventing backend patterns.
+alwaysApply: true
+---
+
+# Pattern Match
+
+- Search `templates/` before generating or refactoring repositories, services, gateways, mappers, response wrappers, or DI wiring.
+- Reuse the nearest matching structure, naming shape, comments, and registration pattern.
+- Replace placeholders with project names; never leave fictional sample names behind.
+- If `templates/` is too small for the change, load `shadow-ref.mdc`.
+- Do not invent a new convention while a usable pattern already exists.

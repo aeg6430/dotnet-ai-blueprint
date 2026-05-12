@@ -1,0 +1,15 @@
+---
+description: Audit backend C# changes for layering and runtime rules.
+globs: **/*.cs
+alwaysApply: false
+---
+
+# Rule Guard
+
+- After backend C# changes, audit against `docs/rules/architecture-protocol.md`, `docs/rules/transactions.md`, and `docs/rules/resilience.md`.
+- Enforce: late and short `Begin()`, no remote IO in an active transaction, outbound preflight checks, bounded retry/breaker rules, Core free of Infrastructure details, DI in composition roots.
+- On failure, load `refactor-uow.mdc`, `add-resilience.mdc`, or `api-standard.mdc` based on the violation.
+- On success, report:
+  - [x] Pattern Compliance
+  - [x] Resilience/Transaction Rules
+  - Rule Compliance Check: Passed

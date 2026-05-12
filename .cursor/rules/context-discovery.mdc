@@ -1,0 +1,10 @@
+---
+description: Resolve naming and placement from repo docs first.
+alwaysApply: true
+---
+
+# Context Discovery
+
+- For placement, naming, ownership, or layering ambiguity, read `docs/ARCHITECTURE.md` and `docs/rules/architecture-protocol.md` first.
+- Ask the user only if those sources still leave a real ambiguity.
+- Ask narrow trade-off questions, not broad design prompts.

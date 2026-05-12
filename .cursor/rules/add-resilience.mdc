@@ -1,0 +1,27 @@
+---
+description: Add timeout, retry, breaker, and outbound safeguards.
+alwaysApply: false
+---
+
+# Add Resilience
+
+## Trigger Checklist
+
+- User asks for retry, timeout, Polly, circuit breaker, or outbound hardening.
+- `Rule Guard` finds a `docs/rules/resilience.md` violation.
+- An outbound adapter lacks transaction preflight checks or policy wiring.
+- A remote dependency is slow, flaky, or causing cascading failures.
+
+## Enforce
+
+- Keep outbound calls behind Core ports and Infrastructure adapters.
+- Verify `EnsureNoActiveTransaction()` before the request.
+- Apply the timeout ladder from `docs/rules/resilience.md`.
+- Retry only bounded, read-only, or explicitly idempotent calls.
+- Add a circuit breaker for dependencies that materially affect request latency or failure rate.
+- Register policy wiring in DI, not in Core services.
+
+## References
+
+- `templates/BaseHttpAdapter.cs`
+- `templates/ServiceExtensions.cs`

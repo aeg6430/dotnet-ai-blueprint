@@ -1,0 +1,13 @@
+---
+description: Keep DI and composition-root updates aligned.
+globs: **/*.cs
+alwaysApply: false
+---
+
+# Skeleton Sync
+
+- For repositories, gateways, services, exception handlers, or options, update registration blocks with partial edits only.
+- Prefer extension-based DI composition; do not dump unrelated registrations into `Program.cs`.
+- Use `templates/ServiceExtensions.cs` as the primary pattern.
+- Use `templates/Program.cs` and `skeleton/src/Acme.Api/Program.cs` only as bootstrap anchors.
+- Append near the matching block: repositories, outbound adapters, services, or global error handling.
