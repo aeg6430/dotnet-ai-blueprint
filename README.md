@@ -320,6 +320,9 @@ flowchart LR
   - 以 `docs/ARCHITECTURE.md`、`docs/rules/**`、`.cursor/rules/**` 為盤點基準。
   - 報告必須包含一份以 Markdown Table 輸出的 **Compliance Matrix**，對照 `docs/rules/*.md` 列出規範、證據、狀態與待補項目。
   - 固定檢查 namespace / placeholder / secret / boilerplate comment 殘留，而不只檢查 `Skeleton` 單一關鍵字。
+- **建議執行時機**：
+  - 功能開發完成後，作為交付前盤點。
+  - PR 提交前，作為一次性合規檢查與證據整理。
 - **執行手段（Golden Prompt）**：
 
 ```text
@@ -336,6 +339,8 @@ flowchart LR
 3. 疑似違規項目
 4. 待人工確認項目
 5. 證據附件清單
+
+除 Compliance Matrix 外，其餘內容請使用精簡條列，不要寫成長篇敘述。
 
 請固定檢查以下殘留：
 - Namespace residue：`Skeleton`、`Acme`、`Project.*`、`starter-pack`、`seed`、`skeleton`

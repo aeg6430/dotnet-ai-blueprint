@@ -32,6 +32,10 @@ The standard Phase E outputs are:
 
 The Phase E report must include a **Markdown-table compliance matrix** mapped to the relevant `docs/rules/*.md` and related architecture guidance.
 
+Phase E should normally run as a **deliberate one-shot audit step** after feature completion or before PR submission, not as a constantly repeated background activity during normal editing.
+
+Outside the compliance matrix, the report should stay **concise and reviewable**, favoring short bullet sections over long narrative prose.
+
 The Phase E audit must also perform fixed residue and hygiene checks, including:
 
 - namespace residue such as `Skeleton`, `Acme`, `Project.*`, `starter-pack`, `seed`, or `skeleton`

@@ -65,6 +65,16 @@ These rules support both a single-repo workflow and a three-folder workflow:
 
 When all three are present, treat the target repo's `docs/specs/` as the feature-level source of truth. Use Blueprint rules and templates to shape the design, use Seed to explore a clean implementation, and translate the logic back into Target without importing blueprint-specific abstractions unless the target repo explicitly adopts them.
 
+## Context Loading Hygiene
+
+Use these rules to keep AI context focused rather than loading the whole repository every time:
+
+1. Start from [`00-entrypoint.mdc`](00-entrypoint.mdc) and only read deeper rule files when the task actually needs them.
+2. Do not preload every ADR, every rule, and every template for unrelated edits; follow the read order and expand scope gradually.
+3. Keep high-churn folders such as `bin/`, `obj/`, `artifacts/`, `TestResults/`, and `_starter-pack-seed/out/` out of AI indexing when possible (for example via `.cursorignore`).
+4. For Phase E audits, prefer a one-shot run after feature completion or before PR submission rather than rerunning the full audit during normal editing.
+5. Outside the Compliance Matrix, prefer short bullet output over long narrative reports so audit output stays reviewable.
+
 ## Maintenance
 
 - Keep these rules aligned with `docs/ARCHITECTURE.md` and `docs/rules/*.md`.
