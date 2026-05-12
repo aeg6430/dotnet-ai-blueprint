@@ -38,16 +38,11 @@ Scoring rubric: see [automation-decision-matrix.md](automation-decision-matrix.m
 
 ## P1 — Conservative firewall expansions (only where FP stays low)
 
-- **AB-0201: Service firewall — ban direct file IO in `{CorePrj}/Services`**
-  - **Rule source**: `.cursor/rules/*.mdc` (services should stay testable; avoid environment coupling).
-  - **Mechanism**: source-scan firewall tokens (`System.IO.File`, `System.IO.Directory`, `File.`, `Directory.`) inside `{BackendRoot}/{CorePrj}/Services/**`.
-  - **False-positive risk**: low if scoped to Core services and tokens are specific.
-  - **Rollout**: add detector test (happy/sad/edge) then gate.
-
-- **AB-0202: Service firewall — ban direct environment/process coupling in Core services**
-  - **Rule source**: `.cursor/rules/*.mdc` (no hardcoded config; avoid hidden environment coupling).
-  - **Mechanism**: source-scan firewall tokens (`Environment.GetEnvironmentVariable`, `Process.Start`, etc.) in `{BackendRoot}/{CorePrj}/Services/**`.
-  - **False-positive risk**: low–medium; needs careful token selection.
+- **AB-0203: Service firewall — add detector fixtures for ambiguous write-result heuristics**
+  - **Rule source**: `docs/rules/architecture-protocol.md` (`SF-008`).
+  - **Mechanism**: add happy/sad/edge detector fixtures for public write use cases that return `bool`, bare `Task`, or `void`, and verify the starter-pack firewall catches only the intended signatures.
+  - **False-positive risk**: medium; method-name heuristics can drift if teams use unusual command verbs.
+  - **Rollout**: add detector tests first, then expand the verb list only when new evidence justifies it.
 
 ## P2 — Testing conventions (guideline → light automation)
 

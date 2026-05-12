@@ -79,6 +79,13 @@ return FooMapping.ToDtos(rows);
 
 - Return **well-defined Core DTOs** to the API layer. Do not leak **Infrastructure entities** or persistence row types above Infrastructure.
 
+**Command / write result semantics**
+
+- Public Core write use cases (`Create*`, `Update*`, `Delete*`, `Approve*`, etc.) must return a **strongly typed, semantically meaningful result** instead of `bool`, bare `Task`, or `void`.
+- Use the result type to represent **expected business outcomes** such as success, validation failure, conflict, rejection, or not-found. Do not collapse command outcomes into a single true/false flag.
+- **Unexpected system faults** (database errors, transaction violations, timeout/dependency failures, serialization bugs, etc.) must still throw and flow to the global exception boundary / logging policy. Do **not** hide them behind a generic `Failure` result.
+- This rule applies to the **public application boundary** of command/use-case services, not every private/helper/repository method. Technical probe methods such as `ExistsAsync(...)` may still return `bool` when that is the clearest contract.
+
 ---
 
 ## 2. OCP — open for extension, closed for unrelated modification
@@ -204,6 +211,7 @@ These checks are **binding** for backend changes: they run as normal tests in **
 - **SF-005:** Core services must not reference direct file system primitives (`File.*`, `Directory.*`, etc.); file system access must flow via Core ports (interfaces) with adapters in Infrastructure.
 - **SF-006:** Core services must not reference host environment/process primitives (`Environment.*`, `Process.*`, etc.); use ports/adapters.
 - **SF-007:** Core must not depend on ASP.NET Core host primitives (e.g., `IFormFile`, `Microsoft.AspNetCore.*`). File ingress must be handled at the boundary; Core receives `Stream`/named `byte[]` only. See [`file-upload.md`](file-upload.md).
+- **SF-008:** Public Core write use cases must not return ambiguous success/failure contracts such as `bool`, bare `Task`, or `void`. Return a strongly typed, semantically meaningful result for expected business outcomes; unexpected system faults still throw to the global exception boundary.
 
 #### API firewall rule IDs
 

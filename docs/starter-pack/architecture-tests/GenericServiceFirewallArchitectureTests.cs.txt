@@ -1,7 +1,8 @@
 // TEMPLATE: source-scan "service firewall" checks.
 // Copy into your test project and adjust paths/placeholders.
 //
-// Intent: keep Core/Application services free of IO primitives and blocking async pitfalls.
+// Intent: keep Core/Application services free of IO primitives, blocking async pitfalls,
+// and ambiguous write-result contracts.
 
 using System.Text;
 using System.Text.Json;
@@ -15,6 +16,10 @@ public sealed class ServiceFirewallArchitectureTests
 {
     private const string CoreServicesDirRelativePath =
         "src/backend/{CoreNamespace}/Services";
+
+    private static readonly Regex PersistenceDriverTokensRegex = new(
+        @"\b(Dapper\b|Npgsql\b|IDbConnection\b|IDbTransaction\b|DbConnection\b|DbTransaction\b)\b",
+        RegexOptions.Multiline | RegexOptions.Compiled);
 
     private static readonly Regex BlockingAsyncPitfallsRegex = new(
         @"\b(Thread\.Sleep\b|async\s+void\b|\.Result\b|\.Wait\s*\()\b",
@@ -34,6 +39,14 @@ public sealed class ServiceFirewallArchitectureTests
 
     private static readonly Regex EnvironmentProcessTokensRegex = new(
         @"(\bSystem\.(Environment|Diagnostics\.Process)\b|\bEnvironment\s*\.|\bProcess(StartInfo)?\s*\.)",
+        RegexOptions.Multiline | RegexOptions.Compiled);
+
+    private static readonly Regex AspNetCoreHostTokensRegex = new(
+        @"\b(Microsoft\.AspNetCore\b|IFormFile\b|HttpContext\b|HttpRequest\b|HttpResponse\b|ControllerBase\b)\b",
+        RegexOptions.Multiline | RegexOptions.Compiled);
+
+    private static readonly Regex PublicWriteUseCaseSignatureRegex = new(
+        @"^\s*public\s+(?:sealed\s+|static\s+|virtual\s+|override\s+|abstract\s+|partial\s+|new\s+)*(?:async\s+)?(?<returnType>(?:global::)?[\w\.\?<>,\[\]\s]+?)\s+(?<methodName>(?:Create|Update|Delete|Approve|Reject|Cancel|Submit|Commit|Publish)\w*)\s*\(",
         RegexOptions.Multiline | RegexOptions.Compiled);
 
     [Test]
@@ -60,20 +73,28 @@ public sealed class ServiceFirewallArchitectureTests
             var relPath = NormalizeRelPath(repoRoot, filePath);
             var text = File.ReadAllText(filePath, Encoding.UTF8);
 
+            if (PersistenceDriverTokensRegex.IsMatch(text))
+                violations.Add(("SF-001", relPath, "Service references persistence driver primitives (Dapper/Npgsql/IDbConnection/etc.). Depend on repository ports instead."));
+
             if (BlockingAsyncPitfallsRegex.IsMatch(text))
-                violations.Add(("SF-001", relPath, "Blocking/async pitfall detected (.Result/.Wait/Thread.Sleep/async void)."));
+                violations.Add(("SF-002", relPath, "Blocking/async pitfall detected (.Result/.Wait/Thread.Sleep/async void)."));
 
             if (ClockCouplingRegex.IsMatch(text))
-                violations.Add(("SF-002", relPath, "Service reads wall-clock directly (DateTime.Now/UtcNow or TimeProvider.System). Use an injected clock."));
+                violations.Add(("SF-003", relPath, "Service reads wall-clock directly (DateTime.Now/UtcNow or TimeProvider.System). Use an injected clock."));
 
             if (ExternalIoClientTokensRegex.IsMatch(text))
-                violations.Add(("SF-003", relPath, "Service references direct external IO primitives (HttpClient/etc.). Use ports (interfaces) + adapters."));
+                violations.Add(("SF-004", relPath, "Service references direct external IO primitives (HttpClient/etc.). Use ports (interfaces) + adapters."));
 
             if (FileSystemIoTokensRegex.IsMatch(text))
-                violations.Add(("SF-004", relPath, "Service references direct filesystem IO primitives. Use ports (interfaces) + adapters."));
+                violations.Add(("SF-005", relPath, "Service references direct filesystem IO primitives. Use ports (interfaces) + adapters."));
 
             if (EnvironmentProcessTokensRegex.IsMatch(text))
-                violations.Add(("SF-005", relPath, "Service references host environment/process primitives. Use ports (interfaces) + adapters."));
+                violations.Add(("SF-006", relPath, "Service references host environment/process primitives. Use ports (interfaces) + adapters."));
+
+            if (AspNetCoreHostTokensRegex.IsMatch(text))
+                violations.Add(("SF-007", relPath, "Service references ASP.NET Core host primitives (IFormFile/HttpContext/etc.). Keep host types at the boundary."));
+
+            violations.AddRange(FindAmbiguousWriteResultViolations(relPath, text));
         }
 
         if (violations.Count == 0)
@@ -148,6 +169,41 @@ public sealed class ServiceFirewallArchitectureTests
     {
         var rel = Path.GetRelativePath(repoRoot, fullPath);
         return rel.Replace('\\', '/');
+    }
+
+    private static IEnumerable<(string RuleId, string RelPath, string Message)> FindAmbiguousWriteResultViolations(
+        string relPath,
+        string text)
+    {
+        foreach (Match match in PublicWriteUseCaseSignatureRegex.Matches(text))
+        {
+            var returnType = match.Groups["returnType"].Value.Trim();
+            var methodName = match.Groups["methodName"].Value.Trim();
+            if (!IsAmbiguousWriteReturnType(returnType))
+                continue;
+
+            yield return (
+                "SF-008",
+                relPath,
+                $"Public write use case '{methodName}' returns '{returnType}'. Return a strongly typed, semantically meaningful result instead of bool/bare Task/void."
+            );
+        }
+    }
+
+    private static bool IsAmbiguousWriteReturnType(string returnType)
+    {
+        var normalized = Regex.Replace(returnType, @"\s+", string.Empty);
+        return normalized is
+            "void" or
+            "bool" or
+            "Task" or
+            "ValueTask" or
+            "Task<bool>" or
+            "ValueTask<bool>" or
+            "System.Threading.Tasks.Task" or
+            "System.Threading.Tasks.ValueTask" or
+            "System.Threading.Tasks.Task<bool>" or
+            "System.Threading.Tasks.ValueTask<bool>";
     }
 }
 

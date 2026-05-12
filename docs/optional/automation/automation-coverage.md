@@ -32,7 +32,7 @@ This document maps **written rules** (`docs/rules/*.md` + `.cursor/rules/*.mdc`)
   - **Infrastructure adjunct folders** (Lookups/Helpers/TypeHandlers/Mappers/JWT/Security/Context): LF-001..LF-009
 
 - **Service firewall (source scan)**: `{TestsPrj}/Architecture/ServiceFirewallArchitectureTests.cs`
-  - SF-001..SF-006
+  - SF-001..SF-008
 
 - **API firewall (source scan)**: `{TestsPrj}/Architecture/ApiFirewallArchitectureTests.cs`
   - AF-001..AF-002
