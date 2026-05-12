@@ -23,6 +23,7 @@
 2. 準備一個**目標專案**，用來承接最後要保留的內容，不論它是既有專案或新專案。
 3. 準備需求文件位置：
    - 原始需求文件放在目標專案的 `docs/requirements/raw/`
+   - 可參考 `docs/requirements/raw/warehouse-onboarding-notes.md` 看偏白話的 raw requirement 範例
    - AI 可執行規格放在 `docs/specs/`
    - 可從 `docs/specs/feature-spec-template.md` 開始整理白話需求
    - 可參考 `docs/specs/example-warehouse-create.md` 看完整填寫範例

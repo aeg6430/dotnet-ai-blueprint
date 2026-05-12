@@ -109,6 +109,7 @@ Choose **one** track depending on whether you are integrating into a legacy code
 - Legacy maintenance playbook for bugfix / small feature work: [`core/legacy-bugfix-feature-sop.md`](core/legacy-bugfix-feature-sop.md)
 - New-project Day 0 collaboration checklist for mixed-tool teams: [`core/new-project-day0-collaboration-checklist.md`](core/new-project-day0-collaboration-checklist.md)
 - Tool-neutral contribution workflow: [`../../CONTRIBUTING.md`](../../CONTRIBUTING.md)
+- Raw requirement example: [`../requirements/raw/warehouse-onboarding-notes.md`](../requirements/raw/warehouse-onboarding-notes.md)
 - Feature spec template: [`../specs/feature-spec-template.md`](../specs/feature-spec-template.md)
 - Filled feature spec example: [`../specs/example-warehouse-create.md`](../specs/example-warehouse-create.md)
 - PR template: [`../../.github/pull_request_template.md`](../../.github/pull_request_template.md)
