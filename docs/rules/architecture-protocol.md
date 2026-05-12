@@ -129,13 +129,7 @@ return FooMapping.ToDtos(rows);
 ## 7. Relationship to other project rules
 
 - **`docs/ARCHITECTURE.md`** — folder layout and cross-cutting patterns.
-- **[Cursor rules under `.cursor/rules/`](../../.cursor/rules/)** — stable, versioned primary read order for Cursor agents. Keep them consistent with this document.
-- **[Compatibility bridge `.cursorrules`](../../.cursorrules)** — legacy entrypoint; keep it as a thin mirror only while older consumers still require it.
-  - **Retire `.cursorrules` completely only when all conditions are true:**
-    1. `.cursor/rules/` is already the only supported primary Cursor entrypoint in seed/export and onboarding docs.
-    2. Repository docs no longer require `.cursorrules` for any supported consumer; it is mentioned only as legacy/deprecated, if at all.
-    3. Downstream starter repos or internal templates that this pack still supports have confirmed `.cursor/rules/` adoption.
-    4. The removal change also deletes the root bridge from export paths and cleans remaining repo-local references in docs/checklists.
+- **[Cursor rules under `.cursor/rules/`](../../.cursor/rules/)** — stable, versioned, and only supported read order for Cursor agents. Keep them consistent with this document.
 
 ---
 

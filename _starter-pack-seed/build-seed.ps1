@@ -64,9 +64,8 @@ Copy-Tree (Join-Path $PackRoot "docs/starter-pack") (Join-Path $OutDir "docs/sta
 # 2) Copilot entrypoint
 Copy-File (Join-Path $PackRoot ".github/copilot-instructions.md") (Join-Path $OutDir ".github/copilot-instructions.md")
 
-# 2.1) Cursor entrypoints
+# 2.1) Cursor entrypoint
 Copy-Tree (Join-Path $PackRoot ".cursor/rules") (Join-Path $OutDir ".cursor/rules")
-Copy-File (Join-Path $PackRoot ".cursorrules") (Join-Path $OutDir ".cursorrules")
 
 # 3) Templates (sample patterns)
 Copy-Tree (Join-Path $PackRoot "templates") (Join-Path $OutDir "templates")
@@ -98,8 +97,6 @@ Start here:
 
 Then copy the `*.cs.txt` templates into your solution, replacing placeholders:
 `{Solution}`, `{CoreNamespace}`, `{InfrastructureNamespace}`, `{ApiNamespace}`, `{TestsNamespace}`.
-
-`.cursorrules` is included as a compatibility bridge only; keep repository-specific Cursor guidance under `.cursor/rules/`.
 
 Recommended (safer): run the initializer to replace placeholders in one go:
 `pwsh -File ./initialize.ps1 -Solution "<Solution>" -CoreNamespace "<Core>" -InfrastructureNamespace "<Infra>" -ApiNamespace "<Api>" -TestsNamespace "<Tests>"`

@@ -73,7 +73,7 @@ Choose **one** track depending on whether you are integrating into a legacy code
 
 ### New project (step-by-step)
 
-- **Phase A (day 0)**: Copy this tree + add `.cursor/rules/` (primary Cursor entrypoint) + `.github/copilot-instructions.md` + enable analyzers. Keep `.cursorrules` only if an older consumer still expects the legacy bridge.
+- **Phase A (day 0)**: Copy this tree + add `.cursor/rules/` (primary Cursor entrypoint) + `.github/copilot-instructions.md` + enable analyzers.
 - **Phase B**: Add layering tests (`architecture-tests/GenericLayeringArchitectureTests.cs.txt`).
 - **Phase C**: Add source-scan firewalls (repo/service/api).
 - **Phase D**: Add security mapping (ASVS) and performance acceptance templates to your delivery checklist.

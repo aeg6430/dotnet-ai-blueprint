@@ -19,20 +19,6 @@ Scoring rubric: see [automation-decision-matrix.md](automation-decision-matrix.m
   - **Mechanism**: docs-only update (no code changes).
   - **Scope**: this folder’s `automation-coverage.md` + `automation-decision-matrix.md` (if needed).
 
-- **AB-0002: Retire the legacy `.cursorrules` bridge after downstream migration**
-  - **Why**: `.cursor/rules/*.mdc` is now the primary Cursor mechanism, but the root bridge remains for compatibility.
-  - **Decision**: keep the bridge while downstream repos and docs still rely on it, then remove it once `.cursor/rules/` is universally adopted.
-  - **Mechanism**: docs-only update.
-  - **Exit criteria**:
-    1. `_starter-pack-seed/build-seed.ps1` and exported onboarding material start from `.cursor/rules/`, not `.cursorrules`.
-    2. Repository/starter-pack docs describe `.cursorrules` as compatibility-only and do not require it for any supported setup path.
-    3. Supported downstream repos, templates, or internal bootstrap docs no longer have an active dependency on the root `.cursorrules` file.
-    4. The retirement change removes `.cursorrules` from the repo root, export path, and remaining doc references in the same cleanup pass.
-  - **Next actions**:
-    - Audit downstream starter repos/templates for hard references to `.cursorrules`.
-    - Track which consumers still need the bridge, with an owner and removal target date.
-    - Remove the bridge only after the audit is clear or the remaining consumers are explicitly out of support.
-
 ## P1 — High-signal code-quality via analyzers (scoped, then promote)
 
 - **AB-0101: `nameof()` enforcement where applicable**

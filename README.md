@@ -4,7 +4,7 @@
 
 ## IDE：Cursor、Copilot
 
-- **Cursor / Windsurf**：優先讀取 [`.cursor/rules/`](.cursor/rules/)；repo 根的 [`.cursorrules`](.cursorrules) 僅保留為相容橋接。
+- **Cursor / Windsurf**：優先讀取 [`.cursor/rules/`](.cursor/rules/)；這是 repo 唯一受支援的 Cursor 規則入口。
 - **GitHub Copilot（Visual Studio / VS Code）**：以 [`.github/copilot-instructions.md`](.github/copilot-instructions.md) 為專案指引（內含 **Plan-first**：先在 Chat 選 **Plan** / `/plan`，核准後再 **Agent** 或手改）；聊天可搭配 [`COPILOT_PROMPT.md`](COPILOT_PROMPT.md)（短索引貼上）。
 
 ### Cursor 規則分層
@@ -57,7 +57,6 @@
   - `anchors/`、`docs/starter-pack/shadow-examples/`、`templates/`：可複製樣式
   - `.github/copilot-instructions.md`：Copilot 入口
   - [`.cursor/rules/`](.cursor/rules/)：Cursor/Agent 主入口
-  - [`.cursorrules`](.cursorrules)：相容橋接入口
   - `docs/starter-pack/optional/**`：安全/效能/Minimal API 可選模組
 
 ### 1.0 分層依賴方向圖（視覺化，降低溝通誤解）
@@ -149,7 +148,7 @@ dot -Tsvg artifacts/deps.dot -o artifacts/deps.svg
     - placeholder guard：避免「模板沒替換」造成品質門檻形同虛設。
     - exception leak：避免把 DB driver/內部例外細節（含敏感訊息）回吐給 API client。
 - **AI 入口（生成約束）**
-  - **Cursor**：[`.cursor/rules/`](.cursor/rules/)（主入口）與 [`.cursorrules`](.cursorrules)（相容橋接）
+  - **Cursor**：[`.cursor/rules/`](.cursor/rules/)（唯一受支援主入口）
   - **Copilot**：`.github/copilot-instructions.md`（原版於本目錄之 [.github/](.github/)）
   - **達成**：規定讀取順序、禁止捷徑、優先複製 templates/shadow-examples，降低產出偏離規範的機率。
 - **驗收模板（DoD/交付）**：`docs/starter-pack/optional/**`
@@ -186,7 +185,7 @@ dot -Tsvg artifacts/deps.dot -o artifacts/deps.svg
 - **產出物**：
   - `docs/starter-pack/README.md`、`docs/starter-pack/core/transactions.md`
   - `.github/copilot-instructions.md`
-  -（若用 Cursor Agent）[`.cursor/rules/`](.cursor/rules/) 或相容橋接 [`.cursorrules`](.cursorrules)
+  -（若用 Cursor Agent）[`.cursor/rules/`](.cursor/rules/)
   - `anchors/`、`docs/starter-pack/shadow-examples/`、`templates/`
 - **主要規範**：分層責任、交易/邊界、基本 code quality/SQL/mapping/testing。
 - **達成方式**：把上述檔案複製進目標 repo，並在團隊 onboarding / PR 指引中把它們當作「唯一入口」。
@@ -285,7 +284,6 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "_starter-pack-seed/build-se
 
 匯出內容（依 `build-seed.ps1`）包含：
 - `.cursor/rules/**`（Cursor 主入口）
-- `.cursorrules`（相容橋接）
 - `docs/starter-pack/**`
 - `.github/copilot-instructions.md`
 - `templates/**`
@@ -300,7 +298,6 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "_starter-pack-seed/build-se
   - `.cursor/rules/00-entrypoint.mdc`
   - `docs/starter-pack/README.md`
   - `.github/copilot-instructions.md`
-  - `.cursorrules`（若仍需相容舊版 Cursor consumer）
 
 #### 3.3 Placeholder 替換（必做，不然規則不會生效）
 > [!IMPORTANT]

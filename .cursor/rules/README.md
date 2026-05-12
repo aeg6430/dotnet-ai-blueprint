@@ -30,5 +30,5 @@ Primary Cursor guidance for this repository.
 ## Maintenance
 
 - Keep these rules aligned with `docs/ARCHITECTURE.md` and `docs/rules/*.md`.
-- Treat `.cursor/rules/` as the stable, versioned Cursor source of truth; keep `.cursorrules` as a compatibility bridge only while older consumers still rely on it.
+- Treat `.cursor/rules/` as the stable, versioned, and only supported Cursor source of truth for this repository.
 - Prefer editing a focused rule instead of expanding `00-entrypoint.mdc` into a monolith.
