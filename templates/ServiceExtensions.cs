@@ -31,6 +31,14 @@ public static class ServiceExtensions
             configuration.GetSection(PricingGatewayOptions.SectionName));
         services.Configure<ShipmentGatewayOptions>(
             configuration.GetSection(ShipmentGatewayOptions.SectionName));
+        services.Configure<PaymentGatewayOptions>(
+            configuration.GetSection(PaymentGatewayOptions.SectionName));
+        services.Configure<WebhookGatewayOptions>(
+            configuration.GetSection(WebhookGatewayOptions.SectionName));
+        services.Configure<MessagePublisherOptions>(
+            configuration.GetSection(MessagePublisherOptions.SectionName));
+        services.Configure<OutboxDeliveryOptions>(
+            configuration.GetSection(OutboxDeliveryOptions.SectionName));
 
         services.AddHttpClient<IInventoryGateway, InventoryGateway>((serviceProvider, client) =>
             {
@@ -61,6 +69,33 @@ public static class ServiceExtensions
             .AddPolicyHandler(ResiliencePolicies.TimeoutPolicy)
             .AddPolicyHandler(ResiliencePolicies.RetryPolicy)
             .AddPolicyHandler(ResiliencePolicies.CircuitBreakerPolicy);
+
+        services.AddHttpClient<IPaymentGateway, PaymentGateway>((serviceProvider, client) =>
+            {
+                var options = serviceProvider.GetRequiredService<IOptions<PaymentGatewayOptions>>().Value;
+                client.BaseAddress = new Uri(options.BaseUrl);
+                client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
+            })
+            .AddPolicyHandler(ResiliencePolicies.TimeoutPolicy)
+            .AddPolicyHandler(ResiliencePolicies.RetryPolicy)
+            .AddPolicyHandler(ResiliencePolicies.CircuitBreakerPolicy);
+
+        services.AddHttpClient<IWebhookGateway, WebhookGateway>((serviceProvider, client) =>
+            {
+                var options = serviceProvider.GetRequiredService<IOptions<WebhookGatewayOptions>>().Value;
+                client.BaseAddress = new Uri(options.BaseUrl);
+                client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
+            })
+            .AddPolicyHandler(ResiliencePolicies.TimeoutPolicy)
+            .AddPolicyHandler(ResiliencePolicies.RetryPolicy)
+            .AddPolicyHandler(ResiliencePolicies.CircuitBreakerPolicy);
+
+        services.AddScoped<IMessagePublisher, MessagePublisher>();
+        services.AddScoped<IOutboxDispatcher, OutboxDispatcher>();
+        services.AddScoped<IOutboxDeliveryHandler, PaymentOutboxDeliveryHandler>();
+        services.AddScoped<IOutboxDeliveryHandler, WebhookOutboxDeliveryHandler>();
+        services.AddScoped<IOutboxDeliveryHandler, MessagePublishOutboxDeliveryHandler>();
+        services.AddHostedService<OutboxDeliveryWorker>();
 
         // --- Repositories ---
         services.AddScoped<IWarehouseRepository, WarehouseRepository>();
