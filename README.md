@@ -284,6 +284,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "_starter-pack-seed/build-se
 ```
 
 匯出內容（依 `build-seed.ps1`）包含：
+- `.cursor/rules/**`（Cursor 主入口）
+- `.cursorrules`（相容橋接）
 - `docs/starter-pack/**`
 - `.github/copilot-instructions.md`
 - `templates/**`
@@ -294,8 +296,11 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "_starter-pack-seed/build-se
 #### 3.2 搬入目標 repo（把 out/ 當作起手架）
 - 將 `_starter-pack-seed/out/`（§3.1 預設輸出）內容複製到目標 repo root。
 - 確認關鍵入口檔存在：
+  - `.cursor/rules/README.md`
+  - `.cursor/rules/00-entrypoint.mdc`
   - `docs/starter-pack/README.md`
   - `.github/copilot-instructions.md`
+  - `.cursorrules`（若仍需相容舊版 Cursor consumer）
 
 #### 3.3 Placeholder 替換（必做，不然規則不會生效）
 > [!IMPORTANT]

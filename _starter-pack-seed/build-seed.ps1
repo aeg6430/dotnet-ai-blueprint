@@ -64,6 +64,10 @@ Copy-Tree (Join-Path $PackRoot "docs/starter-pack") (Join-Path $OutDir "docs/sta
 # 2) Copilot entrypoint
 Copy-File (Join-Path $PackRoot ".github/copilot-instructions.md") (Join-Path $OutDir ".github/copilot-instructions.md")
 
+# 2.1) Cursor entrypoints
+Copy-Tree (Join-Path $PackRoot ".cursor/rules") (Join-Path $OutDir ".cursor/rules")
+Copy-File (Join-Path $PackRoot ".cursorrules") (Join-Path $OutDir ".cursorrules")
+
 # 3) Templates (sample patterns)
 Copy-Tree (Join-Path $PackRoot "templates") (Join-Path $OutDir "templates")
 
@@ -80,25 +84,29 @@ if (Test-Path -LiteralPath (Join-Path $PackRoot "tools")) {
 }
 
 # 6) Minimal top-level README for the exported seed
-$exportReadme = @"
+$exportReadme = @'
 # Layered .NET Starter (export)
 
 This folder was exported from another repository using `_starter-pack-seed/build-seed.ps1`.
 
 Start here:
 
+- `.cursor/rules/README.md`
+- `.cursor/rules/00-entrypoint.mdc`
 - `docs/starter-pack/README.md`
 - `.github/copilot-instructions.md`
 
 Then copy the `*.cs.txt` templates into your solution, replacing placeholders:
 `{Solution}`, `{CoreNamespace}`, `{InfrastructureNamespace}`, `{ApiNamespace}`, `{TestsNamespace}`.
 
+`.cursorrules` is included as a compatibility bridge only; keep repository-specific Cursor guidance under `.cursor/rules/`.
+
 Recommended (safer): run the initializer to replace placeholders in one go:
 `pwsh -File ./initialize.ps1 -Solution "<Solution>" -CoreNamespace "<Core>" -InfrastructureNamespace "<Infra>" -ApiNamespace "<Api>" -TestsNamespace "<Tests>"`
 
 Optional tool:
 - `tools/dependency-graph/` (emit Graphviz DOT from csproj references)
-"@
+'@
 
 $exportReadmePath = Join-Path $OutDir "README.md"
 Set-Content -Path $exportReadmePath -Value $exportReadme -Encoding UTF8

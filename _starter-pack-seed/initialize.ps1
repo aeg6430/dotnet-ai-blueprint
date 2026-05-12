@@ -33,7 +33,7 @@ $files = Get-ChildItem -LiteralPath $Root -Recurse -File |
   Where-Object {
     $_.FullName -notmatch '\\bin\\' -and
     $_.FullName -notmatch '\\obj\\' -and
-    ($_.Name -like "*.cs" -or $_.Name -like "*.md" -or $_.Name -like "*.csproj" -or $_.Name -like "*.sln" -or $_.Name -like "*.json")
+    ($_.Name -like "*.cs" -or $_.Name -like "*.md" -or $_.Name -like "*.mdc" -or $_.Name -like "*.csproj" -or $_.Name -like "*.sln" -or $_.Name -like "*.json")
   }
 
 foreach ($f in $files) {

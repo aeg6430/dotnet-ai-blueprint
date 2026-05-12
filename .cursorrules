@@ -26,6 +26,6 @@ Primary Cursor guidance now lives in [`.cursor/rules/`](.cursor/rules/).
 
 ## Notes
 
-- Treat this file as a compatibility entrypoint while `.cursor/rules/*.mdc` becomes the primary Cursor mechanism.
+- Treat this file as a legacy compatibility entrypoint only. Keep the stable, versioned Cursor guidance under `.cursor/rules/` first, then mirror here only when older consumers still require it.
 - Toggle behaviour modes via [`.ai-modes`](.ai-modes) when present.
 - If a feature spec exists under `docs/specs/`, it overrides defaults.

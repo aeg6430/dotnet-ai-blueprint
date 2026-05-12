@@ -129,8 +129,8 @@ return FooMapping.ToDtos(rows);
 ## 7. Relationship to other project rules
 
 - **`docs/ARCHITECTURE.md`** — folder layout and cross-cutting patterns.
-- **[Cursor rules under `.cursor/rules/`](../../.cursor/rules/)** — primary read order for Cursor agents. Keep them consistent with this document.
-- **[Compatibility bridge `.cursorrules`](../../.cursorrules)** — legacy entrypoint that should mirror the primary Cursor rules during migration.
+- **[Cursor rules under `.cursor/rules/`](../../.cursor/rules/)** — stable, versioned primary read order for Cursor agents. Keep them consistent with this document.
+- **[Compatibility bridge `.cursorrules`](../../.cursorrules)** — legacy entrypoint; keep it as a thin mirror only while older consumers still require it.
 
 ---
 
