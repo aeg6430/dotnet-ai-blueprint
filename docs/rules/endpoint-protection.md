@@ -64,6 +64,35 @@ Prefer the lightest mechanism that still gives stable enforcement:
 
 The goal is **not** to remove strong architecture checks. The goal is to avoid paying reflection/assembly-load cost where a simpler source scan already gives the needed signal.
 
+## Phase C priority for security review
+
+When the team is hardening a codebase for **security-vendor review**, audit scrutiny, or “findings first” conversations, treat **Firewall + Exception Leak** as the first defensive line in Phase C.
+
+Priority order:
+
+1. **Start with `ExceptionLeakTests`**
+   - This is the highest-signal early gate when reviewers or security vendors look for obvious leakage.
+   - Prioritize checks that prevent DB / driver exception details from reaching API responses.
+   - Typical examples include `SqlException`, `DbException`, `Microsoft.Data.SqlClient.*`, raw connection-string fragments, SQL text, schema/table names, or stack-trace style leakage.
+2. **Then expand to Phase C firewall rules**
+   - Add API / Service / Repository firewalls to block broader responsibility violations and high-risk shortcuts.
+   - Prefer source-oriented or otherwise lower-overhead checks first when endpoint protection makes repeated assembly loading expensive.
+
+Why this order:
+
+- **Exception leak** is easier for outside reviewers to understand and easier to classify as a concrete risk.
+- It gives a fast, defensible answer when a security vendor asks whether sensitive internals can leak to clients.
+- It usually provides a better early risk-reduction-to-cost ratio than attempting full firewall coverage on day 1.
+
+## AI / IDE instruction priority
+
+If AI or IDE agents are asked to help with endpoint protection, Phase C hardening, security review, or vendor-facing readiness:
+
+- read this document early
+- prioritize `ExceptionLeakTests` before broader firewall expansion
+- treat “prevent exception leakage to clients” as the first concrete acceptance target
+- then add or tighten firewall checks without replacing the exception-leak gate
+
 ## AI tooling constraints
 
 If Cursor cloud features, Copilot agents, or similar capabilities are restricted:

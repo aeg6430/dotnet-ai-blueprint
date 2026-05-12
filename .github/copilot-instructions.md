@@ -22,7 +22,7 @@ For Cursor, the equivalent repository guidance lives under [`.cursor/rules/`](..
    - [`docs/starter-pack/shadow-examples/`](../docs/starter-pack/shadow-examples/)
    - [`templates/`](../templates/)
 
-For endpoint protection, CI slowness, Build Agent exclusions, or restricted cloud tooling, also read [`docs/rules/endpoint-protection.md`](../docs/rules/endpoint-protection.md).
+For endpoint protection, CI slowness, Build Agent exclusions, restricted cloud tooling, Phase C firewall hardening, or exception-leak prevention, also read [`docs/rules/endpoint-protection.md`](../docs/rules/endpoint-protection.md) early and prioritize `ExceptionLeakTests` before broader firewall expansion.
 
 ## Recommended workspace model
 
@@ -87,7 +87,7 @@ When generating code:
 - For project setup requests on a Seed folder, use [`docs/starter-pack/project-setup-protocol.md`](../docs/starter-pack/project-setup-protocol.md) before feature implementation or refactoring.
 - If a target repo provides `docs/specs/`, follow the feature spec before applying default blueprint assumptions.
 - If the task touches API-edge monitoring, traceability, security review, or audit evidence, also follow [`docs/rules/audit-log.md`](../docs/rules/audit-log.md).
-- If the task touches endpoint protection, CI slowness, Build Agent exclusions, restricted cloud tooling, or Apex One, also follow [`docs/rules/endpoint-protection.md`](../docs/rules/endpoint-protection.md).
+- If the task touches endpoint protection, CI slowness, Build Agent exclusions, restricted cloud tooling, Apex One, Phase C firewall hardening, or exception-leak prevention, also follow [`docs/rules/endpoint-protection.md`](../docs/rules/endpoint-protection.md) and prioritize `ExceptionLeakTests` before broader firewall expansion.
 - Prefer patterns from `docs/starter-pack/shadow-examples/` or `templates/`.
 - Keep changes minimal and consistent with analyzers and architecture tests.
 - If a rule is unclear, add an ADR or update the rule instead of inventing a new convention.
