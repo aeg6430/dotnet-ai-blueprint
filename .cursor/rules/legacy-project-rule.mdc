@@ -1,0 +1,26 @@
+---
+description: Guard legacy project edits against transaction-mixing and sync-over-async regressions.
+alwaysApply: false
+---
+
+# Legacy Project Rule
+
+## Trigger Checklist
+
+- User asks to modify code in a legacy or existing project.
+- The target codebase already uses `IDbTransaction`, manual Dapper transaction control, or mixed old/new async patterns.
+- The change touches transaction boundaries, service orchestration, repositories, or async call chains.
+
+## Enforce
+
+- NEVER introduce `TransactionScope` if the existing code already uses `IDbTransaction` or manual transaction control.
+- Keep one transaction model per path; prefer the repo's existing explicit `IDbTransaction` / UoW approach unless the project explicitly migrates by spec or ADR.
+- ALWAYS check async/await consistency across the edited path.
+- Remove sync-over-async patterns such as `.Result`, `.Wait()`, or `GetAwaiter().GetResult()` from request-handling or service flows.
+- Treat thread-pool starvation and deadlock risk as a real production concern, especially in restricted government or enterprise environments.
+
+## References
+
+- `docs/rules/transactions.md`
+- `docs/rules/architecture-protocol.md`
+- `docs/rules/resilience.md`

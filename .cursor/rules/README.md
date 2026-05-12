@@ -19,6 +19,7 @@ Supported Cursor entrypoint and read-order index for this repository.
 - [`refactor-uow.mdc`](refactor-uow.mdc) — transaction boundaries and UoW flows
 - [`add-resilience.mdc`](add-resilience.mdc) — timeout, retry, breaker, outbound safeguards
 - [`api-standard.mdc`](api-standard.mdc) — thin controllers and API response handling
+- [`legacy-project-rule.mdc`](legacy-project-rule.mdc) — prevent transaction-model mixing and sync-over-async regressions in legacy edits
 - [`seed-to-legacy-target-translation.mdc`](seed-to-legacy-target-translation.mdc) — translate Seed logic into an existing Target repo safely
 - [`seed-to-new-project-target-translation.mdc`](seed-to-new-project-target-translation.mdc) — translate Seed logic into a new Target repo with target-native structure
 
@@ -28,6 +29,7 @@ Supported Cursor entrypoint and read-order index for this repository.
 2. Use [`pattern-match.mdc`](pattern-match.mdc) before inventing structures.
 3. Run [`rule-guard.mdc`](rule-guard.mdc) after backend C# changes.
 4. Load a manual workflow rule when the request or audit matches:
+   - modifying an existing legacy Target repo -> [`legacy-project-rule.mdc`](legacy-project-rule.mdc)
    - existing Target repo -> [`seed-to-legacy-target-translation.mdc`](seed-to-legacy-target-translation.mdc)
    - new or early-stage Target repo -> [`seed-to-new-project-target-translation.mdc`](seed-to-new-project-target-translation.mdc)
 

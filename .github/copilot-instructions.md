@@ -41,6 +41,7 @@ Default behavior:
 3. If the spec is incomplete, fall back to this blueprint's rules and templates.
 4. If the target codebase is noisy or legacy-heavy, prototype the clean version in Seed first.
 5. Integrate the logic back into Target using Target naming, style, and boundaries rather than copying blueprint-specific abstractions verbatim.
+6. For legacy project edits, never introduce `TransactionScope` into paths that already use `IDbTransaction`, and always re-check async/await consistency to avoid sync-over-async deadlocks.
 
 ## Plan-first workflow (VS Code & Visual Studio)
 
