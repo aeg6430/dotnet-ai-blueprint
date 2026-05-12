@@ -6,5 +6,7 @@ alwaysApply: true
 # Context Discovery
 
 - For placement, naming, ownership, or layering ambiguity, read `docs/ARCHITECTURE.md` and `docs/rules/architecture-protocol.md` first.
+- For external integration ambiguity, also read `docs/rules/external-integration-firewall.md` and `docs/rules/anti-corruption-layer.md` first.
+- For non-trivial external integrations, ask narrow questions about project state and system relationships before proposing implementation.
 - Ask the user only if those sources still leave a real ambiguity.
 - Ask narrow trade-off questions, not broad design prompts.

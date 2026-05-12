@@ -1,0 +1,57 @@
+---
+description: Discover external integrations before implementation.
+alwaysApply: false
+---
+
+# External Integration Discovery
+
+## Trigger Checklist
+
+- The user asks about integrating an external API, SDK, shared service, legacy system, vendor platform, or public-sector endpoint.
+- The task mentions XML/JSON mixing, weird status codes, unstable payloads, missing test environments, or hostile contracts.
+- The work will add or modify an outbound adapter, ACL, gateway, shared-library wrapper, or evidence logging flow.
+
+## Discovery First
+
+Before proposing implementation, do these steps in order:
+
+1. Read:
+   - `docs/rules/external-integration-firewall.md`
+   - `docs/rules/anti-corruption-layer.md`
+   - `docs/rules/transactions.md`
+   - `docs/rules/resilience.md`
+2. Ask the user whether this is a **new project** or an **existing project**, unless that is already explicit.
+3. Ask for the current integration context when missing:
+   - inbound vs outbound systems
+   - known shared libraries / SDKs
+   - ownership of the external dependency
+   - current failure mode or pain point
+4. Classify the integration as **Light**, **Moderate**, or **Heavy** before choosing a template shape.
+
+## Required Output
+
+- Produce an **Integration Relationship Map** in **Mermaid.js** format before implementation planning when the task is non-trivial.
+- The diagram must explicitly mark:
+  - `TransactionBoundary`
+  - `DataSanitizationPoint`
+  - external systems
+  - adapter / ACL boundary
+  - Core use-case entrypoints
+  - evidence / audit path when relevant
+
+If you cannot identify a clear `TransactionBoundary` or `DataSanitizationPoint`, stop and ask the user for clarification before proposing implementation.
+
+## Enforce
+
+- Do not jump directly into code generation for external integrations.
+- Do not assume the foreign system is semantically trustworthy just because it has docs or OpenAPI.
+- Keep dirty payload names, status semantics, and foreign exceptions out of Core.
+- Prefer narrow, concrete discovery questions over broad architecture prompts.
+
+## References
+
+- `docs/rules/external-integration-firewall.md`
+- `docs/rules/anti-corruption-layer.md`
+- `templates/ExternalSystemGateway.cs`
+- `templates/ExternalSystemTranslator.cs`
+- `templates/ExternalSystemEvidenceLogger.cs`

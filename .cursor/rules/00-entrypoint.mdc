@@ -7,6 +7,7 @@ alwaysApply: true
 
 - Read `docs/ARCHITECTURE.md`, then `docs/rules/architecture-protocol.md`.
 - For transaction or outbound work, also read `docs/rules/transactions.md` and `docs/rules/resilience.md`.
+- For external APIs, SDKs, shared services, or legacy integrations, also load `external-integration-discovery.mdc`.
 - Treat `docs/`, `templates/`, and `skeleton/` as the source of truth. Do not invent parallel conventions.
-- If the request or audit matches, load `refactor-uow.mdc`, `add-resilience.mdc`, or `api-standard.mdc`.
+- If the request or audit matches, load `refactor-uow.mdc`, `add-resilience.mdc`, `external-integration-discovery.mdc`, or `api-standard.mdc`.
 - If `docs/specs/` contains a feature spec, it overrides default guidance.
