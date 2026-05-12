@@ -9,7 +9,7 @@ This document is written to be **copyable**: the *principles* are stable even if
 **Status:** Binding engineering contract for backends adopting this layered pack.  
 **Principle:** Obey SOLID and explicit layering. No improvised, unstructured edits (“vibe coding”). Run a **static architecture review** in your head before emitting code: which layer owns this, and which abstraction carries it?
 
-**Placeholders:** `{CoreNamespace}`, `{InfrastructureNamespace}`, `{ApiNamespace}`, `{TestsNamespace}`, `{BackendRoot}`, `{Solution}` — replace via [`docs/starter-pack/README.md`](../starter-pack/README.md) / `initialize.ps1`; path semantics match [`docs/ARCHITECTURE.md`](../ARCHITECTURE.md).
+**Placeholders:** `{CoreNamespace}`, `{InfrastructureNamespace}`, `{ApiNamespace}`, `{TestsNamespace}`, `{BackendRoot}`, `{Solution}` — replace via the project setup flow described in [`docs/starter-pack/README.md`](../starter-pack/README.md) and the repository root `README.md`; path semantics match [`docs/ARCHITECTURE.md`](../ARCHITECTURE.md).
 
 ---
 

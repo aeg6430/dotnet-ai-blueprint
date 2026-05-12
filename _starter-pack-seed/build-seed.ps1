@@ -86,7 +86,7 @@ if (Test-Path -LiteralPath (Join-Path $PackRoot "tools")) {
 $exportReadme = @'
 # Layered .NET Starter (export)
 
-This folder was exported from another repository using `_starter-pack-seed/build-seed.ps1`.
+This folder contains a portable working directory prepared from another starter-pack repository.
 
 Start here:
 
@@ -98,8 +98,10 @@ Start here:
 Then copy the `*.cs.txt` templates into your solution, replacing placeholders:
 `{Solution}`, `{CoreNamespace}`, `{InfrastructureNamespace}`, `{ApiNamespace}`, `{TestsNamespace}`.
 
-Recommended (safer): run the initializer to replace placeholders in one go:
-`pwsh -File ./initialize.ps1 -Solution "<Solution>" -CoreNamespace "<Core>" -InfrastructureNamespace "<Infra>" -ApiNamespace "<Api>" -TestsNamespace "<Tests>"`
+Recommended setup flow:
+- Read `.cursor/rules/README.md`
+- Follow the `Project Setup Protocol`
+- Use `TargetProjectName` (or your repo naming rules) to align namespaces, paths, and project names
 
 Optional tool:
 - `tools/dependency-graph/` (emit Graphviz DOT from csproj references)
@@ -108,7 +110,7 @@ Optional tool:
 $exportReadmePath = Join-Path $OutDir "README.md"
 Set-Content -Path $exportReadmePath -Value $exportReadme -Encoding UTF8
 
-# 7) Placeholder initializer (optional but recommended)
+# 7) Placeholder initializer (compatibility helper)
 Copy-File (Join-Path $PSScriptRoot "initialize.ps1") (Join-Path $OutDir "initialize.ps1")
 
 Write-Host "Done. Export created at: $OutDir"

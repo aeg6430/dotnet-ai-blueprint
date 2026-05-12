@@ -6,7 +6,7 @@ inclusion: manual
 
 This document maps **written rules** (`docs/rules/*.md` + `.cursor/rules/*.mdc`) to **enforceable automated checks** (tests/analyzers/CI).
 
-> **Portable paths:** Examples use placeholders — adapt to your repository layout after `initialize.ps1` (see [`docs/starter-pack/README.md`](../../starter-pack/README.md)).
+> **Portable paths:** Examples use placeholders — adapt to your repository layout after the project setup flow described in [`docs/starter-pack/README.md`](../../starter-pack/README.md).
 >
 > | Placeholder | Typical meaning |
 > |-------------|-----------------|
@@ -36,6 +36,8 @@ This document maps **written rules** (`docs/rules/*.md` + `.cursor/rules/*.mdc`)
 
 - **API firewall (source scan)**: `{TestsPrj}/Architecture/ApiFirewallArchitectureTests.cs`
   - AF-001..AF-002
+
+> **Operational note (endpoint protection):** these gates often rely on reflection, assembly loading, source scanning, and writing reports under `artifacts/`. If dev machines or CI build agents run Apex One or similar endpoint protection, coordinate a reviewed exclusion policy for the build workspace and required artifact output paths; otherwise test duration and pipeline stability can degrade for reasons unrelated to code quality.
 
 ## Covered (enforced by analyzers in build)
 

@@ -10,9 +10,12 @@ alwaysApply: true
 - For external APIs, SDKs, shared services, or legacy integrations, also load `external-integration-discovery.mdc`.
 - Treat `docs/`, `templates/`, and `skeleton/` as the source of truth. Do not invent parallel conventions.
 - This repository is the Blueprint layer in the recommended Blueprint / Seed / Target workflow.
+- For project setup, namespace conversion, or directory renaming on a Seed folder, read `.cursor/rules/README.md` and follow its `Project Setup Protocol` before other workflow rules.
 - If a target repo provides `docs/specs/`, follow that feature spec before applying default blueprint assumptions.
 - Treat raw requirement files such as `docs/requirements/raw/` as source material; convert them into `docs/specs/` before implementation when possible.
 - Use Seed / Sandbox to prototype clean reference implementations when the target repo is noisy, legacy-heavy, or stylistically inconsistent.
 - When integrating into a Target repo, preserve Target naming, style, and boundaries; do not copy blueprint-specific abstractions verbatim unless the target explicitly adopts them.
-- If the request or audit matches, load `refactor-uow.mdc`, `add-resilience.mdc`, `seed-to-legacy-target-translation.mdc`, `seed-to-new-project-target-translation.mdc`, `external-integration-discovery.mdc`, or `api-standard.mdc`.
+- For Seed -> Target translation into an existing repo, load `seed-to-legacy-target-translation.mdc`.
+- For Seed -> Target translation into a greenfield or early-stage repo, load `seed-to-new-project-target-translation.mdc`.
+- If the request or audit matches, also load `refactor-uow.mdc`, `add-resilience.mdc`, `external-integration-discovery.mdc`, or `api-standard.mdc`.
 - If `docs/specs/` contains a feature spec, it overrides default guidance.

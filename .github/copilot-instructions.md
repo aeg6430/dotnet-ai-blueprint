@@ -29,6 +29,8 @@ When using this starter pack with a separate product repository, prefer a three-
 - **Seed / Sandbox**: a clean exported starter-pack project used to prototype the ideal implementation.
 - **Target**: the real product repository (legacy or new project) where final changes are integrated.
 
+For project setup, namespace conversion, or folder renaming on a Seed folder, read `.cursor/rules/README.md` and follow the `Project Setup Protocol` before implementation work begins.
+
 Default behavior:
 
 1. Read the target repo's `docs/specs/` first, if present.
@@ -76,6 +78,7 @@ Use official ASP.NET Core mechanisms: middleware + MVC filters + (optionally) DI
 When generating code:
 
 - For **multi-file** work or anything that touches **layering / transactions / security**, prefer **Plan mode first** (see above), then **Agent** mode or manual edits.
+- For project setup requests on a Seed folder, use the `Project Setup Protocol` before feature implementation or refactoring.
 - If a target repo provides `docs/specs/`, follow the feature spec before applying default blueprint assumptions.
 - Prefer patterns from `docs/starter-pack/shadow-examples/` or `templates/`.
 - Keep changes minimal and consistent with analyzers and architecture tests.

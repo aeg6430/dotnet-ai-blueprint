@@ -16,38 +16,22 @@ digraph deps {
 }
 ```
 
-## How to run (example)
+## How to produce the artifact
 
-1. Run the generator (in a small console app / repo-local tool / or a test that outputs artifacts):
-   - output `artifacts/deps.dot`
-2. Convert to SVG:
-
-```bash
-dot -Tsvg artifacts/deps.dot -o artifacts/deps.svg
-```
-
+1. Use a small console app, repo-local tool, or test to generate `artifacts/deps.dot`.
+2. If your environment allows Graphviz, convert the DOT file into `artifacts/deps.svg`.
 3. Use in draw.io (diagrams.net) (optional):
    - Import the generated `artifacts/deps.svg`, then edit annotations as needed.
 
-## Repo-local command
+## Repo-local tool
 
-If this pack includes the repo-local tool under `tools/dependency-graph/`, you can generate the DOT artifact directly from repo root:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File ".\tools\dependency-graph\generate.ps1"
-```
+If this pack includes the repo-local tool under `tools/dependency-graph/`, use it through whatever local workflow is approved in your environment.
 
 Default behavior:
 
 - scans `*.csproj` files under the current root
 - ignores `bin/` and `obj/`
 - writes `artifacts/deps.dot`
-
-If Graphviz is installed, convert it to SVG:
-
-```powershell
-dot -Tsvg artifacts/deps.dot -o artifacts/deps.svg
-```
 
 ## Pack-provided tool (optional)
 
@@ -60,6 +44,7 @@ Notes:
 
 - Keep this optional; it is for visibility, not a gate.
 - The authoritative gate remains architecture tests (layering + firewalls).
+- If `artifacts/` is monitored by Apex One or similar endpoint protection, generated graph output may cause extra I/O; use the artifact path approved by your environment.
 
 ## How to interpret (review checklist)
 

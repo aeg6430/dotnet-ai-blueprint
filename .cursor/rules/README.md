@@ -27,7 +27,33 @@ Supported Cursor entrypoint and read-order index for this repository.
 1. Start with [`00-entrypoint.mdc`](00-entrypoint.mdc).
 2. Use [`pattern-match.mdc`](pattern-match.mdc) before inventing structures.
 3. Run [`rule-guard.mdc`](rule-guard.mdc) after backend C# changes.
-4. Load a manual workflow rule when the request or audit matches.
+4. Load a manual workflow rule when the request or audit matches:
+   - existing Target repo -> [`seed-to-legacy-target-translation.mdc`](seed-to-legacy-target-translation.mdc)
+   - new or early-stage Target repo -> [`seed-to-new-project-target-translation.mdc`](seed-to-new-project-target-translation.mdc)
+
+## Project Setup Protocol
+
+Use this protocol when a Seed folder or exported starter pack needs to be renamed and aligned to a target project before implementation work begins.
+
+Suggested user prompt:
+
+```text
+Read the `Project Setup Protocol` in `.cursor/rules/README.md`.
+In this directory, convert namespaces and file paths from the current Blueprint / Seed shape to `TargetProjectName`.
+Also update project names, solution names, and setup-related references that carry project identity.
+Keep the architecture, rule intent, and folder responsibilities intact.
+If `docs/specs/` or the target repo defines a different naming scheme, follow that instead of the default.
+```
+
+Protocol:
+
+1. Read [`00-entrypoint.mdc`](00-entrypoint.mdc), `docs/ARCHITECTURE.md`, and `docs/rules/architecture-protocol.md` first.
+2. Treat `TargetProjectName` as a user-provided setup value, not a hard-coded repo name.
+3. Rename namespaces, project names, solution names, directory names, and setup references that still reflect the Blueprint / Seed identity.
+4. Preserve reusable rules, templates, and architecture boundaries unless the target project explicitly changes them.
+5. After setup, continue with the appropriate translation rule for the destination:
+   - existing Target repo -> [`seed-to-legacy-target-translation.mdc`](seed-to-legacy-target-translation.mdc)
+   - new or early-stage Target repo -> [`seed-to-new-project-target-translation.mdc`](seed-to-new-project-target-translation.mdc)
 
 ## Recommended Workspace Model
 

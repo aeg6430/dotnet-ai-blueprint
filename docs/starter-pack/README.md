@@ -1,6 +1,6 @@
 # Layered .NET Starter Pack
 
-This folder is the **only** tree you should copy into a new repository to bootstrap a layered .NET backend (architecture tests, firewall scans, Copilot guidance, and optional security/perf checklists).
+This folder is a **core part** of the portable starter pack used to bootstrap a layered .NET backend (architecture tests, firewall scans, Copilot guidance, and optional security/perf checklists). For full onboarding, start from the repository root `README.md` or an exported Seed folder rather than treating `docs/starter-pack/` as the only entrypoint.
 
 ## Goals
 
@@ -11,7 +11,7 @@ This folder is the **only** tree you should copy into a new repository to bootst
 
 ## Copy/replace checklist
 
-After copying `docs/starter-pack/` into your repo:
+After importing the Seed pack into your repo, or when working with this folder as part of that pack:
 
 - Replace placeholders:
   - `{Solution}` (solution name)
@@ -20,11 +20,12 @@ After copying `docs/starter-pack/` into your repo:
   - `{ApiNamespace}` (e.g. `Acme.Api`)
   - `{TestsNamespace}` (e.g. `Acme.Tests`)
 - Decide which optional modules to enable first (see `optional/`).
+- Prefer the AI-first setup flow from the root `README.md` and `.cursor/rules/README.md` when you want to rename the working directory into a real target project.
 
 > [!IMPORTANT]
 > Placeholder visibility and consistency
 > - The actual pack files use **single braces** placeholders like `{Solution}`.
-> - If you document placeholders as `{{Solution}}` for readability, ensure your team uses a single **automated initializer script** (e.g. `initialize.ps1`) so nobody mixes formats or misses replacements.
+> - If you document placeholders as `{{Solution}}` for readability, ensure your team uses one consistent setup path so nobody mixes formats or misses replacements. The preferred route is the AI-first `Project Setup Protocol`.
 
 ## Layering at a glance
 
@@ -80,6 +81,8 @@ Choose **one** track depending on whether you are integrating into a legacy code
 - **Phase C**: Add source-scan firewalls (repo/service/api).
 - **Phase D**: Add security mapping (ASVS) and performance acceptance templates to your delivery checklist.
 
+> Operational note: if developer machines or CI agents run Apex One or similar endpoint protection, the working directory, test output folders, and `artifacts/` may need a reviewed exclusion policy; reflection-heavy architecture tests and generated reports can otherwise become unexpectedly slow.
+
 ### Legacy project (modernize without breaking behavior)
 
 - **Phase L0 (docs only)**: Introduce rules + examples as review guidance. No code changes required.
@@ -95,6 +98,7 @@ Choose **one** track depending on whether you are integrating into a legacy code
 
 - Repo-local Markdown links **must** point to existing files (CI runs `scripts/ci/check-markdown-links.py`).
 - External URLs are fine.
+- If your team uses a generated working directory such as `_starter-pack-seed/out/`, treat it as a high-churn folder when discussing endpoint-protection exclusions with IT/security.
 
 ## Core docs (start here)
 
