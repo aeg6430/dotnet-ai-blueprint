@@ -31,6 +31,7 @@ If the task involves performance constraints, build/test slowness, endpoint excl
 - any target naming rules defined in `docs/specs/` or the real product repository
 
 Treat `TargetProjectName` as a **user-provided setup value**, not as a hard-coded repo name.
+If setup is exposed through helper automation such as a `Makefile`, require `TargetProjectName` as an explicit argument or variable. Do not hide it behind a repo-default constant, and do not assume an interactive prompt is always available.
 
 ## Canonical prompt
 

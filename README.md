@@ -46,6 +46,26 @@
 
 若 `docs/specs/` 或目標專案已有既定命名，應以那些定義為優先，而非使用預設名稱。
 
+## 可選的 Makefile 輔助入口
+
+若團隊已安裝 GNU Make，可使用 repo 根目錄的 `Makefile` 作為輔助入口；它不是必要前提，也不取代本文與 `docs/` 內的原生命令。
+
+- `make init TARGET_PROJECT_NAME=Acme.Ordering`
+  - 以顯式參數提供 `TargetProjectName`
+  - 顯示 project setup protocol 的最小執行提示，不會把 rename/setup 流程藏進黑盒腳本
+- `make build`
+  - 執行 `dotnet build "skeleton/StarterPack.Skeleton.sln" -c Release`
+  - 驗證 repo 內建的 `net8.0` skeleton；預期可由 `.NET SDK 8` 或 `.NET SDK 9` 執行
+- `make test`
+  - 執行 `dotnet test "skeleton/StarterPack.Skeleton.sln" -c Release`
+  - 驗證 repo 內建的 `net8.0` skeleton；預期可由 `.NET SDK 8` 或 `.NET SDK 9` 執行
+- `make verify`
+  - 依序執行 `build` 與 `test`
+
+如果你在 Windows 上沒有 GNU Make，直接依本文、[`docs/starter-pack/project-setup-protocol.md`](docs/starter-pack/project-setup-protocol.md) 與 [`CONTRIBUTING.md`](CONTRIBUTING.md) 的原生命令操作即可。
+
+Repo 也提供 GitHub Actions workflow，會用 `.NET 8` 與 `.NET 9` matrix 驗證 `skeleton/StarterPack.Skeleton.sln` 的 restore / build / test。
+
 ## 建議工作方式：三個目錄
 
 建議將工作分成三個目錄來處理：

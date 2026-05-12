@@ -82,6 +82,19 @@ dotnet run --project <your-api-project>
 
 Document the real commands in the target repo's `README.md`.
 
+In this repository itself, the root `Makefile` is an optional convenience layer for teams that already use GNU Make. It mirrors repo-local helper commands without replacing the documented native commands:
+
+```text
+make init TARGET_PROJECT_NAME=Acme.Ordering
+make build   # dotnet build skeleton/StarterPack.Skeleton.sln -c Release
+make test    # dotnet test skeleton/StarterPack.Skeleton.sln -c Release
+```
+
+The bundled skeleton targets `net8.0` so the same validation path can run under either the .NET 8 SDK or the .NET 9 SDK.
+The repo's GitHub Actions workflow mirrors that same path and validates the skeleton on both SDK lines.
+
+If you are working Windows-native without GNU Make, run the underlying `dotnet` commands directly and follow `docs/starter-pack/project-setup-protocol.md` for setup work.
+
 ## Pull request / review expectations
 
 Keep changes reviewable. A good change set should tell the reviewer:
