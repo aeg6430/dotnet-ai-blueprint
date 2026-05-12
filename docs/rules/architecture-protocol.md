@@ -136,6 +136,7 @@ return FooMapping.ToDtos(rows);
 ## 7. Relationship to other project rules
 
 - **`docs/ARCHITECTURE.md`** — folder layout and cross-cutting patterns.
+- **`docs/rules/cross-project-boundaries.md`** — how to collaborate with differently-styled internal projects without importing their coupling into Core/Application boundaries.
 - **[Cursor rules under `.cursor/rules/`](../../.cursor/rules/)** — stable, versioned, and only supported read order for Cursor agents. Keep them consistent with this document.
 
 ---
