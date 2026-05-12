@@ -79,7 +79,7 @@ Choose **one** track depending on whether you are integrating into a legacy code
 - **Phase A (day 0)**: Copy this tree + add `.cursor/rules/` and `.github/copilot-instructions.md` as supported AI entrypoints + use [`project-setup-protocol.md`](project-setup-protocol.md) for setup + enable analyzers. Also establish the audit-log baseline at the API entry point from day 0.
 - **Phase B**: Add layering tests (`architecture-tests/GenericLayeringArchitectureTests.cs.txt`).
 - **Phase C**: Add source-scan firewalls (repo/service/api).
-- **Phase D**: Add security mapping (ASVS) and performance acceptance templates to your delivery checklist.
+- **Phase D**: Add security mapping (ASVS / ISO 27001), compliance-report templates, and performance acceptance templates to your delivery checklist.
 - **Phase E**: Run the AI-assisted audit step and produce a reviewable compliance evidence bundle (`compliance-audit-report.md`, architecture-test logs/screenshots, and relevant `artifacts/`).
 
 > Operational note: if developer machines or CI agents run Apex One or similar endpoint protection, the working directory, test output folders, and `artifacts/` may need a reviewed exclusion policy; reflection-heavy architecture tests and generated reports can otherwise become unexpectedly slow. See [`../rules/endpoint-protection.md`](../rules/endpoint-protection.md).
@@ -120,15 +120,23 @@ Choose **one** track depending on whether you are integrating into a legacy code
 - Outbound timeout/retry/circuit-breaker rules: [`../rules/resilience.md`](../rules/resilience.md)
 - Shared setup flow: [`project-setup-protocol.md`](project-setup-protocol.md)
 - Audit logging baseline: [`../rules/audit-log.md`](../rules/audit-log.md)
+- Request screening control: [`../rules/request-screening.md`](../rules/request-screening.md)
+  - Opt-in only: inactive unless `RequestScreening:Enabled = true`; keep registration behind `AddRequestScreening(configuration)` so the feature is easy to remove later.
+  - Use it as a `Probe` during maintenance, a `Safety Net` during refactoring, and a `Tourniquet` during incident response.
+  - Treat it as a non-invasive, temporary control; long-lived fixes belong in the code path itself, and permanent rules belong in formal application mechanisms.
 - Endpoint-protection guidance: [`../rules/endpoint-protection.md`](../rules/endpoint-protection.md)
 - File upload & untrusted asset ingress (rules): [`../rules/file-upload.md`](../rules/file-upload.md)
 - ADR habits (what/when/why): [`../adr/README.md`](../adr/README.md)
 - AI-assisted audit policy: [`../adr/0004-ai-assisted-audit-and-evidence-policy.md`](../adr/0004-ai-assisted-audit-and-evidence-policy.md)
+- Native ASP.NET Core application-boundary ADR: [`../adr/0005-native-aspnetcore-application-boundary-default.md`](../adr/0005-native-aspnetcore-application-boundary-default.md)
 
 ## Optional modules
 
 - Logging (Serilog: Console / rolling file / Seq): [`optional/logging/serilog.md`](optional/logging/serilog.md)
 - Minimal API local-write transaction wrapper templates: [`optional/minimal-api/transactions.md`](optional/minimal-api/transactions.md)
+- Security / compliance audit report template: [`optional/security-compliance-audit-report-template.md`](optional/security-compliance-audit-report-template.md)
+- Security / ISO 27001 control mapping template: [`optional/security-iso-27001-control-mapping-template.md`](optional/security-iso-27001-control-mapping-template.md)
+- Security / OWASP ASVS template: [`optional/security-owasp-asvs-template.md`](optional/security-owasp-asvs-template.md)
 - Security profile (Excel/OOXML upload): [`optional/security/excel-ooxml-upload.md`](optional/security/excel-ooxml-upload.md)
 - Security profile (Image upload sanitization): [`optional/security/image-upload-sanitization.md`](optional/security/image-upload-sanitization.md)
 - Dependency graph visualization: [`../optional/visualization/dependency-graph.md`](../optional/visualization/dependency-graph.md)

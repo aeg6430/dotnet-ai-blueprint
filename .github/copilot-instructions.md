@@ -24,6 +24,8 @@ For Cursor, the equivalent repository guidance lives under [`.cursor/rules/`](..
 
 For endpoint protection, CI slowness, Build Agent exclusions, restricted cloud tooling, Phase C firewall hardening, or exception-leak prevention, also read [`docs/rules/endpoint-protection.md`](../docs/rules/endpoint-protection.md) early and prioritize `ExceptionLeakTests` before broader firewall expansion.
 
+For incident hotfixes, malicious-parameter blocking, temporary blocked paths, or API-edge request screening, also read [`docs/rules/request-screening.md`](../docs/rules/request-screening.md) and prefer native ASP.NET Core middleware / filters over external mediator frameworks. Keep the feature packaged behind a focused extension method and treat missing `RequestScreening:Enabled` config as disabled.
+
 ## Recommended workspace model
 
 When using this starter pack with a separate product repository, prefer a three-folder workflow:
@@ -75,6 +77,8 @@ Docs: [Chat in your IDE (Visual Studio) — Plan mode](https://docs.github.com/e
 - **API**: Controllers are thin; Infrastructure wiring belongs in DI composition.
 - **Audit logging**: Capture security-relevant audit events at the API entry point / global exception boundary per [`docs/rules/audit-log.md`](../docs/rules/audit-log.md); include actor identity, action, target, result, and correlation metadata.
 - **Logging**: Prefer `ILogger<T>`; do not leak secrets/PII.
+- **Default application boundary**: Prefer native ASP.NET Core mechanisms plus explicit services / use cases; do not introduce MediatR as a starter-pack default without a local ADR.
+- **Optional boundary controls**: Keep request-screening style features behind feature-local extension methods so the main DI/composition root keeps a single opt-in line.
 
 ## Cross-cutting (“AOP”) meaning
 
@@ -88,6 +92,7 @@ When generating code:
 - For project setup requests on a Seed folder, use [`docs/starter-pack/project-setup-protocol.md`](../docs/starter-pack/project-setup-protocol.md) before feature implementation or refactoring.
 - If a target repo provides `docs/specs/`, follow the feature spec before applying default blueprint assumptions.
 - If the task touches API-edge monitoring, traceability, security review, or audit evidence, also follow [`docs/rules/audit-log.md`](../docs/rules/audit-log.md).
+- If the task touches incident hotfixes, temporary path blocking, or malicious parameter filtering, also follow [`docs/rules/request-screening.md`](../docs/rules/request-screening.md).
 - If the task touches endpoint protection, CI slowness, Build Agent exclusions, restricted cloud tooling, Apex One, Phase C firewall hardening, or exception-leak prevention, also follow [`docs/rules/endpoint-protection.md`](../docs/rules/endpoint-protection.md) and prioritize `ExceptionLeakTests` before broader firewall expansion.
 - Prefer patterns from `docs/starter-pack/shadow-examples/` or `templates/`.
 - Keep changes minimal and consistent with analyzers and architecture tests.

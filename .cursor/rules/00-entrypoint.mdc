@@ -8,6 +8,7 @@ alwaysApply: true
 - Read `docs/ARCHITECTURE.md`, then `docs/rules/architecture-protocol.md`.
 - For transaction or outbound work, also read `docs/rules/transactions.md` and `docs/rules/resilience.md`.
 - For audit logging, centralized monitoring, or API-edge traceability work, also read `docs/rules/audit-log.md`.
+- For incident hotfixes, malicious-parameter blocking, temporary blocked paths, or API-edge request screening, also read `docs/rules/request-screening.md` and prefer native ASP.NET Core middleware / filters. Keep the feature behind focused extension methods, and treat missing `RequestScreening:Enabled` config as disabled.
 - For endpoint protection, build/test slowness, CI exclusions, Apex One constraints, Phase C firewall hardening, or exception-leak prevention, also read `docs/rules/endpoint-protection.md` early and prioritize `ExceptionLeakTests` before broader firewall expansion.
 - For external APIs, SDKs, shared services, or legacy integrations, also load `external-integration-discovery.mdc`.
 - Treat `docs/`, `templates/`, and `skeleton/` as the source of truth. Do not invent parallel conventions.

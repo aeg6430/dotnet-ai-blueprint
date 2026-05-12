@@ -40,4 +40,6 @@ This pack includes an ADR template to keep important engineering decisions stabl
   - Locks in Minimal API transaction filters as an optional narrow convenience, not the starter-pack default.
 - `0004-ai-assisted-audit-and-evidence-policy.md`
   - Locks in Phase E as the standard AI-assisted audit step and defines the evidence hierarchy for audit artifacts.
+- `0005-native-aspnetcore-application-boundary-default.md`
+  - Locks in native .NET / ASP.NET Core mechanisms as the default application boundary and keeps optional controls packaged as removable, feature-local extensions.
 

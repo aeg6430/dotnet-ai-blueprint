@@ -30,6 +30,24 @@
 4. 若多人協作且工具不一致，先補上 repo 內的 `CONTRIBUTING.md`、`.github/pull_request_template.md` 與必要的本機驗證命令。
    - 若使用 GitHub issues，可搭配 `.github/ISSUE_TEMPLATE/bug_report.md` 與 `.github/ISSUE_TEMPLATE/feature_request.md`
    - 若有 production incident / 緊急修復情境，可搭配 `.github/ISSUE_TEMPLATE/incident_hotfix.md` 與 `.github/ISSUE_TEMPLATE/config.yml`
+   - 若需要暫時阻擋已知惡意 path / query，參考 `docs/rules/request-screening.md`；此控制預設停用，只有 `RequestScreening:Enabled = true` 時才啟動
+
+### Request screening 的角色定位
+
+`RequestScreening` 是同一個 API-edge control 在不同時期的不同用法，不是三套不同實作：
+
+| 階段 | 角色定位 | 使用方式 |
+|---|---|---|
+| 維護期 | 探針 (`Probe`) | 使用 `ReportOnly` 收集特定樣式的流量數據，先觀察再決定是否需要阻擋。 |
+| 重構期 | 防護網 (`Safety Net`) | 暫時擋掉新邏輯尚未相容的舊格式請求，降低過渡期風險。 |
+| 危機期 | 止血帶 (`Tourniquet`) | 發生攻擊或 incident 時，立即阻斷明確有害的流量，為正式修補爭取時間。 |
+
+使用原則：
+
+- 預設停用，只有 `RequestScreening:Enabled = true` 才啟動
+- 優先使用最小必要規則，例如 path prefix、query key、allowlist
+- incident 結束後應關閉或移除，不讓臨時控制變成永久隱性政策
+- 它的設計本質是**非侵入式**且**臨時性**；長期問題應回到正式程式碼修正，永久規則應回到正式機制（例如 Authorization Policy）
 
 若 `docs/specs/` 已定義 feature spec，後續實作時應以 spec 優先。
 
@@ -315,6 +333,8 @@ flowchart LR
   - Minimal API（若用）：顯式短交易與本地寫入 wrapper 的一致性。
 - **達成方式**：
   - `docs/starter-pack/optional/security-owasp-asvs-template.md`
+  - `docs/starter-pack/optional/security-iso-27001-control-mapping-template.md`
+  - `docs/starter-pack/optional/security-compliance-audit-report-template.md`
   - `docs/starter-pack/optional/perf-k6-jmeter-acceptance-template.md`
   - `docs/starter-pack/optional/minimal-api/transactions.md`（搭配 `TransactionEndpointFilter.cs.txt`、`TransactionService.cs.txt`）
   - 將這些模板掛到 PR template、Release checklist、或交付文件規範（使流程具備一致依據）。

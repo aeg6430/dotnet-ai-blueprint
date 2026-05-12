@@ -127,6 +127,7 @@ public static class ServiceExtensions
         // --- Global Error Handling ---
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddProblemDetails();
+        services.AddRequestScreening(configuration);
 
         return services;
     }

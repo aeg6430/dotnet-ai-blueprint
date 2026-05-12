@@ -123,6 +123,8 @@ public class Startup
         app.UseExceptionHandler();
         app.UseCors("CorsPolicy");
         app.UseHttpsRedirection();
+        // Optional request screening control: keep it at the HTTP edge, before routing/auth.
+        app.UseRequestScreening();
         app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
