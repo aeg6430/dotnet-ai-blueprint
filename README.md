@@ -1,4 +1,4 @@
-# dotnet-ai-blueprint — Starter Pack 導入手冊（Phase A–D）
+# dotnet-ai-blueprint — Starter Pack 導入手冊（Phase A–E）
 
 > 本檔位於 **repository 根目錄**。中路徑若無特別說明，皆相對於 repo root。部署前請先閱：[docs/starter-pack/README.md](docs/starter-pack/README.md)。
 
@@ -77,7 +77,7 @@
 下面的章節會依序展開：
 
 - 你會得到什麼能力、規範與執行手段
-- 導入路線（Phase A–D）
+- 導入路線（Phase A–E）
 - 工程落地步驟
 - 既有專案導入策略
 - 驗收總表與常見問題
@@ -209,7 +209,7 @@ flowchart LR
 - **Day0 基線**：讀序入口 + templates + 最小架構測試（Phase A/B）先上線，再逐步加 firewall（Phase C）。
 - **一致性優先**：可全域啟用嚴格規則（analyzers/architecture tests）避免累積歷史包袱。
 
-### 2) 導入路線（Phase A–D）
+### 2) 導入路線（Phase A–E）
 
 > 每個 Phase 都用同一套規格寫法：**目的 → 產出物 → 規範 → 達成方式 → 驗收 → 風險/對策**。
 > 這樣你把它交給別的工程師，他只要照規格就能落地。
@@ -309,6 +309,57 @@ flowchart LR
   - 至少 1 個版本/里程碑以模板完成一次安全對照或效能驗收。
 - **風險/對策**：模板未納入流程 → 將其轉為 release 檢查門檻（例如必填 checklist），或將產出物納入里程碑定義。
 
+#### Phase E：稽核驗收（AI 輔助合規性盤點）
+- **目的**：透過 AI 進行非結構化規則的最後掃描，並產出供稽核存查的證據包。
+- **產出物**：
+  - `compliance-audit-report.md`
+  - Architecture tests 通過日誌或截圖
+  - 相關 `artifacts/` 輸出
+  - `chat-transcript.pdf`（補充證據，不是主要證據）
+- **主要規範**：
+  - 以 `docs/ARCHITECTURE.md`、`docs/rules/**`、`.cursor/rules/**` 為盤點基準。
+  - 報告必須包含一份以 Markdown Table 輸出的 **Compliance Matrix**，對照 `docs/rules/*.md` 列出規範、證據、狀態與待補項目。
+  - 固定檢查 namespace / placeholder / secret / boilerplate comment 殘留，而不只檢查 `Skeleton` 單一關鍵字。
+- **執行手段（Golden Prompt）**：
+
+```text
+請依據 `docs/ARCHITECTURE.md`、`docs/rules/` 與 `.cursor/rules/` 掃描目前方案，產出 `compliance-audit-report.md`。
+
+報告必須包含：
+1. 一份以 Markdown Table 呈現的 Compliance Matrix，至少包含欄位：
+   - Rule Source
+   - Requirement Summary
+   - Evidence
+   - Status
+   - Follow-up
+2. 符合證據
+3. 疑似違規項目
+4. 待人工確認項目
+5. 證據附件清單
+
+請固定檢查以下殘留：
+- Namespace residue：`Skeleton`、`Acme`、`Project.*`、`starter-pack`、`seed`、`skeleton`
+- Placeholder residue：如 `{Solution}`、`{CoreNamespace}`、`{DB_PASSWORD}` 與其他樣板 token
+- Connection string / secret residue：任何樣板中的開發用連接字串、預設密碼、secret placeholder
+- Boilerplate comments：如 `TODO: Replace this in your project`
+
+請將證據分級：
+- Primary：`compliance-audit-report.md`
+- Primary：Architecture tests 通過日誌 / 截圖與相關 `artifacts/`
+- Supplementary：`chat-transcript.pdf`
+
+若有不確定之處，請明確列入「待人工確認項目」，不要直接判定為完全合規。
+```
+
+- **驗收（必過）**：
+  - 產出 `compliance-audit-report.md`。
+  - 報告中包含 Markdown Table 格式的 Compliance Matrix。
+  - 無 `skeleton` / placeholder / secret placeholder / boilerplate comment 殘留。
+  - 主要證據與補充證據分級清楚。
+- **風險/對策**：
+  - 風險：AI 可能產生 false positive、上下文誤讀或證據判斷不完整。
+  - 對策：報告需經 human-in-the-loop 簽核確認，且不得取代 Phase B/C 的自動化品質門檻。
+
 ### 3) 工程落地步驟（把 pack 真正導入目標 repo）
 
 #### 3.0 首選：由 AI 執行專案設定流程
@@ -402,15 +453,17 @@ flowchart LR
 - Phase B：Layering tests 在 CI 會執行，並可攔截越界。
 - Phase C：至少 1 條 firewall 禁忌可由 CI 攔截。
 - Phase D：安全或效能模板至少落地一次（有產出物）。
+- Phase E：產出 `compliance-audit-report.md`，且主要證據完整、無樣板殘留。
 
 ### 6) 常見問題與排查
 - **測試未能攔截越界**：常見原因為 placeholders 未完整替換，或測試規則指向錯誤的 assembly/namespace。
 - **導入後 CI 大量失敗**：可先以較寬鬆規則確立基線並完成盤點，再採逐步收斂策略加嚴。
 - **AI 產出仍偏離規範**：應確認入口索引明確列出禁忌與參考模板，並在 repo 中提供固定的「Start here」路徑。
+- **AI 稽核報告出現誤判**：先把項目列入「待人工確認」，再由 reviewer 對照 `docs/rules/**`、測試結果與 `artifacts/` 做簽核，不要直接把 AI 判斷當成最終結論。
 
 
 ## 結論
-這份 starter pack 的核心不是「提供可使用的專案」，而是「提供可複製、可驗證、可逐步收緊的工程治理方法」。建議採 **Phase A → B → C → D**，先建立入口與品質門檻，再把安全/效能納入交付流程，最後用逐步收斂策略治理既有 codebase。
+這份 starter pack 的核心不是「提供可使用的專案」，而是「提供可複製、可驗證、可逐步收緊的工程治理方法」。建議採 **Phase A → B → C → D → E**，先建立入口與品質門檻，再把安全/效能納入交付流程，最後以 AI 輔助稽核與人工簽核收斂交付證據。
 
 ### Before vs After（極簡對照）
 

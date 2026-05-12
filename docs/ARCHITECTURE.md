@@ -2,7 +2,7 @@
 
 > **Placeholders:** `{Solution}`, `{CoreNamespace}`, `{InfrastructureNamespace}`, `{ApiNamespace}`, `{TestsNamespace}` — replace using the project setup flow described in [`docs/starter-pack/README.md`](starter-pack/README.md) and the repository root [`README.md`](../README.md). **`{BackendRoot}`** is the directory that contains your backend `.csproj` trees (often `src` or `src/backend`). Project folder names frequently mirror namespaces (e.g. `Acme.Core`).
 >
-> **Audience:** This document describes a **typical layered .NET backend** aligned with this pack. Feature specs under `docs/specs/` (if present in your repo) override silent areas here. For Phase A–D onboarding, see [`README.md`](../README.md) at repository root, or start from [`docs/starter-pack/README.md`](starter-pack/README.md) alone.
+> **Audience:** This document describes a **typical layered .NET backend** aligned with this pack. Feature specs under `docs/specs/` (if present in your repo) override silent areas here. For Phase A–E onboarding, see [`README.md`](../README.md) at repository root, or start from [`docs/starter-pack/README.md`](starter-pack/README.md) alone.
 
 ## 0. Spec Override — Global Rule
 

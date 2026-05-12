@@ -14,6 +14,7 @@ This pack includes an ADR template to keep important engineering decisions stabl
 - Changing **exception boundary** behavior (what can/cannot leak to HTTP).
 - Adding/removing/loosening architecture gates (layering/firewalls/analyzers).
 - Adopting audit/outbox strategy, idempotency strategy, or SLA/error-code mapping.
+- Standardizing AI-assisted audit workflow, evidence hierarchy, or report policy.
 
 ## What an ADR should contain
 
@@ -37,4 +38,6 @@ This pack includes an ADR template to keep important engineering decisions stabl
   - Locks in the default outbound HTTP adapter model: timeout + bounded retry + circuit breaker + preflight transaction check.
 - `0003-minimal-api-transaction-wrapper-limited-use.md`
   - Locks in Minimal API transaction filters as an optional narrow convenience, not the starter-pack default.
+- `0004-ai-assisted-audit-and-evidence-policy.md`
+  - Locks in Phase E as the standard AI-assisted audit step and defines the evidence hierarchy for audit artifacts.
 

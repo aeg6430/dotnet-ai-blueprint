@@ -80,6 +80,7 @@ Choose **one** track depending on whether you are integrating into a legacy code
 - **Phase B**: Add layering tests (`architecture-tests/GenericLayeringArchitectureTests.cs.txt`).
 - **Phase C**: Add source-scan firewalls (repo/service/api).
 - **Phase D**: Add security mapping (ASVS) and performance acceptance templates to your delivery checklist.
+- **Phase E**: Run the AI-assisted audit step and produce a reviewable compliance evidence bundle (`compliance-audit-report.md`, architecture-test logs/screenshots, and relevant `artifacts/`).
 
 > Operational note: if developer machines or CI agents run Apex One or similar endpoint protection, the working directory, test output folders, and `artifacts/` may need a reviewed exclusion policy; reflection-heavy architecture tests and generated reports can otherwise become unexpectedly slow.
 
@@ -93,12 +94,14 @@ Choose **one** track depending on whether you are integrating into a legacy code
     - If you cannot clean it up yet, ensure the UoW is re-entrant/idempotent (e.g., depth-based begin; fail-fast rollback invalidates the unit of work).
 - **Phase L3 (data access guardrails)**: Enforce repository SQL rules incrementally (new repos first, then older ones).
 - **Phase L4 (optional roadmap)**: Add automation tracking (coverage/backlog) once the core guardrails are stable.
+- **Phase E (after rollout)**: run the AI-assisted audit step to consolidate compliance evidence, residue checks, and human review notes.
 
 ## Notes
 
 - Repo-local Markdown links **must** point to existing files (CI runs `scripts/ci/check-markdown-links.py`).
 - External URLs are fine.
 - If your team uses a generated working directory such as `_starter-pack-seed/out/`, treat it as a high-churn folder when discussing endpoint-protection exclusions with IT/security.
+- The recommended Phase E report shape is a Markdown-table compliance matrix plus explicit evidence attachments; see [`../adr/0004-ai-assisted-audit-and-evidence-policy.md`](../adr/0004-ai-assisted-audit-and-evidence-policy.md).
 
 ## Core docs (start here)
 
@@ -106,6 +109,7 @@ Choose **one** track depending on whether you are integrating into a legacy code
 - Outbound timeout/retry/circuit-breaker rules: [`../rules/resilience.md`](../rules/resilience.md)
 - File upload & untrusted asset ingress (rules): [`../rules/file-upload.md`](../rules/file-upload.md)
 - ADR habits (what/when/why): [`../adr/README.md`](../adr/README.md)
+- AI-assisted audit policy: [`../adr/0004-ai-assisted-audit-and-evidence-policy.md`](../adr/0004-ai-assisted-audit-and-evidence-policy.md)
 
 ## Optional modules
 
