@@ -85,15 +85,30 @@ templates/                     ← pattern cookbook (not necessarily part of the
 ├── DapperContext.cs
 ├── BaseHttpAdapter.cs
 ├── IInventoryGateway.cs
+├── IPricingGateway.cs
+├── IShipmentGateway.cs
 ├── ITransferIdempotencyRepository.cs
 ├── IOutboxRepository.cs
 ├── InventoryGatewayOptions.cs
+├── PricingGatewayOptions.cs
+├── ShipmentGatewayOptions.cs
 ├── InventoryGateway.cs
+├── PricingGateway.cs
+├── ShipmentGateway.cs
 ├── InventoryVerificationRequest.cs
 ├── InventoryVerificationResponse.cs
+├── PricingQuoteRequest.cs
+├── PricingQuoteResponse.cs
+├── ShipmentCreateRequest.cs
+├── ShipmentCreateResponse.cs
 ├── BaseRepository.cs
+├── IOutboxMessageSerializer.cs
+├── OutboxEnvelope.cs
+├── OutboxMessageSerializer.cs
 ├── IStockLedgerRepository.cs
 ├── StockLedgerRepository.cs
+├── TransferIdempotencyRepository.cs
+├── OutboxRepository.cs
 ├── WarehouseRepository.cs
 ├── StockService.cs
 ├── StockTransferDto.cs
@@ -138,7 +153,7 @@ Services orchestrate use cases and validation. When a feature needs a transactio
 - External API calls happen **before** entering the transaction, or after commit via outbox/background work.
 - Use cases that mix local writes and cross-system side effects should prefer outbox over direct remote calls inside the main transaction.
 
-See **`templates/StockService.cs`** and **`templates/StockTransferUseCase.cs`** for the recommended shapes.
+See **`templates/StockService.cs`** and **`templates/StockTransferUseCase.cs`** for the recommended orchestration shapes, plus **`templates/InventoryGateway.cs`**, **`templates/PricingGateway.cs`**, and **`templates/ShipmentGateway.cs`** for outbound adapter variants. Repository implementations for the outbox/idempotency path live in **`templates/OutboxRepository.cs`** and **`templates/TransferIdempotencyRepository.cs`**.
 
 ---
 

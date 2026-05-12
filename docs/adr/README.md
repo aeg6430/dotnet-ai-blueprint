@@ -29,3 +29,12 @@ This pack includes an ADR template to keep important engineering decisions stabl
 - Meeting transcripts or “everyone feels”.
 - Unverifiable statements without consequences/rollout.
 
+## Current ADRs
+
+- `0001-explicit-short-lived-uow.md`
+  - Locks in explicit short-lived UoW as the default transaction model for this pack.
+- `0002-polly-style-outbound-resilience.md`
+  - Locks in the default outbound HTTP adapter model: timeout + bounded retry + circuit breaker + preflight transaction check.
+- `0003-minimal-api-transaction-wrapper-limited-use.md`
+  - Locks in Minimal API transaction filters as an optional narrow convenience, not the starter-pack default.
+

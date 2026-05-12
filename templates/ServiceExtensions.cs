@@ -6,6 +6,7 @@ using Project.Api.Middlewares;
 using Project.Core.Interfaces;
 using Project.Infrastructure.Adapters;
 using Project.Infrastructure.Context;
+using Project.Infrastructure.Helpers;
 using Project.Infrastructure.Repositories;
 using Project.Core.Services;
 
@@ -26,6 +27,10 @@ public static class ServiceExtensions
         // Outbound adapters live in Infrastructure and are registered as typed HttpClient clients.
         services.Configure<InventoryGatewayOptions>(
             configuration.GetSection(InventoryGatewayOptions.SectionName));
+        services.Configure<PricingGatewayOptions>(
+            configuration.GetSection(PricingGatewayOptions.SectionName));
+        services.Configure<ShipmentGatewayOptions>(
+            configuration.GetSection(ShipmentGatewayOptions.SectionName));
 
         services.AddHttpClient<IInventoryGateway, InventoryGateway>((serviceProvider, client) =>
             {
@@ -37,9 +42,34 @@ public static class ServiceExtensions
             .AddPolicyHandler(ResiliencePolicies.RetryPolicy)
             .AddPolicyHandler(ResiliencePolicies.CircuitBreakerPolicy);
 
+        services.AddHttpClient<IPricingGateway, PricingGateway>((serviceProvider, client) =>
+            {
+                var options = serviceProvider.GetRequiredService<IOptions<PricingGatewayOptions>>().Value;
+                client.BaseAddress = new Uri(options.BaseUrl);
+                client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
+            })
+            .AddPolicyHandler(ResiliencePolicies.TimeoutPolicy)
+            .AddPolicyHandler(ResiliencePolicies.RetryPolicy)
+            .AddPolicyHandler(ResiliencePolicies.CircuitBreakerPolicy);
+
+        services.AddHttpClient<IShipmentGateway, ShipmentGateway>((serviceProvider, client) =>
+            {
+                var options = serviceProvider.GetRequiredService<IOptions<ShipmentGatewayOptions>>().Value;
+                client.BaseAddress = new Uri(options.BaseUrl);
+                client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
+            })
+            .AddPolicyHandler(ResiliencePolicies.TimeoutPolicy)
+            .AddPolicyHandler(ResiliencePolicies.RetryPolicy)
+            .AddPolicyHandler(ResiliencePolicies.CircuitBreakerPolicy);
+
         // --- Repositories ---
         services.AddScoped<IWarehouseRepository, WarehouseRepository>();
         services.AddScoped<IStockLedgerRepository, StockLedgerRepository>();
+        services.AddScoped<ITransferIdempotencyRepository, TransferIdempotencyRepository>();
+        services.AddScoped<IOutboxRepository, OutboxRepository>();
+
+        // --- Helpers ---
+        services.AddSingleton<IOutboxMessageSerializer, OutboxMessageSerializer>();
 
         // --- Services ---
         services.AddScoped<IStockService, StockService>();

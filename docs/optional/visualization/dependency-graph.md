@@ -29,6 +29,26 @@ dot -Tsvg artifacts/deps.dot -o artifacts/deps.svg
 3. Use in draw.io (diagrams.net) (optional):
    - Import the generated `artifacts/deps.svg`, then edit annotations as needed.
 
+## Repo-local command
+
+If this pack includes the repo-local tool under `tools/dependency-graph/`, you can generate the DOT artifact directly from repo root:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File ".\tools\dependency-graph\generate.ps1"
+```
+
+Default behavior:
+
+- scans `*.csproj` files under the current root
+- ignores `bin/` and `obj/`
+- writes `artifacts/deps.dot`
+
+If Graphviz is installed, convert it to SVG:
+
+```powershell
+dot -Tsvg artifacts/deps.dot -o artifacts/deps.svg
+```
+
 ## Pack-provided tool (optional)
 
 This pack can include a small console tool that scans `*.csproj` project references and emits `deps.dot` without external dependencies.

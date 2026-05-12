@@ -6,6 +6,7 @@ using Project.Core.Interfaces;
 namespace Project.Infrastructure.Adapters;
 
 // TEMPLATE — outbound adapters live in Infrastructure and guard against transaction overlap.
+// Use the helpers below for GET, POST, or custom HttpRequestMessage flows.
 public abstract class BaseHttpAdapter
 {
     private readonly IDapperContext _context;
@@ -46,6 +47,23 @@ public abstract class BaseHttpAdapter
         CancellationToken cancellationToken)
     {
         var response = await PostAsJsonAsync(relativeUri, payload, cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken);
+    }
+
+    protected async Task<HttpResponseMessage> SendAsync(
+        HttpRequestMessage request,
+        CancellationToken cancellationToken)
+    {
+        EnsureSafeOutboundBoundary();
+        return await _httpClient.SendAsync(request, cancellationToken);
+    }
+
+    protected async Task<TResponse?> SendAsync<TResponse>(
+        HttpRequestMessage request,
+        CancellationToken cancellationToken)
+    {
+        using var response = await SendAsync(request, cancellationToken);
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken);
     }
