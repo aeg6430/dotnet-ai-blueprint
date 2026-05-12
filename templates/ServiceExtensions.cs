@@ -90,6 +90,19 @@ public static class ServiceExtensions
             .AddPolicyHandler(ResiliencePolicies.RetryPolicy)
             .AddPolicyHandler(ResiliencePolicies.CircuitBreakerPolicy);
 
+        // TEMPLATE — when a dependency is semantically hostile, register a full external integration firewall:
+        // services.AddHttpClient<IExternalSystemGateway, ExternalSystemGateway>(client =>
+        //     {
+        //         client.BaseAddress = new Uri("https://replace-me/");
+        //         client.Timeout = TimeSpan.FromSeconds(15);
+        //     })
+        //     .AddPolicyHandler(ResiliencePolicies.TimeoutPolicy)
+        //     .AddPolicyHandler(ResiliencePolicies.RetryPolicy)
+        //     .AddPolicyHandler(ResiliencePolicies.CircuitBreakerPolicy);
+        // services.AddSingleton<ExternalSystemSanitizer>();
+        // services.AddSingleton<ExternalSystemTranslator>();
+        // services.AddSingleton<IExternalSystemEvidenceLogger, ExternalSystemEvidenceLogger>();
+
         services.AddScoped<IMessagePublisher, MessagePublisher>();
         services.AddScoped<IOutboxDispatcher, OutboxDispatcher>();
         services.AddScoped<IOutboxDeliveryHandler, PaymentOutboxDeliveryHandler>();

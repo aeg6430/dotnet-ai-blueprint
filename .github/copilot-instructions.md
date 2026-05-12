@@ -11,6 +11,8 @@ For Cursor, the equivalent repository guidance lives under [`.cursor/rules/`](..
    - [`docs/rules/architecture-protocol.md`](../docs/rules/architecture-protocol.md)
    - [`docs/rules/transactions.md`](../docs/rules/transactions.md)
    - [`docs/rules/resilience.md`](../docs/rules/resilience.md)
+   - [`docs/rules/external-integration-firewall.md`](../docs/rules/external-integration-firewall.md)
+   - [`docs/rules/anti-corruption-layer.md`](../docs/rules/anti-corruption-layer.md)
    - [`docs/rules/sql.md`](../docs/rules/sql.md)
    - [`docs/rules/mapping.md`](../docs/rules/mapping.md)
    - [`docs/rules/code-quality.md`](../docs/rules/code-quality.md)

@@ -137,6 +137,8 @@ return FooMapping.ToDtos(rows);
 
 - **`docs/ARCHITECTURE.md`** — folder layout and cross-cutting patterns.
 - **`docs/rules/cross-project-boundaries.md`** — how to collaborate with differently-styled internal projects without importing their coupling into Core/Application boundaries.
+- **`docs/rules/external-integration-firewall.md`** — the defensive integration rule for semantically hostile or runtime-unstable external systems.
+- **`docs/rules/anti-corruption-layer.md`** — how adapters/translators keep foreign payloads, names, and exceptions from leaking into Core.
 - **[Cursor rules under `.cursor/rules/`](../../.cursor/rules/)** — stable, versioned, and only supported read order for Cursor agents. Keep them consistent with this document.
 
 ---

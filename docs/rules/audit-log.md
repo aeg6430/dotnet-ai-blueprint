@@ -34,4 +34,5 @@ This document defines a minimal, copyable baseline for audit logging in layered 
   - **HTTP edge**: middleware / filters / endpoint filters capture request metadata.
   - **Global exception boundary**: capture failures consistently.
 - For durability requirements, prefer an outbox pattern or a dedicated audit sink using standalone connection semantics.
+- When an integration is dispute-prone, keep raw request/response evidence in a **separate redacted evidence channel** rather than dumping full payloads into general application logs. See [`external-integration-firewall.md`](external-integration-firewall.md).
 

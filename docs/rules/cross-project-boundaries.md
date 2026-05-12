@@ -98,6 +98,8 @@ Integration pressure is **not** an exemption from this pack's runtime rules.
 
 See also:
 
+- [`anti-corruption-layer.md`](anti-corruption-layer.md)
+- [`external-integration-firewall.md`](external-integration-firewall.md)
 - [`architecture-protocol.md`](architecture-protocol.md)
 - [`transactions.md`](transactions.md)
 - [`resilience.md`](resilience.md)

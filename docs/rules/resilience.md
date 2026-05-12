@@ -9,6 +9,7 @@ Use this document together with [`transactions.md`](transactions.md): transactio
 - Applies to outbound adapters implemented in Infrastructure.
 - Does **not** permit direct `HttpClient` / `RestClient` usage in Core services; the service firewall in [`architecture-protocol.md`](architecture-protocol.md) still applies.
 - Covers timeout ordering, retry rules, circuit breaker usage, and preflight transaction checks.
+- Pair this rule with [`external-integration-firewall.md`](external-integration-firewall.md) and [`anti-corruption-layer.md`](anti-corruption-layer.md) when the dependency is semantically unstable, protocol-hostile, or operationally dispute-prone.
 
 ## Core model
 
