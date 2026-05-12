@@ -41,6 +41,8 @@ The canonical project setup flow lives in [`../../docs/starter-pack/project-setu
 
 Use that shared document when a Seed folder or exported starter pack needs to be renamed and aligned to a target project before implementation work begins.
 
+When setup is being automated, prefer the reviewed `Makefile` setup targets rather than composing ad hoc rename or cleanup commands. The intended sequence is `setup-scan`, `setup-rewrite-placeholders`, `setup-rewrite-content`, `setup-rename-solution-projects`, `setup-rename-paths`, `setup-clean`, and `setup-verify`.
+
 After setup, continue from [`00-entrypoint.mdc`](00-entrypoint.mdc) and then load the appropriate translation rule for the destination repository.
 
 ## Keep Context Focused

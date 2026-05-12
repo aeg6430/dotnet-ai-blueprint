@@ -16,6 +16,8 @@ alwaysApply: true
 - Treat `docs/`, `templates/`, and `skeleton/` as the source of truth. Do not invent parallel conventions.
 - This repository is the Blueprint layer in the recommended Blueprint / Seed / Target workflow.
 - For project setup, namespace conversion, or directory renaming on a Seed folder, read `docs/starter-pack/project-setup-protocol.md` before other workflow rules.
+- When setup is being automated, prefer the reviewed `Makefile` setup targets over ad hoc shell rename/cleanup commands or synthesized one-off scripts.
+- For setup automation, use the split command surface in order: `setup-scan`, `setup-rewrite-placeholders`, `setup-rewrite-content`, `setup-rename-solution-projects`, `setup-rename-paths`, `setup-clean`, then `setup-verify`.
 - If a target repo provides `docs/specs/`, follow that feature spec before applying default blueprint assumptions.
 - Treat raw requirement files such as `docs/requirements/raw/` as source material; convert them into `docs/specs/` before implementation when possible.
 - Use Seed / Sandbox to prototype clean reference implementations when the target repo is noisy, legacy-heavy, or stylistically inconsistent.

@@ -27,6 +27,8 @@ Also read these when they apply:
 - incident hotfixes, temporary path blocking, or request screening: [`docs/rules/request-screening.md`](../docs/rules/request-screening.md)
 - project setup, namespace conversion, or folder rename: [`docs/starter-pack/project-setup-protocol.md`](../docs/starter-pack/project-setup-protocol.md)
 
+When setup is being automated, prefer the reviewed `Makefile` setup targets over ad hoc rename or cleanup commands. Use the split flow: `setup-scan`, `setup-rewrite-placeholders`, `setup-rewrite-content`, `setup-rename-solution-projects`, `setup-rename-paths`, `setup-clean`, and `setup-verify`.
+
 ## Working defaults
 
 1. If a target repo provides `docs/specs/`, follow the relevant spec first.
@@ -58,6 +60,7 @@ When generating code:
 
 - For **multi-file** work or anything that touches **layering / transactions / security**, prefer a plan-first flow.
 - For project setup requests on a Seed folder, use [`docs/starter-pack/project-setup-protocol.md`](../docs/starter-pack/project-setup-protocol.md) before feature implementation or refactoring.
+- For automated setup work, call the reviewed `Makefile` targets instead of constructing one-off shell commands for rename, cleanup, or verification.
 - If a target repo provides `docs/specs/`, follow the feature spec before applying default blueprint assumptions.
 - If the task touches API-edge monitoring, traceability, security review, or audit evidence, also follow [`docs/rules/audit-log.md`](../docs/rules/audit-log.md).
 - If the task touches incident hotfixes, temporary path blocking, or malicious parameter filtering, also follow [`docs/rules/request-screening.md`](../docs/rules/request-screening.md).

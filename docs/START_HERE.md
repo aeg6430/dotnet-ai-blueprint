@@ -52,6 +52,8 @@ Use:
 - [`starter-pack/project-setup-protocol.md`](starter-pack/project-setup-protocol.md)
 - [`starter-pack/README.md`](starter-pack/README.md)
 
+If setup is being automated, prefer the reviewed `Makefile` targets instead of synthesizing ad hoc rename or cleanup commands. Use the setup flow as small steps such as `setup-scan`, `setup-rewrite-placeholders`, `setup-rewrite-content`, `setup-rename-solution-projects`, `setup-rename-paths`, `setup-clean`, and `setup-verify`.
+
 ### Transaction, Outbound, Or Cross-System Change
 
 Read:
