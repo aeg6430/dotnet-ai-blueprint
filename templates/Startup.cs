@@ -19,7 +19,6 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddHttpClient();
         services.AddHttpContextAccessor();
 
         // --- JWT ---
@@ -48,7 +47,7 @@ public class Startup
             };
         });
 
-        // --- Infrastructure (Repositories, Services, DB) ---
+        // --- Infrastructure (Repositories, Services, DB, outbound adapters) ---
         // Defined in Project.Api/Extensions/ServiceExtensions.cs
         services.AddInfrastructure(_configuration);
 

@@ -7,6 +7,8 @@ This file is the **entrypoint** for Copilot guidance. It is intentionally short;
 1. [`docs/ARCHITECTURE.md`](../docs/ARCHITECTURE.md)
 2. Rules (binding):
    - [`docs/rules/architecture-protocol.md`](../docs/rules/architecture-protocol.md)
+   - [`docs/rules/transactions.md`](../docs/rules/transactions.md)
+   - [`docs/rules/resilience.md`](../docs/rules/resilience.md)
    - [`docs/rules/sql.md`](../docs/rules/sql.md)
    - [`docs/rules/mapping.md`](../docs/rules/mapping.md)
    - [`docs/rules/code-quality.md`](../docs/rules/code-quality.md)
@@ -41,7 +43,7 @@ Docs: [Chat in your IDE (Visual Studio) — Plan mode](https://docs.github.com/e
 
 - **Layering**: `{CoreNamespace}` must not depend on `{InfrastructureNamespace}` or `{ApiNamespace}` (replace tokens per [`docs/starter-pack/README.md`](../docs/starter-pack/README.md)).
 - **Repositories**: SQL + Dapper only. No business rules, no JSON parsing, no `SELECT *`, no interpolated SQL.
-- **Services**: Orchestrate use cases inside the boundary-managed unit of work; **do not** own `Begin/Commit/Rollback` (see [`docs/rules/transactions.md`](../docs/rules/transactions.md)). Avoid sync-over-async, direct IO primitives, and wall-clock coupling.
+- **Services / use cases**: Follow the explicit short-lived UoW rules in [`docs/rules/transactions.md`](../docs/rules/transactions.md): no transaction for read-only flows, no remote IO while the DB transaction is active, begin late, commit early, and prefer outbox for cross-system side effects.
 - **API**: Controllers are thin; Infrastructure wiring belongs in DI composition.
 - **Logging**: Prefer `ILogger<T>`; do not leak secrets/PII.
 

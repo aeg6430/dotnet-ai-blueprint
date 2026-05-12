@@ -17,12 +17,12 @@ This document is written to be **copyable**: the *principles* are stable even if
 
 When integrating into a legacy codebase, assume existing services and repositories may already violate these rules.
 
-- **Legacy-safe (default)**: treat existing code as *do-not-touch*. Apply new rules to **new/changed code only** and enforce boundaries at the HTTP edge first.
+- **Legacy-safe (default)**: treat existing code as *do-not-touch*. Apply new rules to **new/changed code only** and enforce the transaction/UoW rules first.
 - **Strict (new project)**: enforce the full rule set globally from day 0 (CI + analyzers + architecture tests).
 
 **Migration notes (legacy is messy):**
 
-- Prefer **boundary-first** changes (middleware/filters) over touching deep business logic.
+- Prefer **UoW-first** changes (remove long-lived/request-wide transactions, keep remote IO out of active transactions) over broad refactors of deep business logic.
 - Avoid enabling global transaction boundaries if services already open transactions manually; roll out endpoint-by-endpoint and/or ensure the boundary is re-entrant (depth-based begin) and fail-fast on rollback.
 
 ## 1. SRP — single responsibility
@@ -69,7 +69,7 @@ return FooMapping.ToDtos(rows);
 
 **Owns**
 
-- Business rules, validation at the use-case level, orchestration across repositories **within** the boundary-managed unit of work (services **do not** own `Begin/Commit/Rollback`; see [`transactions.md`](transactions.md)).
+- Business rules, validation at the use-case level, and orchestration across repositories within the explicit, short-lived unit of work defined by [`transactions.md`](transactions.md). Services may coordinate the UoW boundary for local atomic DB work, but they must not hide remote IO inside an active transaction.
 
 **Data cleansing / formatting**
 

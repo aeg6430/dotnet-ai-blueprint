@@ -82,6 +82,13 @@ List the tables this feature reads from or writes to.
 
 Describe what must happen atomically. If multiple tables are written, they must be in one transaction.
 
+Also answer these explicitly:
+
+- Is this flow read-only? If yes, it must not open a transaction.
+- Does this flow call an external API / MQ / webhook / SMTP / file store? If yes, that work must not happen while the main DB transaction is active.
+- If the feature emits cross-system side effects, what is the outbox strategy?
+- What is the idempotency / dedupe strategy for retries?
+
 Example: Creating a warehouse and logging the audit entry must be committed together or rolled back together.
 
 ---

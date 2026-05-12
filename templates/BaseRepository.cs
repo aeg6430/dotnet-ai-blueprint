@@ -9,7 +9,8 @@ public abstract class BaseRepository
 
     protected BaseRepository(IDapperContext context) => _context = context;
 
-    // These properties link directly to the DapperContext managed by the Service
+    // Repositories always use the current scoped UoW; they never create their own connection/transaction.
     protected IDbConnection Connection => _context.Connection;
     protected IDbTransaction? Transaction => _context.Transaction;
+    protected int DefaultCommandTimeoutSeconds => _context.DefaultCommandTimeoutSeconds;
 }

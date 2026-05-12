@@ -16,14 +16,30 @@ public static class ServiceExtensions
         services.AddSingleton<IDatabaseFactory>(_ =>
             new DatabaseFactory(configuration.GetConnectionString("DefaultConnection")!));
 
-        // DapperContext — Scoped so all repositories share the same connection/transaction per request
+        // DapperContext — Scoped so repositories share the same explicit UoW when the use case opens one.
+        // The connection itself stays lazy until the first SQL call.
         services.AddScoped<IDapperContext, DapperContext>();
+
+        // Outbound adapters belong in Infrastructure and should use typed/named HttpClient registrations
+        // with Polly-style timeout/retry/circuit-breaker policies. See docs/rules/resilience.md and
+        // templates/BaseHttpAdapter.cs for the adapter pattern.
+        // Example:
+        // services.AddHttpClient<IInventoryGateway, InventoryGateway>(client =>
+        //     {
+        //         client.BaseAddress = new Uri(configuration["InventoryApi:BaseUrl"]!);
+        //         client.Timeout = TimeSpan.FromSeconds(10);
+        //     })
+        //     .AddPolicyHandler(ResiliencePolicies.TimeoutPolicy)
+        //     .AddPolicyHandler(ResiliencePolicies.RetryPolicy)
+        //     .AddPolicyHandler(ResiliencePolicies.CircuitBreakerPolicy);
 
         // --- Repositories ---
         services.AddScoped<IWarehouseRepository, WarehouseRepository>();
+        services.AddScoped<IStockLedgerRepository, StockLedgerRepository>();
 
         // --- Services ---
         services.AddScoped<IStockService, StockService>();
+        services.AddScoped<StockTransferUseCase>();
 
         // --- Global Error Handling ---
         services.AddExceptionHandler<GlobalExceptionHandler>();

@@ -35,7 +35,7 @@ Cross-project guidance:
 ## Coverage (every public Service method)
 1. Happy path — valid input, expected output
 2. Validation failure — invalid input, expected exception
-3. Persistence failure — simulate repository failure; exception must **surface** (rollback is owned by the **HTTP boundary** — verify rollback in boundary/integration tests per [`transactions.md`](transactions.md))
+3. Persistence failure — simulate repository failure; exception must **surface** (verify rollback / leak protection according to the explicit UoW rules in [`transactions.md`](transactions.md))
 
 ## Naming
 `MethodName_Scenario_ExpectedResult`

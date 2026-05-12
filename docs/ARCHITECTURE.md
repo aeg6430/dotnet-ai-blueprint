@@ -81,9 +81,17 @@ docs/
 └── …                          ← specs/diagrams optional per repo
 
 templates/                     ← pattern cookbook (not necessarily part of the built solution)
+├── IDapperContext.cs
+├── DapperContext.cs
+├── BaseHttpAdapter.cs
 ├── BaseRepository.cs
+├── IStockLedgerRepository.cs
+├── StockLedgerRepository.cs
 ├── WarehouseRepository.cs
 ├── StockService.cs
+├── StockTransferDto.cs
+├── StockTransferUseCase.cs
+├── ResiliencePolicies.cs
 ├── WarehouseMapper.cs
 ├── GlobalExceptionHandler.cs
 ├── ServiceExtensions.cs
@@ -96,8 +104,12 @@ templates/                     ← pattern cookbook (not necessarily part of the
 ## 2. Database & Transaction Pattern
 
 - **`IDapperContext`** (or equivalent UoW) — see `{BackendRoot}/{InfrastructureNamespace}/Context/` and [`templates/`](../templates/) for patterns
-- **Scoped** context per request; repositories do not own connections or transactions
-- **Transaction ownership:** HTTP boundary (middleware / filter / endpoint filter) begins/commits/rolls back; **services and repositories do not** call `Begin/Commit/Rollback` — binding detail in [`docs/rules/transactions.md`](rules/transactions.md) and overview in [`docs/starter-pack/core/transactions.md`](starter-pack/core/transactions.md)
+- **Scoped** context per request/use case; repositories do not own connections or transactions
+- **Lazy connection opening:** opening the DB connection is deferred until the first real SQL call
+- **Default transaction model:** explicit, short-lived transaction around the smallest local atomic DB write block
+- **Remote IO rule:** no external API/network call may occur while the main DB transaction is active
+- **Read-only rule:** query/lookup paths do not call `Begin()`
+- Binding detail lives in [`docs/rules/transactions.md`](rules/transactions.md); runtime timeout/retry/circuit-breaker policy lives in [`docs/rules/resilience.md`](rules/resilience.md)
 
 ---
 
@@ -111,9 +123,13 @@ See **`templates/BaseRepository.cs`** for an isolated illustration; implement **
 
 ## 4. Service layer & use-case orchestration
 
-Services orchestrate use cases and validation **inside** the ambient connection/transaction provided by the boundary — they **do not** own transaction lifecycles.
+Services orchestrate use cases and validation. When a feature needs a transaction, the service/use-case opens it **explicitly and late**, keeps it short, and closes it immediately after the local atomic write block.
 
-See **`templates/StockService.cs`** for a generic orchestration shape.
+- Pure read/query flows do not start transactions.
+- External API calls happen **before** entering the transaction, or after commit via outbox/background work.
+- Use cases that mix local writes and cross-system side effects should prefer outbox over direct remote calls inside the main transaction.
+
+See **`templates/StockService.cs`** and **`templates/StockTransferUseCase.cs`** for the recommended shapes.
 
 ---
 
@@ -169,7 +185,7 @@ See **`templates/ServiceExtensions.cs`**.
 | ORM | Dapper only. EF Core forbidden in repositories unless an explicit ADR allows an exception. |
 | Async | All I/O must be `async/await` |
 | SQL Safety | Parameterized only — no string interpolation |
-| Transactions | Owned at HTTP/use-case boundary per [`docs/rules/transactions.md`](rules/transactions.md) |
+| Transactions | Explicit short-lived UoW at the use-case boundary; no remote IO inside the active DB transaction; see [`docs/rules/transactions.md`](rules/transactions.md) |
 | Logging | `ILogger<T>` in Services and Repositories; log full exception in `catch` |
 | Naming | Prefer descriptive field names (e.g. `_warehouseRepository` over vague abbreviations) |
 | DI | Extension registration classes under `{ApiNamespace}/Extensions/` |

@@ -1,5 +1,5 @@
-// COPILOT_GUIDE: Application service participates in the ambient unit of work only.
-// Binding rule: HTTP boundary owns Begin/Commit/Rollback — services must NOT call them.
+// COPILOT_GUIDE: Application service opens an explicit, short-lived unit of work only for local atomic DB writes.
+// Binding rule: do not overlap remote IO with an active DB transaction.
 // See docs/rules/transactions.md and docs/starter-pack/core/transactions.md.
 
 using Microsoft.Extensions.Logging;
@@ -25,8 +25,11 @@ public sealed class ExampleService
 
     public async Task DoWorkAsync(ExampleCommand command)
     {
-        // Repositories use _context.Connection / enlisted transaction provided by the boundary.
-        await _repo.UpsertAsync(command);
+        // Validate / map / fetch anything remote before opening the transaction.
+        await _context.ExecuteAsync(async () =>
+        {
+            await _repo.UpsertAsync(command);
+        });
     }
 }
 

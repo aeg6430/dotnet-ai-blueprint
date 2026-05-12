@@ -2,8 +2,9 @@ using Microsoft.AspNetCore.Http;
 
 namespace {ApiNamespace}.Filters;
 
-// Copy this into your Minimal API host project.
+// Copy this into your Minimal API host project only for local-write endpoints.
 // Opt-in via endpoint metadata: .WithMetadata(new TransactionalAttribute())
+// Do not attach this filter to handlers that call external services or do long-running work.
 public sealed class TransactionEndpointFilter : IEndpointFilter
 {
     private readonly TransactionService _tx;

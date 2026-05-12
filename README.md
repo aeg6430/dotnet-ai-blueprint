@@ -95,7 +95,9 @@ flowchart LR
 - **非信任資源入口（檔案上傳 / Untrusted Asset Ingress）**：`docs/rules/file-upload.md`
   - **達成**：把「不信任原檔」與「防腐層（ports/adapters）隔離解析與儲存」寫成可移植規則；同時覆蓋合規場景下必須保留原檔的 **Dual-Track / Quarantine（三層緩衝）**（Raw/Vault、Processing、Sanitized/Domain Assets）與 **`IsSanitized` 狀態閘門**。
 - **交易責任（Transaction ownership）**：`docs/rules/transactions.md` + `docs/starter-pack/core/transactions.md`
-  - **達成**：把「交易只能在 HTTP 邊界管理」寫成可移植規則，並給舊案的巢狀交易風險與 rollout 對策。
+  - **達成**：把「顯式短生命週期 UoW、禁止交易中遠端 IO、Query 不開交易」寫成可移植規則，並給舊案的 rollout 對策。
+- **韌性規則（Resilience policy）**：`docs/rules/resilience.md`
+  - **達成**：把 timeout ladder、bounded retry、circuit breaker 與 outbound preflight 檢查變成統一規範。
 - **ADR 工程習慣**：`docs/adr/README.md` + `docs/adr/template.md`
   - **達成**：把「為什麼這樣做」固定下來，降低團隊換人/AI 亂引入新依賴或新慣例。
 - **可複製的程式樣板（templates）**：`templates/**`
@@ -121,14 +123,14 @@ flowchart LR
 - **依賴可視化（optional）**：`docs/optional/visualization/dependency-graph.md`
   - **達成**：把分層依賴關係輸出成圖（DOT/SVG），方便在評審/資安審查時解釋「依賴方向」與「哪些層被禁止」。
 
-#### 既有專案導入（以邊界先行與漸進收斂為原則）
+#### 既有專案導入（以顯式 UoW 與漸進收斂為原則）
 
 - **策略核心**：優先避免對既有核心邏輯進行非必要改動（除非需求或風險控管需要）。
-- **邊界先行（Boundary-first）**：交易/例外/審計/日誌優先收斂到 HTTP boundary（middleware/filters）
-  - **達成**：不改 service 內部也能先把風險收斂、降低不可控分叉。
+- **交易先收斂（UoW-first）**：先禁止「交易中遠端 IO」與「Query 開交易」，再逐步把寫入路徑收斂成顯式短交易。
+  - **達成**：優先降低 connection pool starvation 與隱性長交易風險。
 - **局部啟用（Rollout）**：新端點/新路徑先套規則與測試品質門檻；舊路徑先不強制要求全數通過
   - **達成**：避免導入初期大量違規造成 pipeline 失敗，進而阻塞交付。
-- **巢狀交易注意**：若既有程式已使用 `TransactionScope/BeginTransaction/Commit`，不建議直接啟用全域交易 filter；宜先盤點與清理，或確保邊界交易具備重入/等冪行為。
+- **巢狀交易注意**：若既有程式已使用 `TransactionScope/BeginTransaction/Commit`，不建議再疊加自動交易 filter；宜先盤點與清理，或確保 UoW 具備重入/等冪行為。
 
 #### 新專案導入（可分步驟、可逐步加嚴）
 
@@ -218,7 +220,7 @@ flowchart LR
 - **主要規範**：
   - 安全：ASVS mapping / checklist。
   - 效能：k6/jmeter 驗收模板。
-  - Minimal API（若用）：交易/邊界一致性（filter/service boundary）。
+  - Minimal API（若用）：顯式短交易與本地寫入 wrapper 的一致性。
 - **達成方式**：
   - `docs/starter-pack/optional/security-owasp-asvs-template.md`
   - `docs/starter-pack/optional/perf-k6-jmeter-acceptance-template.md`
@@ -297,7 +299,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "./initialize.ps1" `
 
 #### 3.5 逐步把 optional 模組納入流程（Phase D）
 - 把安全/效能模板掛到 PR template / release checklist / DoD。
-- Minimal API（若採用）再導入其 transaction boundary 模板。
+- Minimal API（若採用）再導入其 local-write transaction wrapper 模板。
 
 ### 4) 既有專案導入策略（降低導入衝擊）
 - **先使 Phase B 可執行**（完成現況盤點），再逐步收斂。
@@ -312,8 +314,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "./initialize.ps1" `
 **提示詞 / 指令約束（AI 輔助）**：
 
 - 建議在 AI 指令中加入：
-  - `If the user asks to modify a Legacy project, prioritize using the 'Boundary-first' strategy mentioned in docs/rules.`
-- 目標：在既有專案改動情境下，優先以邊界先行策略降低侵入性與回歸風險。
+  - `If the user asks to modify a Legacy project, prioritize the explicit short-lived UoW rules in docs/rules/transactions.md and remove remote IO from active transactions first.`
+- 目標：在既有專案改動情境下，優先以 UoW 先收斂策略降低連線池與長交易風險。
 
 **容錯策略（既有專案）**：若既有專案導入 Phase B 後出現大量失敗，建議先不追求全面合規；優先阻擋高風險行為（例如 API 直接碰觸資料庫、刪改資料未經用例層、將 driver 例外或敏感訊息回傳給 client）。技術上可採下列策略降低導入噪音：
 
@@ -340,13 +342,13 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "./initialize.ps1" `
 - **導入前（未形成統一基線）**
   - 新案起手：參考既有程式碼或口頭約定，容易產生不一致結構
   - 分層約束：主要依賴人工 review，存在遺漏風險
-  - 交易邊界：交易控制分散於多處（例如 service 內手動交易與 boundary 交易並存），增加相依與維運風險
+  - 交易邊界：交易控制分散於多處或過早開啟，容易導致長交易、pool 壓力與 side effect 不一致
   - 交付證明：主要依賴主觀判斷或零散資料
 
 - **導入後（本 repo / 目標專案 root）**
   - 新案起手：以 `templates/` 與入口文件提供可複製基線，AI 生成更容易對齊既定分層語言
   - 分層約束：以 CI 測試與品質門檻自動攔截跨層/越界
-  - 交易邊界：統一收斂至 HTTP 邊界（middleware/filters/endpoint filters）
+  - 交易邊界：統一收斂至顯式短生命週期 UoW；遠端 IO 與 Query 都不會誤包進主交易
   - 交付證明：ASVS 勾選表、架構測試結果等可驗證產出物
 
 **維運習慣**：建議每季或每年固定檢閱一次 ADR（Architecture Decision Records），確保這套規範會隨技術演進（例如 .NET 版本升級、依賴庫替換）而更新，而不是變成下一代的技術債。

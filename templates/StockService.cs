@@ -4,50 +4,40 @@ using Project.Core.DTOs;
 
 namespace Project.Core.Services;
 
-public class StockService : IStockService
+// TEMPLATE — pure local multi-table update.
+// Use this shape when the use case does not call external services while the UoW is active.
+public sealed class StockService : IStockService
 {
     private readonly IDapperContext _context;
     private readonly ILogger<StockService> _logger;
     private readonly IWarehouseRepository _warehouseRepository;
-    private readonly IAuditRepository _auditRepository;
-   
+    private readonly IStockLedgerRepository _stockLedgerRepository;
 
     public StockService(
         IDapperContext context,
         ILogger<StockService> logger,
         IWarehouseRepository warehouseRepository,
-        IAuditRepository auditRepository
-     )
+        IStockLedgerRepository stockLedgerRepository)
     {
         _context = context;
         _logger = logger;
         _warehouseRepository = warehouseRepository;
-        _auditRepository = auditRepository;   
+        _stockLedgerRepository = stockLedgerRepository;
     }
 
     public async Task TransferStockAsync(StockTransferDto dto)
     {
         _logger.LogInformation("Starting stock transfer for SkuId: {SkuId}", dto.SkuId);
 
-        // 1. Start Transaction boundary in the Service
-        _context.Begin();
-
-        try
+        await _context.ExecuteAsync(async () =>
         {
-            // 2. Perform operations sharing the same 'DapperContext'
             await _warehouseRepository.UpdateStockAsync(dto.SkuId, dto.Quantity);
-            await _auditRepository.LogChangeAsync($"Transferred {dto.Quantity} units");
+            await _stockLedgerRepository.AppendAsync(
+                dto.SkuId,
+                dto.Quantity,
+                "Stock transferred inside one local transaction.");
+        });
 
-            // 3. Commit if all succeed
-            _context.Commit();
-            _logger.LogInformation("Stock transfer committed successfully for SkuId: {SkuId}", dto.SkuId);
-        }
-        catch (Exception e)
-        {
-            // 4. Rollback the entire unit of work on failure
-            _context.Rollback();
-            _logger.LogError(e, "Stock transfer failed for SkuId: {SkuId}. Transaction rolled back.", dto.SkuId);
-            throw;
-        }
+        _logger.LogInformation("Stock transfer committed successfully for SkuId: {SkuId}", dto.SkuId);
     }
 }

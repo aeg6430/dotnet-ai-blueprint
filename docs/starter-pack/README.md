@@ -60,7 +60,7 @@ This pack is designed to make cross-team delivery more consistent. It does not g
 - **Fewer recurring defects**: layering violations, unsafe SQL patterns, sync-over-async pitfalls, and “business logic in the wrong layer”.
 - **Easier acceptance**: more checks become executable (tests/scans), so acceptance relies less on subjective review.
 - **Faster onboarding**: new engineers (and AI assistants) have a single read order + copyable templates to follow.
-- **Legacy-safe adoption**: the legacy track emphasizes boundary-first rollout and avoiding aggressive refactors.
+- **Legacy-safe adoption**: the legacy track emphasizes explicit short-lived UoW rollout, avoiding long-lived request transactions, and avoiding aggressive refactors.
 
 ## Adoption phases
 
@@ -77,10 +77,10 @@ Choose **one** track depending on whether you are integrating into a legacy code
 
 - **Phase L0 (docs only)**: Introduce rules + examples as review guidance. No code changes required.
 - **Phase L1 (low-noise checks)**: Add a minimal set of CI checks (layering + a few high-signal bans). Start with new/changed paths first.
-- **Phase L2 (boundary first)**: Move cross-cutting concerns to the HTTP boundary (middleware/filters). Keep services focused on use cases.
-  - **Nested transaction caution**: if legacy services open transactions manually (e.g. `TransactionScope`, `BeginTransaction`, manual `Commit/Rollback`), do not enable a global transaction filter blindly.
-    - Prefer to clean up service-level manual commits first, or scope rollout to selected endpoints.
-    - If you cannot clean it up yet, ensure the boundary transaction is re-entrant/idempotent (e.g., depth-based begin; fail-fast rollback invalidates the unit of work).
+- **Phase L2 (transaction cleanup first)**: remove request-wide transaction assumptions, keep remote IO out of active transactions, and move write paths toward explicit short-lived UoW.
+  - **Nested transaction caution**: if legacy services open transactions manually (e.g. `TransactionScope`, `BeginTransaction`, manual `Commit/Rollback`), do not add a global transaction filter blindly.
+    - Prefer to centralize the UoW in the use case first, or scope any automatic wrapper to narrow local-write endpoints only.
+    - If you cannot clean it up yet, ensure the UoW is re-entrant/idempotent (e.g., depth-based begin; fail-fast rollback invalidates the unit of work).
 - **Phase L3 (data access guardrails)**: Enforce repository SQL rules incrementally (new repos first, then older ones).
 - **Phase L4 (optional roadmap)**: Add automation tracking (coverage/backlog) once the core guardrails are stable.
 
@@ -91,14 +91,15 @@ Choose **one** track depending on whether you are integrating into a legacy code
 
 ## Core docs (start here)
 
-- Transactions and boundary rules: [`core/transactions.md`](core/transactions.md)
+- Transactions and UoW rules: [`core/transactions.md`](core/transactions.md)
+- Outbound timeout/retry/circuit-breaker rules: [`../rules/resilience.md`](../rules/resilience.md)
 - File upload & untrusted asset ingress (rules): [`../rules/file-upload.md`](../rules/file-upload.md)
 - ADR habits (what/when/why): [`../adr/README.md`](../adr/README.md)
 
 ## Optional modules
 
 - Logging (Serilog: Console / rolling file / Seq): [`optional/logging/serilog.md`](optional/logging/serilog.md)
-- Minimal API transaction boundary templates: [`optional/minimal-api/transactions.md`](optional/minimal-api/transactions.md)
+- Minimal API local-write transaction wrapper templates: [`optional/minimal-api/transactions.md`](optional/minimal-api/transactions.md)
 - Security profile (Excel/OOXML upload): [`optional/security/excel-ooxml-upload.md`](optional/security/excel-ooxml-upload.md)
 - Security profile (Image upload sanitization): [`optional/security/image-upload-sanitization.md`](optional/security/image-upload-sanitization.md)
 - Dependency graph visualization: [`../optional/visualization/dependency-graph.md`](../optional/visualization/dependency-graph.md)
