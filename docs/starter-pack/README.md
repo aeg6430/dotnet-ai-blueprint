@@ -76,7 +76,7 @@ Choose **one** track depending on whether you are integrating into a legacy code
 
 ### New project (step-by-step)
 
-- **Phase A (day 0)**: Copy this tree + add `.cursor/rules/` (supported Cursor entrypoint / read-order index) + `.github/copilot-instructions.md` + enable analyzers.
+- **Phase A (day 0)**: Copy this tree + add `.cursor/rules/` (supported Cursor entrypoint / read-order index) + `.github/copilot-instructions.md` + enable analyzers. Also establish the audit-log baseline at the API entry point from day 0.
 - **Phase B**: Add layering tests (`architecture-tests/GenericLayeringArchitectureTests.cs.txt`).
 - **Phase C**: Add source-scan firewalls (repo/service/api).
 - **Phase D**: Add security mapping (ASVS) and performance acceptance templates to your delivery checklist.
@@ -107,6 +107,7 @@ Choose **one** track depending on whether you are integrating into a legacy code
 
 - Transactions and UoW rules: [`core/transactions.md`](core/transactions.md)
 - Outbound timeout/retry/circuit-breaker rules: [`../rules/resilience.md`](../rules/resilience.md)
+- Audit logging baseline: [`../rules/audit-log.md`](../rules/audit-log.md)
 - File upload & untrusted asset ingress (rules): [`../rules/file-upload.md`](../rules/file-upload.md)
 - ADR habits (what/when/why): [`../adr/README.md`](../adr/README.md)
 - AI-assisted audit policy: [`../adr/0004-ai-assisted-audit-and-evidence-policy.md`](../adr/0004-ai-assisted-audit-and-evidence-policy.md)

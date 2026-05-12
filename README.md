@@ -218,20 +218,24 @@ flowchart LR
 - **目的**：讓團隊先有一致的讀序入口與規範定位，並讓 Cursor/Copilot 的生成方向一致。
 - **產出物**：
   - `docs/starter-pack/README.md`、`docs/starter-pack/core/transactions.md`
+  - `docs/rules/audit-log.md`
   - `.github/copilot-instructions.md`
   -（若用 Cursor Agent）[`.cursor/rules/`](.cursor/rules/)
   - `anchors/`、`docs/starter-pack/shadow-examples/`、`templates/`
-- **主要規範**：分層責任、交易/邊界、基本 code quality/SQL/mapping/testing。
-- **達成方式**：把上述檔案複製進目標 repo，並在團隊 onboarding / PR 指引中把它們當作固定的「Start here」讀序。
+- **主要規範**：分層責任、交易/邊界、基本 code quality/SQL/mapping/testing，以及 Audit Log 統一攔截規則。
+- **達成方式**：把上述檔案複製進目標 repo，並在團隊 onboarding / PR 指引中把它們當作固定的「Start here」讀序；同時在 API EntryPoint（HTTP boundary）落實統一 Audit Log 攔截點。
 - **驗收（必過）**：
   - 新進工程師 10 分鐘內能找到：規範入口、範本入口、交易/邊界規則。
   - Copilot/AI 在 repo 內生成時能被入口索引引導（至少不偏離分層語言）。
+  - API EntryPoint 或等價 HTTP boundary 已有統一 Audit Log 攔截點，能記錄 `UserId`（或等價 actor identity）、操作行為、目標與結果。
 - **風險/對策**：讀序入口散落或沒被引用 → 在 `docs/` 或 README 設清楚「Start here」並在 PR template/工程指引連結它。
 
-**Log 稽核（Audit Log）建議**：
+**Log 稽核（Audit Log）要求**：
 
-- 建議在 Phase A 規範中加入「Audit Log 統一攔截點」之原則與最低要求（例如於 HTTP 邊界或全域例外處理器集中紀錄，並避免與主交易耦合）。
-  - 目標：使可追溯性具備一致落點，便於稽核與追查。
+- 在 Phase A 應落實 `docs/rules/audit-log.md` 的最低要求，於 API EntryPoint 或全域例外邊界集中攔截並記錄稽核事件。
+  - 最低應包含：`UserId`（或 actor identity）、操作行為、目標資源、結果、Trace/Correlation ID。
+  - 目標：使可追溯性具備一致落點，符合 ISO 27001 等對日誌監控與稽核追蹤要求較高的場景。
+  - 注意：Audit Log 不應與主交易強耦合；若需要 rollback 後仍保留紀錄，應採獨立 sink 或 outbox 策略。
 
 #### Phase B：Layering 架構測試品質門檻上線（CI 攔截越界）
 - **目的**：把分層規範從「人工 review」轉換為「CI 可執行品質門檻」。
