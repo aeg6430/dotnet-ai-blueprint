@@ -115,6 +115,7 @@ If the target project or feature spec intentionally differs from the default sta
 ## Useful repo entrypoints
 
 - Starter-pack overview: [`docs/starter-pack/README.md`](docs/starter-pack/README.md)
+- Daily work quickstart: [`docs/starter-pack/core/daily-work-quickstart.md`](docs/starter-pack/core/daily-work-quickstart.md)
 - Legacy maintenance SOP: [`docs/starter-pack/core/legacy-bugfix-feature-sop.md`](docs/starter-pack/core/legacy-bugfix-feature-sop.md)
 - New-project Day 0 checklist: [`docs/starter-pack/core/new-project-day0-collaboration-checklist.md`](docs/starter-pack/core/new-project-day0-collaboration-checklist.md)
 - Feature spec template: [`docs/specs/feature-spec-template.md`](docs/specs/feature-spec-template.md)

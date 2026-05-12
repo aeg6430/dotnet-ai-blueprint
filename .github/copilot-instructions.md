@@ -1,13 +1,12 @@
 # Copilot instructions
 
-This file is the **entrypoint** for Copilot guidance. It is intentionally short; it points you to the authoritative rules and copyable examples.
-
-For Cursor, the equivalent repository guidance lives under [`.cursor/rules/`](../.cursor/rules/), starting from [`00-entrypoint.mdc`](../.cursor/rules/00-entrypoint.mdc).
+This file is the Copilot-specific entrypoint. Use it with [`docs/START_HERE.md`](../docs/START_HERE.md), which remains the shared task-routing index.
 
 ## Read order (required)
 
-1. [`docs/ARCHITECTURE.md`](../docs/ARCHITECTURE.md)
-2. Rules (binding):
+1. [`docs/START_HERE.md`](../docs/START_HERE.md)
+2. [`docs/ARCHITECTURE.md`](../docs/ARCHITECTURE.md)
+3. Rules (binding):
    - [`docs/rules/architecture-protocol.md`](../docs/rules/architecture-protocol.md)
    - [`docs/rules/transactions.md`](../docs/rules/transactions.md)
    - [`docs/rules/resilience.md`](../docs/rules/resilience.md)
@@ -18,56 +17,29 @@ For Cursor, the equivalent repository guidance lives under [`.cursor/rules/`](..
    - [`docs/rules/mapping.md`](../docs/rules/mapping.md)
    - [`docs/rules/code-quality.md`](../docs/rules/code-quality.md)
    - [`docs/rules/testing.md`](../docs/rules/testing.md)
-3. Shadow examples (copy patterns):
+4. Shadow examples (copy patterns):
    - [`docs/starter-pack/shadow-examples/`](../docs/starter-pack/shadow-examples/)
    - [`templates/`](../templates/)
 
-For endpoint protection, CI slowness, Build Agent exclusions, restricted cloud tooling, Phase C firewall hardening, or exception-leak prevention, also read [`docs/rules/endpoint-protection.md`](../docs/rules/endpoint-protection.md) early and prioritize `ExceptionLeakTests` before broader firewall expansion.
+Also read these when they apply:
 
-For incident hotfixes, malicious-parameter blocking, temporary blocked paths, or API-edge request screening, also read [`docs/rules/request-screening.md`](../docs/rules/request-screening.md) and prefer native ASP.NET Core middleware / filters over external mediator frameworks. Keep the feature packaged behind a focused extension method and treat missing `RequestScreening:Enabled` config as disabled.
+- endpoint protection, CI slowness, restricted cloud tooling, or exception-leak prevention: [`docs/rules/endpoint-protection.md`](../docs/rules/endpoint-protection.md)
+- incident hotfixes, temporary path blocking, or request screening: [`docs/rules/request-screening.md`](../docs/rules/request-screening.md)
+- project setup, namespace conversion, or folder rename: [`docs/starter-pack/project-setup-protocol.md`](../docs/starter-pack/project-setup-protocol.md)
 
-## Recommended workspace model
+## Working defaults
 
-When using this starter pack with a separate product repository, prefer a three-folder workflow:
+1. If a target repo provides `docs/specs/`, follow the relevant spec first.
+2. Use `docs/requirements/raw/` as source material, not as the final coding contract.
+3. If the spec is incomplete, fall back to this repository's rules and templates.
+4. Keep target naming, style, and boundaries instead of copying blueprint-specific names verbatim.
+5. For legacy edits, do not introduce `TransactionScope` into paths that already use `IDbTransaction`, and re-check async/await consistency.
 
-- **Blueprint**: this repository; rules, templates, and source-of-truth docs live here.
-- **Seed / Sandbox**: a clean exported starter-pack project used to prototype the ideal implementation.
-- **Target**: the real product repository (legacy or new project) where final changes are integrated.
+## Plan-first preference
 
-For project setup, namespace conversion, or folder renaming on a Seed folder, read [`docs/starter-pack/project-setup-protocol.md`](../docs/starter-pack/project-setup-protocol.md) before implementation work begins.
+For multi-file work or anything that touches layering, transactions, security, or setup, prefer a plan-first flow before applying edits.
 
-Default behavior:
-
-1. Read the target repo's `docs/specs/` first, if present.
-2. Use the target repo's `docs/requirements/raw/` as source material, not as the final coding contract.
-3. If the spec is incomplete, fall back to this blueprint's rules and templates.
-4. If the target codebase is noisy or legacy-heavy, prototype the clean version in Seed first.
-5. Integrate the logic back into Target using Target naming, style, and boundaries rather than copying blueprint-specific abstractions verbatim.
-6. For legacy project edits, never introduce `TransactionScope` into paths that already use `IDbTransaction`, and always re-check async/await consistency to avoid sync-over-async deadlocks.
-
-## Plan-first workflow (VS Code & Visual Studio)
-
-This repository’s rules live in markdown; **Plan mode** is how you get a Cursor-style “plan before edits” flow in Copilot: the plan agent uses read-only exploration, produces steps and open questions, and **does not apply code changes** until you approve and hand off to **Agent** mode (or you implement manually). Plan may be **preview** and can be disabled by org policy—check your IDE version and Copilot settings.
-
-If Plan / Agent features are unavailable in your environment, use normal Copilot Chat plus manual edits and follow the same markdown entrypoints in smaller reviewable batches.
-
-### Visual Studio Code
-
-1. Open **Copilot Chat** (e.g. chat icon / `Ctrl+Alt+I` per your keybindings).
-2. At the **bottom of the chat view**, open the **mode / agents** dropdown and choose **Plan** (or start the prompt with **`/plan`** and describe the task—type **`/`** in the box to see current slash commands for your version).
-3. Iterate on the plan (clarify scope, answer questions).
-4. When ready, start implementation via **Agent** mode or the **Start implementation** (or equivalent) control in the chat UI.
-
-Docs: [Planning with agents in VS Code](https://code.visualstudio.com/docs/copilot/agents/planning) · [Chat in your IDE (VS Code)](https://docs.github.com/en/copilot/how-tos/chat-with-copilot/chat-in-ide?tool=vscode)
-
-### Visual Studio (2022)
-
-1. Open **GitHub Copilot Chat**: **View → GitHub Copilot Chat** (Copilot is built in from **17.10** onward; older minors may need the Copilot extensions—see Microsoft Learn).
-2. At the **bottom of the chat panel**, open the **agents / mode** dropdown and select **Plan**.
-3. Enter a prompt that describes the feature, refactor, or bugfix; review the generated plan and follow-ups.
-4. When satisfied, use **Start Implementation** / switch to **Agent** as the UI offers so Copilot can apply edits.
-
-Docs: [Chat in your IDE (Visual Studio) — Plan mode](https://docs.github.com/en/copilot/how-tos/chat-with-copilot/chat-in-ide?tool=visualstudio#plan-mode) · [Using GitHub Copilot Chat in Visual Studio](https://learn.microsoft.com/visualstudio/ide/visual-studio-github-copilot-chat?view=vs-2022#use-copilot-chat-in-visual-studio)
+If Plan / Agent features are unavailable, start from [`docs/START_HERE.md`](../docs/START_HERE.md), use normal Copilot Chat plus manual edits, and keep the work in small reviewable batches.
 
 ## Non-negotiables
 
@@ -80,15 +52,11 @@ Docs: [Chat in your IDE (Visual Studio) — Plan mode](https://docs.github.com/e
 - **Default application boundary**: Prefer native ASP.NET Core mechanisms plus explicit services / use cases; do not introduce MediatR as a starter-pack default without a local ADR.
 - **Optional boundary controls**: Keep request-screening style features behind feature-local extension methods so the main DI/composition root keeps a single opt-in line.
 
-## Cross-cutting (“AOP”) meaning
-
-Use official ASP.NET Core mechanisms: middleware + MVC filters + (optionally) DI decorators. Do **not** introduce IL-weaving aspect frameworks.
-
 ## Output requirements
 
 When generating code:
 
-- For **multi-file** work or anything that touches **layering / transactions / security**, prefer **Plan mode first** (see above), then **Agent** mode or manual edits.
+- For **multi-file** work or anything that touches **layering / transactions / security**, prefer a plan-first flow.
 - For project setup requests on a Seed folder, use [`docs/starter-pack/project-setup-protocol.md`](../docs/starter-pack/project-setup-protocol.md) before feature implementation or refactoring.
 - If a target repo provides `docs/specs/`, follow the feature spec before applying default blueprint assumptions.
 - If the task touches API-edge monitoring, traceability, security review, or audit evidence, also follow [`docs/rules/audit-log.md`](../docs/rules/audit-log.md).

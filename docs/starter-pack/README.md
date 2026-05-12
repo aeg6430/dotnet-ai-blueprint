@@ -1,31 +1,28 @@
 # Layered .NET Starter Pack
 
-This folder is a **core part** of the portable starter pack used to bootstrap a layered .NET backend (architecture tests, firewall scans, Copilot guidance, and optional security/perf checklists). For full onboarding, start from the repository root `README.md` or an exported Seed folder rather than treating `docs/starter-pack/` as the only entrypoint.
+This folder is a **core part** of the portable starter pack used to bootstrap a layered .NET backend. It collects setup guidance, copyable patterns, architecture-test templates, and optional security/performance checklists.
 
-## Goals
+For full onboarding, start from the repository root `README.md` or [`../START_HERE.md`](../START_HERE.md) rather than treating `docs/starter-pack/` as the only entrypoint.
 
-- **Copyable**: generic placeholders (`{Solution}`, `{CoreNamespace}`, …) and fictional cookbook names (`Project.*`, `Warehouse*`); no vendor-specific product branding in portable docs.
-- **Modular**: start small, enable optional quality thresholds in phases.
-- **Copilot-friendly**: rules + shadow examples are optimized to steer code generation.
-- **CI-enforceable**: architecture rules are expressed as tests/analyzers where possible.
+## What This Pack Provides
 
-## Copy/replace checklist
+- **Copyable structure**: portable placeholders (`{Solution}`, `{CoreNamespace}`, ...) and generic example names for reuse.
+- **Layered defaults**: a clear API / service / core / infrastructure shape.
+- **Executable guardrails**: architecture-test templates and rule documents that can be adopted gradually.
+- **Optional modules**: additional security, performance, and platform-specific guidance when needed.
 
-After importing the Seed pack into your repo, or when working with this folder as part of that pack:
+## Quick Use
 
-- Replace placeholders:
-  - `{Solution}` (solution name)
-  - `{CoreNamespace}` (e.g. `Acme.Core`)
-  - `{InfrastructureNamespace}` (e.g. `Acme.Infrastructure`)
-  - `{ApiNamespace}` (e.g. `Acme.Api`)
-  - `{TestsNamespace}` (e.g. `Acme.Tests`)
-- Decide which optional modules to enable first (see `optional/`).
-- Prefer the shared AI-first setup flow from the root `README.md` and [`project-setup-protocol.md`](project-setup-protocol.md) when you want to rename the working directory into a real target project.
+Use this pack in three broad steps:
+
+1. Start from [`../START_HERE.md`](../START_HERE.md) to choose the right path for the task.
+2. Use [`project-setup-protocol.md`](project-setup-protocol.md) when the working directory must be renamed or aligned to a real project.
+3. Use the `core/`, `architecture-tests/`, `shadow-examples/`, and `optional/` folders according to the stage and scope of the work.
 
 > [!IMPORTANT]
 > Placeholder visibility and consistency
 > - The actual pack files use **single braces** placeholders like `{Solution}`.
-> - If you document placeholders as `{{Solution}}` for readability, ensure your team uses one consistent setup path so nobody mixes formats or misses replacements. The preferred route is the shared AI-first `Project Setup Protocol`.
+> - If you document placeholders as `{{Solution}}` for readability, ensure your team uses one consistent setup path so nobody mixes formats or misses replacements.
 
 ## Layering at a glance
 
@@ -47,7 +44,7 @@ flowchart LR
 - `core/`: Core docs you can copy as-is (start here).
 - `optional/`: Security/performance checklists you can adopt gradually.
 
-When this pack is imported into a repository, treat `docs/ARCHITECTURE.md`, `docs/rules/**`, `templates/`, and `skeleton/` as the project source of truth. Treat `.cursor/rules/` and `.github/copilot-instructions.md` as IDE entrypoints/read-order indexes, and treat [`project-setup-protocol.md`](project-setup-protocol.md) as the shared setup contract.
+When this pack is imported into a repository, treat `docs/ARCHITECTURE.md`, `docs/rules/**`, `templates/`, and `skeleton/` as the main engineering references. Use [`project-setup-protocol.md`](project-setup-protocol.md) for setup-related renaming and alignment work.
 
 For outbound starter patterns, look under `templates/` for:
 - typed `HttpClient` adapters (`InventoryGateway`, `PricingGateway`, `ShipmentGateway`, `PaymentGateway`, `WebhookGateway`)
@@ -59,52 +56,19 @@ For outbound starter patterns, look under `templates/` for:
 > - DB driver exceptions (`System.Data.*`, `Microsoft.Data.SqlClient.*`) must not leak to API clients.
 > - Treat `architecture-tests/ExceptionLeakTests.cs.txt` as a low-cost check threshold to prevent accidental sensitive output (connection strings, SQL fragments, schema names).
 
-## What changes (expected outcomes)
+## What Teams Usually Use First
 
-This pack is designed to make cross-team delivery more consistent. It does not guarantee outcomes, but teams typically see improvements when they adopt the phases and keep the quality thresholds green:
+Most teams start with a small subset:
 
-- This pack is **not** a turnkey application. It provides copyable rules, templates, and executable quality thresholds you can integrate into an existing or new solution.
-
-- **Fewer recurring defects**: layering violations, unsafe SQL patterns, sync-over-async pitfalls, and “business logic in the wrong layer”.
-- **Easier acceptance**: more checks become executable (tests/scans), so acceptance relies less on subjective review.
-- **Faster onboarding**: new engineers (and AI assistants) have a clear read order + copyable templates to follow.
-- **Legacy-safe adoption**: the legacy track emphasizes explicit short-lived UoW rollout, avoiding long-lived request transactions, and avoiding aggressive refactors.
-
-## Adoption phases
-
-Choose **one** track depending on whether you are integrating into a legacy codebase or starting a new project.
-
-### New project (step-by-step)
-
-- **Phase A (day 0)**: Copy this tree + add `.cursor/rules/` and `.github/copilot-instructions.md` as supported AI entrypoints + use [`project-setup-protocol.md`](project-setup-protocol.md) for setup + enable analyzers. Also establish the audit-log baseline at the API entry point from day 0.
-- **Phase B**: Add layering tests (`architecture-tests/GenericLayeringArchitectureTests.cs.txt`).
-- **Phase C**: Add source-scan firewalls (repo/service/api).
-- **Phase D**: Add security mapping (ASVS / ISO 27001), compliance-report templates, and performance acceptance templates to your delivery checklist.
-- **Phase E**: Run the AI-assisted audit step and produce a reviewable compliance evidence bundle (`compliance-audit-report.md`, architecture-test logs/screenshots, and relevant `artifacts/`).
-
-> Operational note: if developer machines or CI agents run Apex One or similar endpoint protection, the working directory, test output folders, and `artifacts/` may need a reviewed exclusion policy; reflection-heavy architecture tests and generated reports can otherwise become unexpectedly slow. See [`../rules/endpoint-protection.md`](../rules/endpoint-protection.md).
-
-### Legacy project (modernize without breaking behavior)
-
-- **Phase L0 (docs only)**: Introduce rules + examples as review guidance. No code changes required.
-- **Phase L1 (low-noise checks)**: Add a minimal set of CI checks (layering + a few high-signal bans). Start with new/changed paths first.
-- **Phase L2 (transaction cleanup first)**: remove request-wide transaction assumptions, keep remote IO out of active transactions, and move write paths toward explicit short-lived UoW.
-  - **Nested transaction caution**: if legacy services open transactions manually (e.g. `TransactionScope`, `BeginTransaction`, manual `Commit/Rollback`), do not add a global transaction filter blindly.
-    - Prefer to centralize the UoW in the use case first, or scope any automatic wrapper to narrow local-write endpoints only.
-    - If you cannot clean it up yet, ensure the UoW is re-entrant/idempotent (e.g., depth-based begin; fail-fast rollback invalidates the unit of work).
-- **Phase L3 (data access guardrails)**: Enforce repository SQL rules incrementally (new repos first, then older ones).
-- **Phase L4 (optional roadmap)**: Add automation tracking (coverage/backlog) once the core guardrails are stable.
-- **Phase E (after rollout)**: run the AI-assisted audit step to consolidate compliance evidence, residue checks, and human review notes.
-
-## Notes
-
-- Repo-local Markdown links **must** point to existing files (CI runs `scripts/ci/check-markdown-links.py`).
-- External URLs are fine.
-- If your team uses a generated working directory such as `_starter-pack-seed/out/`, treat it as a high-churn folder when discussing endpoint-protection exclusions with IT/security.
-- The recommended Phase E report shape is a Markdown-table compliance matrix plus explicit evidence attachments; see [`../adr/0004-ai-assisted-audit-and-evidence-policy.md`](../adr/0004-ai-assisted-audit-and-evidence-policy.md).
+- `core/` for the working style and day-to-day checklists
+- `project-setup-protocol.md` for rename / namespace / path alignment
+- `architecture-tests/` when they want executable boundary checks
+- `shadow-examples/` and `templates/` when they need nearby copy patterns
+- `optional/` only when the current project needs those extra modules
 
 ## Core docs (start here)
 
+- Daily work quickstart for common task types: [`core/daily-work-quickstart.md`](core/daily-work-quickstart.md)
 - Transactions and UoW rules: [`core/transactions.md`](core/transactions.md)
 - Legacy maintenance playbook for bugfix / small feature work: [`core/legacy-bugfix-feature-sop.md`](core/legacy-bugfix-feature-sop.md)
 - New-project Day 0 collaboration checklist for mixed-tool teams: [`core/new-project-day0-collaboration-checklist.md`](core/new-project-day0-collaboration-checklist.md)
@@ -121,13 +85,10 @@ Choose **one** track depending on whether you are integrating into a legacy code
 - Shared setup flow: [`project-setup-protocol.md`](project-setup-protocol.md)
 - Audit logging baseline: [`../rules/audit-log.md`](../rules/audit-log.md)
 - Request screening control: [`../rules/request-screening.md`](../rules/request-screening.md)
-  - Opt-in only: inactive unless `RequestScreening:Enabled = true`; keep registration behind `AddRequestScreening(configuration)` so the feature is easy to remove later.
-  - Use it as a `Probe` during maintenance, a `Safety Net` during refactoring, and a `Tourniquet` during incident response.
-  - Treat it as a non-invasive, temporary control; long-lived fixes belong in the code path itself, and permanent rules belong in formal application mechanisms.
 - Endpoint-protection guidance: [`../rules/endpoint-protection.md`](../rules/endpoint-protection.md)
 - File upload & untrusted asset ingress (rules): [`../rules/file-upload.md`](../rules/file-upload.md)
 - ADR habits (what/when/why): [`../adr/README.md`](../adr/README.md)
-- AI-assisted audit policy: [`../adr/0004-ai-assisted-audit-and-evidence-policy.md`](../adr/0004-ai-assisted-audit-and-evidence-policy.md)
+- Audit policy: [`../adr/0004-ai-assisted-audit-and-evidence-policy.md`](../adr/0004-ai-assisted-audit-and-evidence-policy.md)
 - Native ASP.NET Core application-boundary ADR: [`../adr/0005-native-aspnetcore-application-boundary-default.md`](../adr/0005-native-aspnetcore-application-boundary-default.md)
 
 ## Optional modules

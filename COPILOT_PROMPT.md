@@ -2,13 +2,8 @@
 
 Paste this as your **first message** in a new Copilot Chat session, then ask normally.
 
-1. Read the project instructions: **`.github/copilot-instructions.md`** (read order, non-negotiables, and **Plan-first** steps for VS Code / Visual Studio).
-2. Architecture: **`docs/ARCHITECTURE.md`**.
-3. For project setup / namespace conversion / folder renaming: **`docs/starter-pack/project-setup-protocol.md`**.
-4. If the environment has endpoint protection, CI slowness, Apex One, restricted cloud tooling, Phase C firewall work, or exception-leak prevention: **`docs/rules/endpoint-protection.md`**. Prioritize **`ExceptionLeakTests`** before broader firewall expansion.
-5. Phase / onboarding (Traditional Chinese): **`README.md`** at repo root.
-6. Toggle modes if needed: **`.ai-modes`** (mirror relevant lines into chat).
-
-If Plan / Agent features are unavailable, continue with normal Copilot Chat and manual edits in small reviewable batches.
-
-For detailed paste rules (SOLID, SQL, review format), Copilot should follow the markdown files above rather than duplicating them here.
+1. Read **`docs/START_HERE.md`** first.
+2. Read **`.github/copilot-instructions.md`** next.
+3. Then follow the task-specific files those docs point to.
+4. Prefer a plan-first flow for multi-file, transaction, security, or setup work.
+5. Keep changes small, reuse local templates/examples, and follow repo-local specs/rules instead of inventing new conventions.
