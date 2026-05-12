@@ -85,26 +85,49 @@ templates/                     ← pattern cookbook (not necessarily part of the
 ├── DapperContext.cs
 ├── BaseHttpAdapter.cs
 ├── IInventoryGateway.cs
+├── IPaymentGateway.cs
 ├── IPricingGateway.cs
 ├── IShipmentGateway.cs
+├── IWebhookGateway.cs
+├── IMessagePublisher.cs
 ├── ITransferIdempotencyRepository.cs
 ├── IOutboxRepository.cs
 ├── InventoryGatewayOptions.cs
+├── PaymentGatewayOptions.cs
 ├── PricingGatewayOptions.cs
 ├── ShipmentGatewayOptions.cs
+├── WebhookGatewayOptions.cs
+├── MessagePublisherOptions.cs
+├── OutboxDeliveryOptions.cs
 ├── InventoryGateway.cs
+├── PaymentGateway.cs
 ├── PricingGateway.cs
 ├── ShipmentGateway.cs
+├── WebhookGateway.cs
+├── MessagePublisher.cs
 ├── InventoryVerificationRequest.cs
 ├── InventoryVerificationResponse.cs
+├── PaymentAuthorizeRequest.cs
+├── PaymentAuthorizeResponse.cs
 ├── PricingQuoteRequest.cs
 ├── PricingQuoteResponse.cs
 ├── ShipmentCreateRequest.cs
 ├── ShipmentCreateResponse.cs
+├── WebhookDeliveryRequest.cs
+├── WebhookDeliveryResponse.cs
+├── MessagePublishRequest.cs
 ├── BaseRepository.cs
 ├── IOutboxMessageSerializer.cs
 ├── OutboxEnvelope.cs
+├── OutboxMessageRecord.cs
 ├── OutboxMessageSerializer.cs
+├── IOutboxDispatcher.cs
+├── IOutboxDeliveryHandler.cs
+├── OutboxDispatcher.cs
+├── OutboxDeliveryWorker.cs
+├── PaymentOutboxDeliveryHandler.cs
+├── WebhookOutboxDeliveryHandler.cs
+├── MessagePublishOutboxDeliveryHandler.cs
 ├── IStockLedgerRepository.cs
 ├── StockLedgerRepository.cs
 ├── TransferIdempotencyRepository.cs
@@ -153,7 +176,7 @@ Services orchestrate use cases and validation. When a feature needs a transactio
 - External API calls happen **before** entering the transaction, or after commit via outbox/background work.
 - Use cases that mix local writes and cross-system side effects should prefer outbox over direct remote calls inside the main transaction.
 
-See **`templates/StockService.cs`** and **`templates/StockTransferUseCase.cs`** for the recommended orchestration shapes, plus **`templates/InventoryGateway.cs`**, **`templates/PricingGateway.cs`**, and **`templates/ShipmentGateway.cs`** for outbound adapter variants. Repository implementations for the outbox/idempotency path live in **`templates/OutboxRepository.cs`** and **`templates/TransferIdempotencyRepository.cs`**.
+See **`templates/StockService.cs`** and **`templates/StockTransferUseCase.cs`** for the recommended orchestration shapes, plus **`templates/InventoryGateway.cs`**, **`templates/PricingGateway.cs`**, **`templates/ShipmentGateway.cs`**, **`templates/PaymentGateway.cs`**, **`templates/WebhookGateway.cs`**, and **`templates/MessagePublisher.cs`** for outbound adapter variants. Repository implementations for the outbox/idempotency path live in **`templates/OutboxRepository.cs`** and **`templates/TransferIdempotencyRepository.cs`**, while **`templates/OutboxDispatcher.cs`** and **`templates/OutboxDeliveryWorker.cs`** show the post-commit delivery path for webhook/broker/payment side effects.
 
 ---
 

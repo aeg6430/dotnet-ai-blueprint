@@ -46,6 +46,11 @@ flowchart LR
 - `core/`: Core docs you can copy as-is (start here).
 - `optional/`: Security/performance checklists you can adopt gradually.
 
+For outbound starter patterns, look under `templates/` for:
+- typed `HttpClient` adapters (`InventoryGateway`, `PricingGateway`, `ShipmentGateway`, `PaymentGateway`, `WebhookGateway`)
+- broker-style post-commit publication (`MessagePublisher`)
+- outbox-backed post-commit delivery (`OutboxRepository`, `OutboxDispatcher`, `OutboxDeliveryWorker`, and concrete delivery handlers)
+
 > [!WARNING]
 > Exception leak is a high-risk acceptance issue
 > - DB driver exceptions (`System.Data.*`, `Microsoft.Data.SqlClient.*`) must not leak to API clients.

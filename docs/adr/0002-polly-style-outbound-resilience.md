@@ -38,7 +38,7 @@ Retries are allowed only for read-only or explicitly idempotent remote operation
   - Circuit-breaker and retry settings still need tuning per SLA; the starter pack provides defaults, not magic values.
 - **Follow-ups**:
   - Keep `docs/rules/resilience.md` as the binding rule set.
-  - Keep `templates/BaseHttpAdapter.cs`, `templates/ResiliencePolicies.cs`, `templates/InventoryGateway.cs`, `templates/PricingGateway.cs`, and `templates/ShipmentGateway.cs` aligned with this decision.
+  - Keep `templates/BaseHttpAdapter.cs`, `templates/ResiliencePolicies.cs`, `templates/InventoryGateway.cs`, `templates/PricingGateway.cs`, `templates/ShipmentGateway.cs`, `templates/PaymentGateway.cs`, and `templates/WebhookGateway.cs` aligned with this decision.
   - When a remote write is retryable, show the idempotency strategy explicitly in templates and feature specs.
 
 ## Links
@@ -53,6 +53,9 @@ Retries are allowed only for read-only or explicitly idempotent remote operation
   - `templates/InventoryGateway.cs`
   - `templates/PricingGateway.cs`
   - `templates/ShipmentGateway.cs`
+  - `templates/PaymentGateway.cs`
+  - `templates/WebhookGateway.cs`
+  - `templates/OutboxDispatcher.cs`
   - `templates/ServiceExtensions.cs`
 - Related ADRs:
   - `docs/adr/0001-explicit-short-lived-uow.md`
