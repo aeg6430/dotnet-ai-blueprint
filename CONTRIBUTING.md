@@ -2,7 +2,7 @@
 
 This repository is a portable .NET starter pack. Treat it as a source of truth for rules, templates, and collaboration patterns rather than as a finished product application.
 
-This guide is intentionally **tool-neutral**. Follow it whether you use Cursor, Visual Studio, VS Code, GitHub Copilot, another AI assistant, or plain manual editing.
+This guide is intentionally **tool-neutral**. Follow it whether you use Cursor, Visual Studio, VS Code, GitHub Copilot, another assistant, or direct editing.
 
 ## Start here
 
@@ -62,7 +62,7 @@ If CI is not available yet, every change should still have a repeatable verifica
 
 - documented local build command
 - documented test or smoke command
-- manual verification checklist when automation is not yet practical
+- verification checklist when automation is not yet practical
 
 Do not rely on "it worked once on my machine" as the only evidence.
 
@@ -82,13 +82,34 @@ dotnet run --project <your-api-project>
 
 Document the real commands in the target repo's `README.md`.
 
-In this repository itself, the root `Makefile` is an optional convenience layer for teams that already use GNU Make. It mirrors repo-local helper commands without replacing the documented native commands:
+In this repository itself, the documented native commands remain valid. When repeatable setup or verification commands are needed, prefer the root `Makefile` as the stable command surface:
 
 ```text
 make init TARGET_PROJECT_NAME=Acme.Ordering
+make setup-scan SETUP_ROOT=.
+make setup-rewrite-placeholders TARGET_PROJECT_NAME=Acme.Ordering SETUP_ROOT=.
+make setup-rewrite-content TARGET_PROJECT_NAME=Acme.Ordering SETUP_ROOT=.
+make setup-rename-solution-projects TARGET_PROJECT_NAME=Acme.Ordering SETUP_ROOT=.
+make setup-rename-paths TARGET_PROJECT_NAME=Acme.Ordering SETUP_ROOT=.
+make setup-clean SETUP_ROOT=.
+make setup-verify SETUP_ROOT=.
 make build   # dotnet build skeleton/StarterPack.Skeleton.sln -c Release
 make test    # dotnet test skeleton/StarterPack.Skeleton.sln -c Release
+make test-edge
+make commit-msg-check MSG="docs(ai): clarify setup flow"
 ```
+
+## About the Makefile
+
+The `Makefile` in this repo is the preferred bounded automation surface. The docs and underlying commands remain valid without it.
+
+It may contain reviewed setup or verification logic that replaces the old `.ps1` entrypoints, provided the behavior stays explicit, parameterized, and limited to starter-pack setup concerns.
+
+Allowed examples include placeholder replacement, content-level identity alignment, solution/project renames, explicit path renames, or controlled cleanup tied to setup flows. Prefer splitting these into small reviewed setup targets rather than hiding them in one opaque command. Do not place business logic, product-specific behavior, hidden target-repo assumptions, or opaque side effects into the `Makefile`.
+
+The workflow must remain understandable from the repo docs so contributors can still execute it directly when `make` is unavailable or not desired.
+
+Use the `Makefile` for repeatable command surfaces such as build/test entrypoints, focused guardrail checks, and the mechanical part of Conventional Commits validation. Keep TDD, edge-first prioritization, review scope, and similar engineering judgment in the docs and review process rather than trying to encode all of that thinking into a target.
 
 The bundled skeleton targets `net8.0` so the same validation path can run under either the .NET 8 SDK or the .NET 9 SDK.
 The repo's GitHub Actions workflow mirrors that same path and validates the skeleton on both SDK lines.
@@ -103,7 +124,7 @@ Keep changes reviewable. A good change set should tell the reviewer:
 - why it changed
 - how it was verified
 - what was intentionally left out
-- any residual risk or manual follow-up
+- any residual risk or follow-up
 
 If the task touches a legacy hotspot, say so directly.
 

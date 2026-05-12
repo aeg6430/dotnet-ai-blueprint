@@ -2,7 +2,10 @@
 
 Use this protocol when a Seed folder, exported starter pack, or working directory must be renamed and aligned to a real target project **before** implementation work begins.
 
-This document is **tool-neutral**. It is the canonical setup path for Cursor, GitHub Copilot, and restricted environments where only plain chat/manual editing is available.
+This document is **tool-neutral**. It is the canonical setup path for Cursor, GitHub Copilot, and restricted environments where only plain chat or direct editing is available.
+
+> Note
+> The three-directory workflow remains understandable by following this document directly. When automation is involved, prefer stable `Makefile` targets over ad hoc command synthesis or the removed legacy `.ps1` flows. The goal is to keep setup understandable while giving automated workflows a consistent command surface that reduces endpoint-protection friction and unintended code changes.
 
 ## When to use it
 
@@ -40,7 +43,7 @@ Read `docs/starter-pack/project-setup-protocol.md`.
 In this directory, convert namespaces, project names, solution names, directory paths, and setup-related references from the current Blueprint / Seed shape to `TargetProjectName`.
 Keep the architecture, rule intent, and folder responsibilities intact.
 If `docs/specs/` or the target repo defines a different naming scheme, follow that instead of the default.
-After setup, summarize any unresolved naming conflicts or manual-review items.
+After setup, summarize any unresolved naming conflicts or review items.
 ```
 
 ## Protocol
@@ -54,16 +57,17 @@ After setup, summarize any unresolved naming conflicts or manual-review items.
    - setup references in docs or config
 3. Rename those markers to match `TargetProjectName` or the target repo's approved naming scheme.
 4. Preserve reusable rules, templates, and architecture boundaries unless the target project explicitly changes them.
-5. Prefer one consistent naming pass rather than mixing partial manual replacements with partial AI replacements.
+5. Prefer one consistent naming pass rather than mixing partial direct replacements with partial automated replacements.
 6. After setup, continue with target-aware implementation:
    - existing / legacy target repo: preserve target naming, style, and boundaries
    - new / early-stage target repo: remove leftover Blueprint identity and keep the structure target-native
 
-## Fallback when AI tooling is limited
+## Fallback when assisted tooling is limited
 
 If Cursor cloud features, Copilot agents, or similar assisted modes are unavailable:
 
-- use plain chat/manual editing with the same protocol
+- use plain chat or direct editing with the same protocol, or invoke reviewed `Makefile` targets when available
+- prefer split setup targets such as scan, placeholder rewrite, content rewrite, solution/project rename, path rename, cleanup, and verify over a single opaque script step
 - apply setup in small reviewable batches (namespaces, project files, folders, config)
 - validate after each batch rather than attempting one opaque bulk rewrite
 
