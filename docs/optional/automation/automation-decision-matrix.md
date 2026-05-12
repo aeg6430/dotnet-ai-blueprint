@@ -111,7 +111,7 @@ Examples:
 
 ## 5) How to propose a new automated rule
 
-1. Identify the written rule source (`.cursorrules` / `docs/rules/*` / spec).
+1. Identify the written rule source (`.cursor/rules/*.mdc` / `docs/rules/*` / spec).
 2. Choose the mechanism (ArchUnit vs source-scan vs Roslyn analyzer).
 3. Score the decision axes and justify any expected false positives.
 4. Decide default severity (error/warning) and any scoped exceptions.

@@ -129,7 +129,8 @@ return FooMapping.ToDtos(rows);
 ## 7. Relationship to other project rules
 
 - **`docs/ARCHITECTURE.md`** — folder layout and cross-cutting patterns.
-- **[Pack `.cursorrules`](../../.cursorrules)** (read order for agents) — must stay consistent with this document; on conflict, **feature specs** (`docs/specs/`) win after you flag the tension.
+- **[Cursor rules under `.cursor/rules/`](../../.cursor/rules/)** — primary read order for Cursor agents. Keep them consistent with this document.
+- **[Compatibility bridge `.cursorrules`](../../.cursorrules)** — legacy entrypoint that should mirror the primary Cursor rules during migration.
 
 ---
 
@@ -190,7 +191,7 @@ These checks are **binding** for backend changes: they run as normal tests in **
 
 ### Phase 6 — Service + API firewalls (source scan, no exemptions)
 
-- **Intent:** make a subset of `.cursorrules` / `docs/rules/*` enforceable as tests, focusing on low-false-positive boundaries.
+- **Intent:** make a subset of `.cursor/rules/*.mdc` / `docs/rules/*` enforceable as tests, focusing on low-false-positive boundaries.
 - **Tests**:
   - `{BackendRoot}/{TestsNamespace}/Architecture/ServiceFirewallArchitectureTests.cs`
   - `{BackendRoot}/{TestsNamespace}/Architecture/ApiFirewallArchitectureTests.cs`

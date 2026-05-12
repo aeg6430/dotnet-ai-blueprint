@@ -4,8 +4,16 @@
 
 ## IDE：Cursor、Copilot
 
-- **Cursor / Windsurf**：讀取 repo 根的 [`.cursorrules`](.cursorrules)。
+- **Cursor / Windsurf**：優先讀取 [`.cursor/rules/`](.cursor/rules/)；repo 根的 [`.cursorrules`](.cursorrules) 僅保留為相容橋接。
 - **GitHub Copilot（Visual Studio / VS Code）**：以 [`.github/copilot-instructions.md`](.github/copilot-instructions.md) 為專案指引（內含 **Plan-first**：先在 Chat 選 **Plan** / `/plan`，核准後再 **Agent** 或手改）；聊天可搭配 [`COPILOT_PROMPT.md`](COPILOT_PROMPT.md)（短索引貼上）。
+
+### Cursor 規則分層
+
+- **常駐規則**：`00-entrypoint.mdc`、`pattern-match.mdc`、`rule-guard.mdc`、`shadow-ref.mdc`、`context-discovery.mdc`、`skeleton-sync.mdc`
+- **手動 SOP**：`refactor-uow.mdc`、`add-resilience.mdc`、`api-standard.mdc`
+- **閉環做法**：先由 `rule-guard.mdc` 發現違規，再載入對應手動 SOP 修正
+- **Trigger Checklist**：每個手動 SOP 開頭都列出觸發條件，例如「重構事務 / 修復 UoW / Polly / API 標準化」
+- **索引入口**：可先讀 [`.cursor/rules/README.md`](.cursor/rules/README.md)，再進入 [`00-entrypoint.mdc`](.cursor/rules/00-entrypoint.mdc)
 
 ## 簡介
 
@@ -48,7 +56,8 @@
   - `docs/starter-pack/architecture-tests/*.cs.txt`：可執行的架構測試模板
   - `anchors/`、`docs/starter-pack/shadow-examples/`、`templates/`：可複製樣式
   - `.github/copilot-instructions.md`：Copilot 入口
-  - `[.cursorrules](.cursorrules)`：Cursor/Agent 入口
+  - [`.cursor/rules/`](.cursor/rules/)：Cursor/Agent 主入口
+  - [`.cursorrules`](.cursorrules)：相容橋接入口
   - `docs/starter-pack/optional/**`：安全/效能/Minimal API 可選模組
 
 ### 1.0 分層依賴方向圖（視覺化，降低溝通誤解）
@@ -66,6 +75,36 @@ flowchart LR
 - **箭頭方向**：一律由外向內（API → Service → Core/Infrastructure）。
 - **禁忌路徑**：API 禁止橫跨 Service 直接觸碰 Infrastructure（圖中 `Api -.X.-> Infra`）。
 
+### 1.0a 視覺化導覽：先看概念圖，再看 generated graph
+
+> 目標：把「規範上的責任邊界」與「實際專案相依輸出」放在同一條 onboarding 路徑，降低新人與 AI 對分層規則的誤讀。
+
+1. **先看上面的 Mermaid 概念圖**
+   - 用來理解這個 starter pack 想要的責任方向與禁忌路徑。
+2. **再產生實際 dependency graph**
+   - 在 repo root 執行：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File ".\tools\dependency-graph\generate.ps1"
+```
+
+   - 預設輸出：`artifacts/deps.dot`
+   - 若有安裝 Graphviz，可再轉成 SVG：
+
+```powershell
+dot -Tsvg artifacts/deps.dot -o artifacts/deps.svg
+```
+
+3. **最後拿 generated graph 回頭比對概念圖**
+   - 概念圖回答「理想上誰可以依賴誰」。
+   - generated graph 回答「現在專案實際上誰依賴誰」。
+   - 若兩者不一致，真正要阻擋的依然是 `docs/rules/**` 與 architecture tests，而不是圖本身。
+
+延伸閱讀：
+
+- `docs/optional/visualization/dependency-graph.md`
+- `tools/dependency-graph/`
+
 ### 1.1 Overview（用什麼方式/套件達成什麼）— 全部 / 舊案 / 新案
 
 > 目標：讓工程師（或 AI）不用先讀完整細節，就能知道「用哪些手段」達成「哪些約束與效果」，以及舊案/新案的預設策略差異。
@@ -79,7 +118,7 @@ flowchart LR
   - **風險更可控**：既有專案可先僅約束新/變更路徑，避免一次性要求全域一致。
 
 - **對 AI / IDE（Copilot / Cursor / Agent）**
-  - **生成更可控**：入口檔（`[.cursorrules](.cursorrules)`、`[.github/copilot-instructions.md](.github/copilot-instructions.md)`）規定「先讀哪些規則、優先抄哪些模板」。
+  - **生成更可控**：入口檔（[`.cursor/rules/00-entrypoint.mdc`](.cursor/rules/00-entrypoint.mdc)、[`.github/copilot-instructions.md`](.github/copilot-instructions.md)）規定「先讀哪些規則、優先抄哪些模板」。
   - **降低偏離規範的機率**：以 templates + shadow examples 提供可複製樣式，減少在缺乏上下文時自行產生不一致結構。
   - **錯誤更早被發現**：即使產生越界程式，架構測試/防火牆可於本機或 CI 早期阻擋。
 
@@ -101,7 +140,7 @@ flowchart LR
 - **ADR 工程習慣**：`docs/adr/README.md` + `docs/adr/template.md`
   - **達成**：把「為什麼這樣做」固定下來，降低團隊換人/AI 亂引入新依賴或新慣例。
 - **可複製的程式樣板（templates）**：`templates/**`
-  - **達成**：提供可編譯骨架與寫法錨點，避免每案各自發明。
+  - **達成**：提供可編譯骨架與寫法錨點，包含顯式 UoW、read-only GET gateway、idempotent POST gateway、outbox repository、idempotency repository 等樣板，避免每案各自發明。
 - **架構測試模板（可執行品質門檻）**：`docs/starter-pack/architecture-tests/*.cs.txt`
   - **達成**：把分層與防火牆規則落地成「測試」，讓違規在本機/CI 被攔截。
   - **典型工具/套件**：ArchUnitNET（分層依賴）+ source-scan（regex/規則掃描，通常以 NUnit/xUnit/MSTest 跑起來）。
@@ -110,7 +149,7 @@ flowchart LR
     - placeholder guard：避免「模板沒替換」造成品質門檻形同虛設。
     - exception leak：避免把 DB driver/內部例外細節（含敏感訊息）回吐給 API client。
 - **AI 入口（生成約束）**
-  - **Cursor**：`[.cursorrules](.cursorrules)`
+  - **Cursor**：[`.cursor/rules/`](.cursor/rules/)（主入口）與 [`.cursorrules`](.cursorrules)（相容橋接）
   - **Copilot**：`.github/copilot-instructions.md`（原版於本目錄之 [.github/](.github/)）
   - **達成**：規定讀取順序、禁止捷徑、優先複製 templates/shadow-examples，降低產出偏離規範的機率。
 - **驗收模板（DoD/交付）**：`docs/starter-pack/optional/**`
@@ -121,7 +160,7 @@ flowchart LR
     - Image：re-encode、剝離 EXIF、尺寸/像素上限、polyglot 風險降低、raw/sanitized 雙軌
   - **導入策略**：既有專案可先以 report-only 盤點，再逐步將高風險項目轉為阻斷式檢查門檻。
 - **依賴可視化（optional）**：`docs/optional/visualization/dependency-graph.md`
-  - **達成**：把分層依賴關係輸出成圖（DOT/SVG），方便在評審/資安審查時解釋「依賴方向」與「哪些層被禁止」。
+  - **達成**：把分層依賴關係輸出成圖（DOT/SVG），方便在評審/資安審查時解釋「依賴方向」與「哪些層被禁止」；repo 內可搭配 `tools/dependency-graph/` 直接產生 artifact。
 
 #### 既有專案導入（以顯式 UoW 與漸進收斂為原則）
 
@@ -147,7 +186,7 @@ flowchart LR
 - **產出物**：
   - `docs/starter-pack/README.md`、`docs/starter-pack/core/transactions.md`
   - `.github/copilot-instructions.md`
-  -（若用 Cursor Agent）`[.cursorrules](.cursorrules)` 或等價 repo 規則
+  -（若用 Cursor Agent）[`.cursor/rules/`](.cursor/rules/) 或相容橋接 [`.cursorrules`](.cursorrules)
   - `anchors/`、`docs/starter-pack/shadow-examples/`、`templates/`
 - **主要規範**：分層責任、交易/邊界、基本 code quality/SQL/mapping/testing。
 - **達成方式**：把上述檔案複製進目標 repo，並在團隊 onboarding / PR 指引中把它們當作「唯一入口」。

@@ -4,7 +4,7 @@ inclusion: manual
 
 # Automation Coverage Map (Backend)
 
-This document maps **written rules** (`docs/rules/*.md` + `.cursorrules`) to **enforceable automated checks** (tests/analyzers/CI).
+This document maps **written rules** (`docs/rules/*.md` + `.cursor/rules/*.mdc`) to **enforceable automated checks** (tests/analyzers/CI).
 
 > **Portable paths:** Examples use placeholders — adapt to your repository layout after `initialize.ps1` (see [`docs/starter-pack/README.md`](../../starter-pack/README.md)).
 >
@@ -54,7 +54,7 @@ Backend builds enable analyzers via `Directory.Build.props`, with severity confi
   - `MA0147 = error` (avoid async void delegate) in:
     - `{BackendRoot}/{CorePrj}/**/*.cs`
 
-These analyzer gates directly cover `.cursorrules` items like **no `async void`**, **no `.Result`/`.Wait()` in async**, and (via firewalls) **no `Thread.Sleep`**.
+These analyzer gates directly cover Cursor rule items such as **no `async void`**, **no `.Result`/`.Wait()` in async**, and (via firewalls) **no `Thread.Sleep`**.
 
 ## Partially covered (review + tests)
 
@@ -76,17 +76,17 @@ These analyzer gates directly cover `.cursorrules` items like **no `async void`*
 
 ## Not covered (needs review or analyzers)
 
-- **Code quality heuristics** (`docs/rules/code-quality.md`, `.cursorrules`)
+- **Code quality heuristics** (`docs/rules/code-quality.md`, `.cursor/rules/*.mdc`)
   - Method length limits, nesting depth, guard clause ordering, “no nested ternary”, “method name contains And => split”, etc.
   - Some of these can be *partially* covered with analyzers, but require a deliberate selection and rollout plan to avoid noise.
 
-- **Workflow constraints** (`.cursorrules`)
-  - “Never delete code” and “not-implemented pattern” are not machine-enforced today (process/review rule).
+- **Workflow constraints** (`.cursor/rules/*.mdc`)
+  - Manual workflow triggers and process rules are not machine-enforced today.
 
-- **Magic numbers / enum usage** (`.cursorrules`)
+- **Magic numbers / enum usage** (`.cursor/rules/*.mdc`)
   - Not automated today; candidates include analyzers or custom Roslyn rules (higher cost).
 
-- **Exception message quality / `nameof()` usage** (`.cursorrules`, `docs/rules/code-quality.md`)
+- **Exception message quality / `nameof()` usage** (`.cursor/rules/*.mdc`, `docs/rules/code-quality.md`)
   - Not automated today; some aspects can be covered via analyzers in scoped batches.
 
 If we want stricter enforcement of these areas, the next step is adding **Roslyn analyzers + .editorconfig** and treating some warnings as errors in CI.

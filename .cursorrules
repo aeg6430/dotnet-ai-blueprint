@@ -1,19 +1,31 @@
-# Cursor rules
+# Cursor Rules Compatibility Bridge
 
-## Always read first
+Primary Cursor guidance now lives in [`.cursor/rules/`](.cursor/rules/).
 
-1. **Copilot entrypoint**: [`.github/copilot-instructions.md`](.github/copilot-instructions.md)
-2. **Architecture overview**: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
-3. **Pack entry README**: [`docs/starter-pack/README.md`](docs/starter-pack/README.md)
-4. **Rules** (binding):
+## Read first
+
+1. [`.cursor/rules/README.md`](.cursor/rules/README.md)
+2. [`.cursor/rules/00-entrypoint.mdc`](.cursor/rules/00-entrypoint.mdc)
+3. [`.github/copilot-instructions.md`](.github/copilot-instructions.md)
+4. [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+5. Binding rules:
    - [`docs/rules/architecture-protocol.md`](docs/rules/architecture-protocol.md)
+   - [`docs/rules/transactions.md`](docs/rules/transactions.md)
+   - [`docs/rules/resilience.md`](docs/rules/resilience.md)
    - [`docs/rules/sql.md`](docs/rules/sql.md)
    - [`docs/rules/mapping.md`](docs/rules/mapping.md)
    - [`docs/rules/code-quality.md`](docs/rules/code-quality.md)
    - [`docs/rules/testing.md`](docs/rules/testing.md)
-5. **Copy patterns**: [`templates/`](templates/)
+6. Pattern sources:
+   - [`templates/`](templates/)
+   - [`docs/starter-pack/shadow-examples/`](docs/starter-pack/shadow-examples/)
+7. Manual workflow rules:
+   - [`.cursor/rules/refactor-uow.mdc`](.cursor/rules/refactor-uow.mdc)
+   - [`.cursor/rules/add-resilience.mdc`](.cursor/rules/add-resilience.mdc)
+   - [`.cursor/rules/api-standard.mdc`](.cursor/rules/api-standard.mdc)
 
 ## Notes
 
+- Treat this file as a compatibility entrypoint while `.cursor/rules/*.mdc` becomes the primary Cursor mechanism.
 - Toggle behaviour modes via [`.ai-modes`](.ai-modes) when present.
 - If a feature spec exists under `docs/specs/`, it overrides defaults.

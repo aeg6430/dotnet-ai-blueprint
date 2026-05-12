@@ -19,38 +19,38 @@ Scoring rubric: see [automation-decision-matrix.md](automation-decision-matrix.m
   - **Mechanism**: docs-only update (no code changes).
   - **Scope**: this folder’s `automation-coverage.md` + `automation-decision-matrix.md` (if needed).
 
-- **AB-0002: Missing rule doc referenced by `.cursorrules`**
-  - **Rule source**: Prefer `templates/NotImplementedPattern.cs` and [`docs/ARCHITECTURE.md`](../../ARCHITECTURE.md) / binding rules under `docs/rules/` as the canonical references for the not-implemented pattern.
-  - **Decision**: either add `docs/rules/not-implemented-pattern.md` (preferred) or update `.cursorrules` to point to the real doc.
+- **AB-0002: Retire the legacy `.cursorrules` bridge after downstream migration**
+  - **Why**: `.cursor/rules/*.mdc` is now the primary Cursor mechanism, but the root bridge remains for compatibility.
+  - **Decision**: keep the bridge while downstream repos and docs still rely on it, then remove it once `.cursor/rules/` is universally adopted.
   - **Mechanism**: docs-only update.
 
 ## P1 — High-signal code-quality via analyzers (scoped, then promote)
 
 - **AB-0101: `nameof()` enforcement where applicable**
-  - **Rule source**: `.cursorrules` (prefer `nameof()`).
+  - **Rule source**: `.cursor/rules/*.mdc` (prefer `nameof()`).
   - **Mechanism**: analyzer selection (likely NetAnalyzers / Roslynator rule(s)), then `.editorconfig` scoped escalation.
   - **Rollout**: start with `{BackendRoot}/{CorePrj}/**` as warnings; promote to error after remediation.
 
 - **AB-0102: Exception correctness and specificity**
-  - **Rule source**: `.cursorrules` + `docs/rules/code-quality.md` (no generic `Exception`, correct argument names).
+  - **Rule source**: `.cursor/rules/*.mdc` + `docs/rules/code-quality.md` (no generic `Exception`, correct argument names).
   - **Mechanism**: analyzer rules (argument exceptions, message patterns where feasible).
   - **Risk**: medium FP depending on rules; keep as warning unless very high signal.
 
 - **AB-0103: “No magic numbers” / primitive obsession**
-  - **Rule source**: `.cursorrules` (enums over int literals for status/type).
+  - **Rule source**: `.cursor/rules/*.mdc` (enums over int literals for status/type).
   - **Mechanism**: likely not feasible with off-the-shelf analyzers alone; candidate for a custom Roslyn analyzer (higher maintenance) or keep as review-only.
   - **Suggested direction**: keep review-only until codebase stabilizes, then revisit.
 
 ## P1 — Conservative firewall expansions (only where FP stays low)
 
 - **AB-0201: Service firewall — ban direct file IO in `{CorePrj}/Services`**
-  - **Rule source**: `.cursorrules` (services should stay testable; avoid environment coupling).
+  - **Rule source**: `.cursor/rules/*.mdc` (services should stay testable; avoid environment coupling).
   - **Mechanism**: source-scan firewall tokens (`System.IO.File`, `System.IO.Directory`, `File.`, `Directory.`) inside `{BackendRoot}/{CorePrj}/Services/**`.
   - **False-positive risk**: low if scoped to Core services and tokens are specific.
   - **Rollout**: add detector test (happy/sad/edge) then gate.
 
 - **AB-0202: Service firewall — ban direct environment/process coupling in Core services**
-  - **Rule source**: `.cursorrules` (no hardcoded config; avoid hidden environment coupling).
+  - **Rule source**: `.cursor/rules/*.mdc` (no hardcoded config; avoid hidden environment coupling).
   - **Mechanism**: source-scan firewall tokens (`Environment.GetEnvironmentVariable`, `Process.Start`, etc.) in `{BackendRoot}/{CorePrj}/Services/**`.
   - **False-positive risk**: low–medium; needs careful token selection.
 

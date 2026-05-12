@@ -2,6 +2,8 @@
 
 This file is the **entrypoint** for Copilot guidance. It is intentionally short; it points you to the authoritative rules and copyable examples.
 
+For Cursor / Windsurf, the equivalent repository guidance lives under [`.cursor/rules/`](../.cursor/rules/), starting from [`00-entrypoint.mdc`](../.cursor/rules/00-entrypoint.mdc).
+
 ## Read order (required)
 
 1. [`docs/ARCHITECTURE.md`](../docs/ARCHITECTURE.md)
