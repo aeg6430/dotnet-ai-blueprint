@@ -1,10 +1,10 @@
 # Cursor Rules Index
 
-Primary Cursor guidance for this repository.
+Supported Cursor entrypoint and read-order index for this repository.
 
 ## Always-On Rules
 
-- [`00-entrypoint.mdc`](00-entrypoint.mdc) — read order and source of truth
+- [`00-entrypoint.mdc`](00-entrypoint.mdc) — read order and source links
 - [`pattern-match.mdc`](pattern-match.mdc) — template-first generation
 - [`context-discovery.mdc`](context-discovery.mdc) — resolve naming and placement from docs first
 
@@ -30,5 +30,6 @@ Primary Cursor guidance for this repository.
 ## Maintenance
 
 - Keep these rules aligned with `docs/ARCHITECTURE.md` and `docs/rules/*.md`.
-- Treat `.cursor/rules/` as the stable, versioned, and only supported Cursor source of truth for this repository.
+- Treat `.cursor/rules/` as the stable, versioned, and only supported Cursor entrypoint and read-order index for this repository.
+- Treat `docs/ARCHITECTURE.md`, `docs/rules/*.md`, `templates/`, and `skeleton/` as the repository source of truth.
 - Prefer editing a focused rule instead of expanding `00-entrypoint.mdc` into a monolith.

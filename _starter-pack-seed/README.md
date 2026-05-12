@@ -16,7 +16,7 @@ Running `build-seed.ps1` creates:
 
 Containing (copied from the **parent of this folder**, i.e. repository root):
 
-- `.cursor/rules/**` (primary Cursor entrypoint)
+- `.cursor/rules/**` (supported Cursor entrypoint / read-order index)
 - `docs/starter-pack/**`
 - `.github/copilot-instructions.md`
 - `templates/**` (includes optional Serilog swap-ins: `Program.Serilog.cs`, `appsettings.serilog.json` — see [`docs/starter-pack/optional/logging/serilog.md`](../docs/starter-pack/optional/logging/serilog.md))
@@ -45,5 +45,6 @@ Then **copy** `_starter-pack-seed/out/` (or your `-OutDir`) into your target rep
 ## Notes
 
 - The export is intentionally a plain file copy (no git operations).
-- `.cursor/rules/` is the stable, versioned Cursor source of truth and the only supported Cursor entrypoint in the exported seed.
+- `.cursor/rules/` is the stable, versioned, and only supported Cursor entrypoint in the exported seed.
+- `docs/ARCHITECTURE.md`, `docs/rules/**`, `templates/`, and `skeleton/` remain the source of truth for the exported pack.
 - External URLs in markdown are kept as-is.

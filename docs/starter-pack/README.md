@@ -46,6 +46,8 @@ flowchart LR
 - `core/`: Core docs you can copy as-is (start here).
 - `optional/`: Security/performance checklists you can adopt gradually.
 
+When this pack is imported into a repository, treat `docs/ARCHITECTURE.md`, `docs/rules/**`, `templates/`, and `skeleton/` as the project source of truth. Treat `.cursor/rules/` and `.github/copilot-instructions.md` as IDE entrypoints and read-order indexes.
+
 For outbound starter patterns, look under `templates/` for:
 - typed `HttpClient` adapters (`InventoryGateway`, `PricingGateway`, `ShipmentGateway`, `PaymentGateway`, `WebhookGateway`)
 - broker-style post-commit publication (`MessagePublisher`)
@@ -64,7 +66,7 @@ This pack is designed to make cross-team delivery more consistent. It does not g
 
 - **Fewer recurring defects**: layering violations, unsafe SQL patterns, sync-over-async pitfalls, and “business logic in the wrong layer”.
 - **Easier acceptance**: more checks become executable (tests/scans), so acceptance relies less on subjective review.
-- **Faster onboarding**: new engineers (and AI assistants) have a single read order + copyable templates to follow.
+- **Faster onboarding**: new engineers (and AI assistants) have a clear read order + copyable templates to follow.
 - **Legacy-safe adoption**: the legacy track emphasizes explicit short-lived UoW rollout, avoiding long-lived request transactions, and avoiding aggressive refactors.
 
 ## Adoption phases
@@ -73,7 +75,7 @@ Choose **one** track depending on whether you are integrating into a legacy code
 
 ### New project (step-by-step)
 
-- **Phase A (day 0)**: Copy this tree + add `.cursor/rules/` (primary Cursor entrypoint) + `.github/copilot-instructions.md` + enable analyzers.
+- **Phase A (day 0)**: Copy this tree + add `.cursor/rules/` (supported Cursor entrypoint / read-order index) + `.github/copilot-instructions.md` + enable analyzers.
 - **Phase B**: Add layering tests (`architecture-tests/GenericLayeringArchitectureTests.cs.txt`).
 - **Phase C**: Add source-scan firewalls (repo/service/api).
 - **Phase D**: Add security mapping (ASVS) and performance acceptance templates to your delivery checklist.

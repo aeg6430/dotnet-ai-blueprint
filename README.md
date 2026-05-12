@@ -4,16 +4,16 @@
 
 ## IDE：Cursor、Copilot
 
-- **Cursor / Windsurf**：優先讀取 [`.cursor/rules/`](.cursor/rules/)；這是 repo 唯一受支援的 Cursor 規則入口。
+- **Cursor**：優先讀取 [`.cursor/rules/`](.cursor/rules/)；這是 repo 唯一受支援的 Cursor 規則入口。
 - **GitHub Copilot（Visual Studio / VS Code）**：以 [`.github/copilot-instructions.md`](.github/copilot-instructions.md) 為專案指引（內含 **Plan-first**：先在 Chat 選 **Plan** / `/plan`，核准後再 **Agent** 或手改）；聊天可搭配 [`COPILOT_PROMPT.md`](COPILOT_PROMPT.md)（短索引貼上）。
+
+> 入口檔負責讀序與索引；工程規則仍以 `docs/ARCHITECTURE.md`、`docs/rules/*`、`templates/`、`skeleton/` 為準。
 
 ### Cursor 規則分層
 
 - **常駐規則**：`00-entrypoint.mdc`、`pattern-match.mdc`、`rule-guard.mdc`、`shadow-ref.mdc`、`context-discovery.mdc`、`skeleton-sync.mdc`
 - **手動 SOP**：`refactor-uow.mdc`、`add-resilience.mdc`、`api-standard.mdc`
-- **閉環做法**：先由 `rule-guard.mdc` 發現違規，再載入對應手動 SOP 修正
-- **Trigger Checklist**：每個手動 SOP 開頭都列出觸發條件，例如「重構事務 / 修復 UoW / Polly / API 標準化」
-- **索引入口**：可先讀 [`.cursor/rules/README.md`](.cursor/rules/README.md)，再進入 [`00-entrypoint.mdc`](.cursor/rules/00-entrypoint.mdc)
+- **建議進入方式**：先讀 [`.cursor/rules/README.md`](.cursor/rules/README.md)，再進入 [`00-entrypoint.mdc`](.cursor/rules/00-entrypoint.mdc)；若 `rule-guard.mdc` 發現違規，再載入對應手動 SOP 修正
 
 ## 簡介
 
@@ -117,13 +117,13 @@ dot -Tsvg artifacts/deps.dot -o artifacts/deps.svg
   - **風險更可控**：既有專案可先僅約束新/變更路徑，避免一次性要求全域一致。
 
 - **對 AI / IDE（Copilot / Cursor / Agent）**
-  - **生成更可控**：入口檔（[`.cursor/rules/00-entrypoint.mdc`](.cursor/rules/00-entrypoint.mdc)、[`.github/copilot-instructions.md`](.github/copilot-instructions.md)）規定「先讀哪些規則、優先抄哪些模板」。
+  - **生成更可控**：入口索引（[`.cursor/rules/00-entrypoint.mdc`](.cursor/rules/00-entrypoint.mdc)、[`.github/copilot-instructions.md`](.github/copilot-instructions.md)）規定「先讀哪些規則、優先抄哪些模板」。
   - **降低偏離規範的機率**：以 templates + shadow examples 提供可複製樣式，減少在缺乏上下文時自行產生不一致結構。
   - **錯誤更早被發現**：即使產生越界程式，架構測試/防火牆可於本機或 CI 早期阻擋。
 
 - **對結果（品質 / 速度）**
   - **預期明顯減少**：SQL injection 風險（禁插值/禁 `SELECT *`）、sync-over-async、層級越界、repo 內混商規等高頻缺陷。
-  - **預期縮短**：新案起手式與 onboarding 時間（因為有單一入口與可複製骨架）。
+  - **預期縮短**：新案起手式與 onboarding 時間（因為有清楚的讀序入口與可複製骨架）。
   - **非保證**：改善幅度取決於是否依 Phase 導入，以及品質門檻是否納入常態流程。本 pack 提供工具鏈與落地方法，結果仍需由導入品質與團隊執行確保。
 
 #### 全部共通（無論舊案/新案都成立）
@@ -147,9 +147,9 @@ dot -Tsvg artifacts/deps.dot -o artifacts/deps.svg
   - **達成**：
     - placeholder guard：避免「模板沒替換」造成品質門檻形同虛設。
     - exception leak：避免把 DB driver/內部例外細節（含敏感訊息）回吐給 API client。
-- **AI 入口（生成約束）**
-  - **Cursor**：[`.cursor/rules/`](.cursor/rules/)（唯一受支援主入口）
-  - **Copilot**：`.github/copilot-instructions.md`（原版於本目錄之 [.github/](.github/)）
+- **AI 入口 / 索引（生成約束）**
+  - **Cursor**：[`.cursor/rules/`](.cursor/rules/)（唯一受支援入口）
+  - **Copilot**：`.github/copilot-instructions.md`
   - **達成**：規定讀取順序、禁止捷徑、優先複製 templates/shadow-examples，降低產出偏離規範的機率。
 - **驗收模板（DoD/交付）**：`docs/starter-pack/optional/**`
   - **達成**：把 ASVS/效能驗收變成可勾選的交付資產（非一次到位）。
@@ -172,7 +172,7 @@ dot -Tsvg artifacts/deps.dot -o artifacts/deps.svg
 
 #### 新專案導入（可分步驟、可逐步加嚴）
 
-- **Day0 基線**：入口文件 + templates + 最小架構測試（Phase A/B）先上線，再逐步加 firewall（Phase C）。
+- **Day0 基線**：讀序入口 + templates + 最小架構測試（Phase A/B）先上線，再逐步加 firewall（Phase C）。
 - **一致性優先**：可全域啟用嚴格規則（analyzers/architecture tests）避免累積歷史包袱。
 
 ### 2) 導入路線（Phase A–D）
@@ -181,18 +181,18 @@ dot -Tsvg artifacts/deps.dot -o artifacts/deps.svg
 > 這樣你把它交給別的工程師，他只要照規格就能落地。
 
 #### Phase A（Day 0）：規範與 AI 入口先上線
-- **目的**：讓團隊先有一致的規範入口，並讓 Cursor/Copilot 的生成方向一致。
+- **目的**：讓團隊先有一致的讀序入口與規範定位，並讓 Cursor/Copilot 的生成方向一致。
 - **產出物**：
   - `docs/starter-pack/README.md`、`docs/starter-pack/core/transactions.md`
   - `.github/copilot-instructions.md`
   -（若用 Cursor Agent）[`.cursor/rules/`](.cursor/rules/)
   - `anchors/`、`docs/starter-pack/shadow-examples/`、`templates/`
 - **主要規範**：分層責任、交易/邊界、基本 code quality/SQL/mapping/testing。
-- **達成方式**：把上述檔案複製進目標 repo，並在團隊 onboarding / PR 指引中把它們當作「唯一入口」。
+- **達成方式**：把上述檔案複製進目標 repo，並在團隊 onboarding / PR 指引中把它們當作固定的「Start here」讀序。
 - **驗收（必過）**：
   - 新進工程師 10 分鐘內能找到：規範入口、範本入口、交易/邊界規則。
-  - Copilot/AI 在 repo 內生成時能被入口文件引導（至少不偏離分層語言）。
-- **風險/對策**：入口文件散落或沒被引用 → 在 `docs/` 或 README 設清楚「Start here」並在 PR template/工程指引連結它。
+  - Copilot/AI 在 repo 內生成時能被入口索引引導（至少不偏離分層語言）。
+- **風險/對策**：讀序入口散落或沒被引用 → 在 `docs/` 或 README 設清楚「Start here」並在 PR template/工程指引連結它。
 
 **Log 稽核（Audit Log）建議**：
 
@@ -372,7 +372,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "./initialize.ps1" `
 ### 6) 常見問題與排查
 - **測試未能攔截越界**：常見原因為 placeholders 未完整替換，或測試規則指向錯誤的 assembly/namespace。
 - **導入後 CI 大量失敗**：可先以較寬鬆規則確立基線並完成盤點，再採逐步收斂策略加嚴。
-- **AI 產出仍偏離規範**：應確認入口文件明確列出禁忌與參考模板，並在 repo 中提供固定的「Start here」路徑。
+- **AI 產出仍偏離規範**：應確認入口索引明確列出禁忌與參考模板，並在 repo 中提供固定的「Start here」路徑。
 
 
 ## 結論
@@ -387,7 +387,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "./initialize.ps1" `
   - 交付證明：主要依賴主觀判斷或零散資料
 
 - **導入後（本 repo / 目標專案 root）**
-  - 新案起手：以 `templates/` 與入口文件提供可複製基線，AI 生成更容易對齊既定分層語言
+  - 新案起手：以 `templates/` 與讀序入口提供可複製基線，AI 生成更容易對齊既定分層語言
   - 分層約束：以 CI 測試與品質門檻自動攔截跨層/越界
   - 交易邊界：統一收斂至顯式短生命週期 UoW；遠端 IO 與 Query 都不會誤包進主交易
   - 交付證明：ASVS 勾選表、架構測試結果等可驗證產出物
