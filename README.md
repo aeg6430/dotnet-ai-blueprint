@@ -32,20 +32,20 @@
 最短路徑如下：
 
 1. 準備工作目錄。
-2. 在工作目錄中打開 AI。
-3. 請 AI 先讀取 [`.cursor/rules/README.md`](.cursor/rules/README.md) 中的 **Project Setup Protocol**。
+2. 在工作目錄中打開 AI（Cursor 或 Copilot）。
+3. 請 AI 先讀取 [`docs/starter-pack/project-setup-protocol.md`](docs/starter-pack/project-setup-protocol.md)。
 4. 提供 `TargetProjectName`，讓 AI 調整 namespace、project / solution 名稱、目錄路徑，以及其他帶有專案識別的設定字樣。
 5. 完成工作目錄整理後，再將內容帶到目標專案。
 
 可直接交給 AI 的指令：
 
 ```text
-讀取 `.cursor/rules/README.md` 中的 `Project Setup Protocol`，幫我把這個目錄下所有的 namespace 和檔案路徑，調整為 `TargetProjectName` 對應的命名。
+讀取 `docs/starter-pack/project-setup-protocol.md`，幫我把這個目錄下所有的 namespace、project / solution 名稱與檔案路徑，調整為 `TargetProjectName` 對應的命名。
 ```
 
 若 `docs/specs/` 或目標專案已有既定命名，應以那些定義為優先，而非使用預設名稱。
 
-若環境限制較多，仍建議維持同一套 AI-first 專案設定流程，不需要依賴命令列腳本。
+若環境限制較多，仍建議維持同一套 AI-first 專案設定流程。
 
 ## 建議工作方式：三個目錄
 
@@ -60,15 +60,17 @@
 如果你用 **Cursor**：
 
 1. 先讀 [`.cursor/rules/README.md`](.cursor/rules/README.md)。
-2. 再讀 [`00-entrypoint.mdc`](.cursor/rules/00-entrypoint.mdc)，確認目前任務的讀序與規則入口。
-3. 若你正在做專案設定、命名調整、namespace 轉換，先依 `Project Setup Protocol` 進行。
+2. 若你正在做專案設定、命名調整、namespace 轉換，先讀 [`docs/starter-pack/project-setup-protocol.md`](docs/starter-pack/project-setup-protocol.md)。
+3. 再讀 [`00-entrypoint.mdc`](.cursor/rules/00-entrypoint.mdc)，確認目前任務的讀序與規則入口。
 4. 若你是在整理既有目標專案，優先使用 `seed-to-legacy-target-translation.mdc`；若你是在整理新專案，優先使用 `seed-to-new-project-target-translation.mdc`。
 
 如果你用 **GitHub Copilot（Visual Studio / VS Code）**：
 
 1. 先讀 [`.github/copilot-instructions.md`](.github/copilot-instructions.md)。
-2. 先用 **Plan** / `/plan` 整理步驟，再進入 **Agent** 或手動修改。
-3. 若需要較短的提示入口，可搭配 [`COPILOT_PROMPT.md`](COPILOT_PROMPT.md)。
+2. 若你正在做專案設定、命名調整、namespace 轉換，先讀 [`docs/starter-pack/project-setup-protocol.md`](docs/starter-pack/project-setup-protocol.md)。
+3. 若環境有端點防護、雲端功能受限或 Build Agent 效能議題，再讀 [`docs/rules/endpoint-protection.md`](docs/rules/endpoint-protection.md)。
+4. 能使用 **Plan** / `/plan` 時，先整理步驟，再進入 **Agent**；若無法使用 Plan / Agent，也可直接用一般 Copilot Chat 搭配手動修改。
+5. 若需要較短的提示入口，可搭配 [`COPILOT_PROMPT.md`](COPILOT_PROMPT.md)。
 
 > 上述入口檔負責讀序與操作方式；實際工程規則仍以 `docs/ARCHITECTURE.md`、`docs/rules/*`、`templates/`、`skeleton/` 為準。
 
@@ -101,6 +103,8 @@
   - `anchors/`、`docs/starter-pack/shadow-examples/`、`templates/`：可複製樣式
   - `.github/copilot-instructions.md`：Copilot 入口
   - [`.cursor/rules/`](.cursor/rules/)：Cursor/Agent 主入口
+  - `docs/starter-pack/project-setup-protocol.md`：共享專案設定流程
+  - `docs/rules/endpoint-protection.md`：端點防護與 Build Agent 作業指引
   - `docs/starter-pack/optional/**`：安全/效能/Minimal API 可選模組
 
 ### 1.0 分層依賴方向圖（視覺化，降低溝通誤解）
@@ -374,12 +378,12 @@ flowchart LR
 #### 3.0 首選：由 AI 執行專案設定流程
 
 - 打開工作目錄。
-- 請 AI 讀取 [`.cursor/rules/README.md`](.cursor/rules/README.md) 中的 **Project Setup Protocol**。
+- 請 AI 讀取 [`docs/starter-pack/project-setup-protocol.md`](docs/starter-pack/project-setup-protocol.md)。
 - 提供 `TargetProjectName`，讓 AI 先處理 namespace、project / solution 名稱、目錄路徑，以及其他帶有專案識別的設定字樣。
 - 若目標 repo 或 `docs/specs/` 已有命名規則，應以那些定義為優先，而非使用預設名稱。
 
 > [!NOTE]
-> 若開發環境使用 Apex One 或其他端點防護，且工作目錄會有大量檔案建立、改名或搬移，建議先與資安 / 桌管確認是否可將該工作目錄加入受控排除路徑（exclusion list）。若仍使用 `_starter-pack-seed/out/` 這類匯出目錄，或會持續產生 `artifacts/`，即時掃描可能造成 I/O 飆高，進而拖慢 Cursor、VS Code 或檔案操作。
+> 若開發環境使用 Apex One 或其他端點防護，且工作目錄會有大量檔案建立、改名或搬移，建議先與資安 / 桌管確認是否可將該工作目錄加入受控排除路徑（exclusion list）。若仍使用 `_starter-pack-seed/out/` 這類匯出目錄，或會持續產生 `artifacts/`，即時掃描可能造成 I/O 飆高，進而拖慢 Cursor、VS Code 或檔案操作。詳見 [`docs/rules/endpoint-protection.md`](docs/rules/endpoint-protection.md)。
 
 #### 3.1 準備工作目錄
 
@@ -399,11 +403,12 @@ flowchart LR
   - `.cursor/rules/README.md`
   - `.cursor/rules/00-entrypoint.mdc`
   - `docs/starter-pack/README.md`
+  - `docs/starter-pack/project-setup-protocol.md`
   - `.github/copilot-instructions.md`
 
 #### 3.3 名稱與 placeholder 整理
 > [!IMPORTANT]
-> 專案名稱、namespace、目錄路徑與 placeholder 應透過 `Project Setup Protocol` 一次整理完成，避免不同檔案使用不同命名或替換方式。
+> 專案名稱、namespace、目錄路徑與 placeholder 應透過 [`docs/starter-pack/project-setup-protocol.md`](docs/starter-pack/project-setup-protocol.md) 一次整理完成，避免不同檔案使用不同命名或替換方式。
 
 驗證（建議）：執行一次測試，確認 placeholder guard 與架構品質門檻不會因替換遺漏造成誤通過或誤失敗。
 
@@ -419,7 +424,7 @@ flowchart LR
 - 接入 CI，讓 PR 因越界而失敗（品質門檻生效）。
 
 > [!NOTE]
-> 若 `dotnet test` 在本機或 CI 上異常緩慢，先檢查是否有端點防護在即時掃描測試輸出、assembly 載入路徑與 `artifacts/`。對 Apex One 這類產品，常見作法是由管理端將 Build Agent 工作目錄設為受控例外，而不是逐台手動關閉防護。
+> 若 `dotnet test` 在本機或 CI 上異常緩慢，先檢查是否有端點防護在即時掃描測試輸出、assembly 載入路徑與 `artifacts/`。對 Apex One 這類產品，常見作法是由管理端將 Build Agent 工作目錄設為受控例外，而不是逐台手動關閉防護。詳見 [`docs/rules/endpoint-protection.md`](docs/rules/endpoint-protection.md)。
 
 **補強（Exception leak 實施建議）**：
 

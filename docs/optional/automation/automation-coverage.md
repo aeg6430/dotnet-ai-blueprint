@@ -37,7 +37,7 @@ This document maps **written rules** (`docs/rules/*.md` + `.cursor/rules/*.mdc`)
 - **API firewall (source scan)**: `{TestsPrj}/Architecture/ApiFirewallArchitectureTests.cs`
   - AF-001..AF-002
 
-> **Operational note (endpoint protection):** these gates often rely on reflection, assembly loading, source scanning, and writing reports under `artifacts/`. If dev machines or CI build agents run Apex One or similar endpoint protection, coordinate a reviewed exclusion policy for the build workspace and required artifact output paths; otherwise test duration and pipeline stability can degrade for reasons unrelated to code quality.
+> **Operational note (endpoint protection):** these gates often rely on reflection, assembly loading, source scanning, and writing reports under `artifacts/`. If dev machines or CI build agents run Apex One or similar endpoint protection, coordinate a reviewed exclusion policy for the build workspace and required artifact output paths; otherwise test duration and pipeline stability can degrade for reasons unrelated to code quality. Typical reviewed candidates include the Build Agent workspace root, `bin/`, `obj/`, `TestResults/`, `artifacts/`, and `_starter-pack-seed/out/`; see [`../../rules/endpoint-protection.md`](../../rules/endpoint-protection.md).
 
 ## Covered (enforced by analyzers in build)
 
@@ -96,6 +96,7 @@ If we want stricter enforcement of these areas, the next step is adding **Roslyn
 ## Decision framework
 
 - See [automation-decision-matrix.md](automation-decision-matrix.md) for how teams decide which rules become automated gates vs review guidelines, and how analyzer severities are rolled out.
+- For endpoint-protection tradeoffs between source scans and reflection-heavy checks, also see [`../../rules/endpoint-protection.md`](../../rules/endpoint-protection.md).
 
 ## Analyzer baseline strategy (Phase A)
 

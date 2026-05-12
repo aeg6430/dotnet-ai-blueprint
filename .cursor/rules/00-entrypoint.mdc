@@ -8,10 +8,11 @@ alwaysApply: true
 - Read `docs/ARCHITECTURE.md`, then `docs/rules/architecture-protocol.md`.
 - For transaction or outbound work, also read `docs/rules/transactions.md` and `docs/rules/resilience.md`.
 - For audit logging, centralized monitoring, or API-edge traceability work, also read `docs/rules/audit-log.md`.
+- For endpoint protection, build/test slowness, CI exclusions, or Apex One constraints, also read `docs/rules/endpoint-protection.md`.
 - For external APIs, SDKs, shared services, or legacy integrations, also load `external-integration-discovery.mdc`.
 - Treat `docs/`, `templates/`, and `skeleton/` as the source of truth. Do not invent parallel conventions.
 - This repository is the Blueprint layer in the recommended Blueprint / Seed / Target workflow.
-- For project setup, namespace conversion, or directory renaming on a Seed folder, read `.cursor/rules/README.md` and follow its `Project Setup Protocol` before other workflow rules.
+- For project setup, namespace conversion, or directory renaming on a Seed folder, read `docs/starter-pack/project-setup-protocol.md` before other workflow rules.
 - If a target repo provides `docs/specs/`, follow that feature spec before applying default blueprint assumptions.
 - Treat raw requirement files such as `docs/requirements/raw/` as source material; convert them into `docs/specs/` before implementation when possible.
 - Use Seed / Sandbox to prototype clean reference implementations when the target repo is noisy, legacy-heavy, or stylistically inconsistent.

@@ -22,6 +22,8 @@ For Cursor, the equivalent repository guidance lives under [`.cursor/rules/`](..
    - [`docs/starter-pack/shadow-examples/`](../docs/starter-pack/shadow-examples/)
    - [`templates/`](../templates/)
 
+For endpoint protection, CI slowness, Build Agent exclusions, or restricted cloud tooling, also read [`docs/rules/endpoint-protection.md`](../docs/rules/endpoint-protection.md).
+
 ## Recommended workspace model
 
 When using this starter pack with a separate product repository, prefer a three-folder workflow:
@@ -30,7 +32,7 @@ When using this starter pack with a separate product repository, prefer a three-
 - **Seed / Sandbox**: a clean exported starter-pack project used to prototype the ideal implementation.
 - **Target**: the real product repository (legacy or new project) where final changes are integrated.
 
-For project setup, namespace conversion, or folder renaming on a Seed folder, read `.cursor/rules/README.md` and follow the `Project Setup Protocol` before implementation work begins.
+For project setup, namespace conversion, or folder renaming on a Seed folder, read [`docs/starter-pack/project-setup-protocol.md`](../docs/starter-pack/project-setup-protocol.md) before implementation work begins.
 
 Default behavior:
 
@@ -43,6 +45,8 @@ Default behavior:
 ## Plan-first workflow (VS Code & Visual Studio)
 
 This repository’s rules live in markdown; **Plan mode** is how you get a Cursor-style “plan before edits” flow in Copilot: the plan agent uses read-only exploration, produces steps and open questions, and **does not apply code changes** until you approve and hand off to **Agent** mode (or you implement manually). Plan may be **preview** and can be disabled by org policy—check your IDE version and Copilot settings.
+
+If Plan / Agent features are unavailable in your environment, use normal Copilot Chat plus manual edits and follow the same markdown entrypoints in smaller reviewable batches.
 
 ### Visual Studio Code
 
@@ -80,9 +84,10 @@ Use official ASP.NET Core mechanisms: middleware + MVC filters + (optionally) DI
 When generating code:
 
 - For **multi-file** work or anything that touches **layering / transactions / security**, prefer **Plan mode first** (see above), then **Agent** mode or manual edits.
-- For project setup requests on a Seed folder, use the `Project Setup Protocol` before feature implementation or refactoring.
+- For project setup requests on a Seed folder, use [`docs/starter-pack/project-setup-protocol.md`](../docs/starter-pack/project-setup-protocol.md) before feature implementation or refactoring.
 - If a target repo provides `docs/specs/`, follow the feature spec before applying default blueprint assumptions.
 - If the task touches API-edge monitoring, traceability, security review, or audit evidence, also follow [`docs/rules/audit-log.md`](../docs/rules/audit-log.md).
+- If the task touches endpoint protection, CI slowness, Build Agent exclusions, restricted cloud tooling, or Apex One, also follow [`docs/rules/endpoint-protection.md`](../docs/rules/endpoint-protection.md).
 - Prefer patterns from `docs/starter-pack/shadow-examples/` or `templates/`.
 - Keep changes minimal and consistent with analyzers and architecture tests.
 - If a rule is unclear, add an ADR or update the rule instead of inventing a new convention.

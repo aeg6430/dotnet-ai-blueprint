@@ -20,12 +20,12 @@ After importing the Seed pack into your repo, or when working with this folder a
   - `{ApiNamespace}` (e.g. `Acme.Api`)
   - `{TestsNamespace}` (e.g. `Acme.Tests`)
 - Decide which optional modules to enable first (see `optional/`).
-- Prefer the AI-first setup flow from the root `README.md` and `.cursor/rules/README.md` when you want to rename the working directory into a real target project.
+- Prefer the shared AI-first setup flow from the root `README.md` and [`project-setup-protocol.md`](project-setup-protocol.md) when you want to rename the working directory into a real target project.
 
 > [!IMPORTANT]
 > Placeholder visibility and consistency
 > - The actual pack files use **single braces** placeholders like `{Solution}`.
-> - If you document placeholders as `{{Solution}}` for readability, ensure your team uses one consistent setup path so nobody mixes formats or misses replacements. The preferred route is the AI-first `Project Setup Protocol`.
+> - If you document placeholders as `{{Solution}}` for readability, ensure your team uses one consistent setup path so nobody mixes formats or misses replacements. The preferred route is the shared AI-first `Project Setup Protocol`.
 
 ## Layering at a glance
 
@@ -47,7 +47,7 @@ flowchart LR
 - `core/`: Core docs you can copy as-is (start here).
 - `optional/`: Security/performance checklists you can adopt gradually.
 
-When this pack is imported into a repository, treat `docs/ARCHITECTURE.md`, `docs/rules/**`, `templates/`, and `skeleton/` as the project source of truth. Treat `.cursor/rules/` and `.github/copilot-instructions.md` as IDE entrypoints and read-order indexes.
+When this pack is imported into a repository, treat `docs/ARCHITECTURE.md`, `docs/rules/**`, `templates/`, and `skeleton/` as the project source of truth. Treat `.cursor/rules/` and `.github/copilot-instructions.md` as IDE entrypoints/read-order indexes, and treat [`project-setup-protocol.md`](project-setup-protocol.md) as the shared setup contract.
 
 For outbound starter patterns, look under `templates/` for:
 - typed `HttpClient` adapters (`InventoryGateway`, `PricingGateway`, `ShipmentGateway`, `PaymentGateway`, `WebhookGateway`)
@@ -76,13 +76,13 @@ Choose **one** track depending on whether you are integrating into a legacy code
 
 ### New project (step-by-step)
 
-- **Phase A (day 0)**: Copy this tree + add `.cursor/rules/` (supported Cursor entrypoint / read-order index) + `.github/copilot-instructions.md` + enable analyzers. Also establish the audit-log baseline at the API entry point from day 0.
+- **Phase A (day 0)**: Copy this tree + add `.cursor/rules/` and `.github/copilot-instructions.md` as supported AI entrypoints + use [`project-setup-protocol.md`](project-setup-protocol.md) for setup + enable analyzers. Also establish the audit-log baseline at the API entry point from day 0.
 - **Phase B**: Add layering tests (`architecture-tests/GenericLayeringArchitectureTests.cs.txt`).
 - **Phase C**: Add source-scan firewalls (repo/service/api).
 - **Phase D**: Add security mapping (ASVS) and performance acceptance templates to your delivery checklist.
 - **Phase E**: Run the AI-assisted audit step and produce a reviewable compliance evidence bundle (`compliance-audit-report.md`, architecture-test logs/screenshots, and relevant `artifacts/`).
 
-> Operational note: if developer machines or CI agents run Apex One or similar endpoint protection, the working directory, test output folders, and `artifacts/` may need a reviewed exclusion policy; reflection-heavy architecture tests and generated reports can otherwise become unexpectedly slow.
+> Operational note: if developer machines or CI agents run Apex One or similar endpoint protection, the working directory, test output folders, and `artifacts/` may need a reviewed exclusion policy; reflection-heavy architecture tests and generated reports can otherwise become unexpectedly slow. See [`../rules/endpoint-protection.md`](../rules/endpoint-protection.md).
 
 ### Legacy project (modernize without breaking behavior)
 
@@ -107,7 +107,9 @@ Choose **one** track depending on whether you are integrating into a legacy code
 
 - Transactions and UoW rules: [`core/transactions.md`](core/transactions.md)
 - Outbound timeout/retry/circuit-breaker rules: [`../rules/resilience.md`](../rules/resilience.md)
+- Shared setup flow: [`project-setup-protocol.md`](project-setup-protocol.md)
 - Audit logging baseline: [`../rules/audit-log.md`](../rules/audit-log.md)
+- Endpoint-protection guidance: [`../rules/endpoint-protection.md`](../rules/endpoint-protection.md)
 - File upload & untrusted asset ingress (rules): [`../rules/file-upload.md`](../rules/file-upload.md)
 - ADR habits (what/when/why): [`../adr/README.md`](../adr/README.md)
 - AI-assisted audit policy: [`../adr/0004-ai-assisted-audit-and-evidence-policy.md`](../adr/0004-ai-assisted-audit-and-evidence-policy.md)

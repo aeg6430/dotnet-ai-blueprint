@@ -24,6 +24,8 @@ When proposing a new automated rule (test/analyzer), score it on these axes:
 - **Source-scan firewalls (regex heuristics)**: best for “obviously wrong” patterns in specific folders (Repositories, adjunct folders, Services, Controllers).
 - **Roslyn analyzers + `.editorconfig`**: best for cross-cutting code quality (async pitfalls, usage, naming, some design rules).
 
+> **Endpoint-protection note:** in environments such as Apex One, reflection-heavy or assembly-loading checks can amplify scanner overhead. Prefer source-scan firewalls for obvious folder-local rules when they provide the needed signal, and reserve ArchUnit/reflection-style checks for boundaries that genuinely require type/assembly inspection. See [`../../rules/endpoint-protection.md`](../../rules/endpoint-protection.md).
+
 ## 3) Baseline policy (how strict we are)
 
 ### Baseline (always-on)
@@ -62,6 +64,7 @@ Examples:
 - **Maintenance**: Low
 - **Status**: **Gate**
 - **Where**: `{TestsPrj}/Architecture/LayeringArchitectureTests.cs` (from starter-pack architecture tests)
+- **Operational caution**: more sensitive to endpoint-protection overhead because the mechanism loads assemblies and inspects type graphs.
 
 ### B) Persistence firewalls (RF/LF)
 
@@ -74,6 +77,7 @@ Examples:
 - **Maintenance**: Medium (heuristic tuning)
 - **Status**: **Gate**
 - **Where**: `{TestsPrj}/Architecture/RepositoryFirewallArchitectureTests.cs`
+- **Operational advantage**: often cheaper than reflection-heavy checks in endpoint-protected environments because the mechanism scans source text rather than loading many assemblies.
 
 ### C) Service + API firewalls (SF/AF)
 
@@ -88,6 +92,7 @@ Examples:
 - **Where**:
   - `{TestsPrj}/Architecture/ServiceFirewallArchitectureTests.cs`
   - `{TestsPrj}/Architecture/ApiFirewallArchitectureTests.cs`
+- **Operational advantage**: suitable for frequent local/CI feedback when endpoint protection makes repeated assembly loading expensive.
 
 ### D) Roslyn analyzers (SDK + OSS)
 

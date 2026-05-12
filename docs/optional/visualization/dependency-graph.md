@@ -44,7 +44,7 @@ Notes:
 
 - Keep this optional; it is for visibility, not a gate.
 - The authoritative gate remains architecture tests (layering + firewalls).
-- If `artifacts/` is monitored by Apex One or similar endpoint protection, generated graph output may cause extra I/O; use the artifact path approved by your environment.
+- If `artifacts/` is monitored by Apex One or similar endpoint protection, generated graph output may cause extra I/O; use the artifact path approved by your environment and align with [`../../rules/endpoint-protection.md`](../../rules/endpoint-protection.md).
 
 ## How to interpret (review checklist)
 
