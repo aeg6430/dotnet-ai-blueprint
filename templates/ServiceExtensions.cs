@@ -1,7 +1,10 @@
 // TEMPLATE — rename namespace to match your project, then add your own registrations.
 // This is the canonical DI registration file. ALL registrations live here — never in Program.cs.
+using System;
+using Microsoft.Extensions.Options;
 using Project.Api.Middlewares;
 using Project.Core.Interfaces;
+using Project.Infrastructure.Adapters;
 using Project.Infrastructure.Context;
 using Project.Infrastructure.Repositories;
 using Project.Core.Services;
@@ -20,18 +23,19 @@ public static class ServiceExtensions
         // The connection itself stays lazy until the first SQL call.
         services.AddScoped<IDapperContext, DapperContext>();
 
-        // Outbound adapters belong in Infrastructure and should use typed/named HttpClient registrations
-        // with Polly-style timeout/retry/circuit-breaker policies. See docs/rules/resilience.md and
-        // templates/BaseHttpAdapter.cs for the adapter pattern.
-        // Example:
-        // services.AddHttpClient<IInventoryGateway, InventoryGateway>(client =>
-        //     {
-        //         client.BaseAddress = new Uri(configuration["InventoryApi:BaseUrl"]!);
-        //         client.Timeout = TimeSpan.FromSeconds(10);
-        //     })
-        //     .AddPolicyHandler(ResiliencePolicies.TimeoutPolicy)
-        //     .AddPolicyHandler(ResiliencePolicies.RetryPolicy)
-        //     .AddPolicyHandler(ResiliencePolicies.CircuitBreakerPolicy);
+        // Outbound adapters live in Infrastructure and are registered as typed HttpClient clients.
+        services.Configure<InventoryGatewayOptions>(
+            configuration.GetSection(InventoryGatewayOptions.SectionName));
+
+        services.AddHttpClient<IInventoryGateway, InventoryGateway>((serviceProvider, client) =>
+            {
+                var options = serviceProvider.GetRequiredService<IOptions<InventoryGatewayOptions>>().Value;
+                client.BaseAddress = new Uri(options.BaseUrl);
+                client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
+            })
+            .AddPolicyHandler(ResiliencePolicies.TimeoutPolicy)
+            .AddPolicyHandler(ResiliencePolicies.RetryPolicy)
+            .AddPolicyHandler(ResiliencePolicies.CircuitBreakerPolicy);
 
         // --- Repositories ---
         services.AddScoped<IWarehouseRepository, WarehouseRepository>();
@@ -39,6 +43,7 @@ public static class ServiceExtensions
 
         // --- Services ---
         services.AddScoped<IStockService, StockService>();
+        services.AddScoped<StockTransferService>();
         services.AddScoped<StockTransferUseCase>();
 
         // --- Global Error Handling ---

@@ -4,20 +4,19 @@ using Project.Core.Interfaces;
 
 namespace Project.Core.Services;
 
-// TEMPLATE — remote verification first, then short local transaction + outbox.
-// This is the preferred shape when a use case needs external read/verification before local writes.
-public sealed class StockTransferUseCase
+// TEMPLATE — service-oriented orchestration sample for remote verification + short local UoW + outbox.
+public sealed class StockTransferService
 {
     private readonly IDapperContext _context;
-    private readonly ILogger<StockTransferUseCase> _logger;
+    private readonly ILogger<StockTransferService> _logger;
     private readonly ITransferIdempotencyRepository _idempotencyRepository;
     private readonly IInventoryGateway _inventoryGateway;
     private readonly IWarehouseRepository _warehouseRepository;
     private readonly IOutboxRepository _outboxRepository;
 
-    public StockTransferUseCase(
+    public StockTransferService(
         IDapperContext context,
-        ILogger<StockTransferUseCase> logger,
+        ILogger<StockTransferService> logger,
         ITransferIdempotencyRepository idempotencyRepository,
         IInventoryGateway inventoryGateway,
         IWarehouseRepository warehouseRepository,
@@ -31,33 +30,25 @@ public sealed class StockTransferUseCase
         _outboxRepository = outboxRepository;
     }
 
-    public async Task HandleAsync(StockTransferDto dto, CancellationToken cancellationToken = default)
+    public async Task TransferAsync(StockTransferDto dto, CancellationToken cancellationToken = default)
     {
-        // Fast dedupe before remote IO keeps retries cheap.
         if (await _idempotencyRepository.ExistsAsync(dto.RequestId, cancellationToken))
         {
-            _logger.LogInformation("Skipping duplicate stock transfer request {RequestId}", dto.RequestId);
+            _logger.LogInformation("Skipping duplicate transfer request {RequestId}", dto.RequestId);
             return;
         }
 
-        // Remote verification happens before the local UoW starts.
         var verification = await _inventoryGateway.VerifyAsync(
             new InventoryVerificationRequest(dto.RequestId, dto.SkuId, dto.Quantity),
             cancellationToken);
 
         if (verification is null || !verification.IsAccepted)
-            throw new InvalidOperationException("Remote inventory verification was rejected.");
+            throw new InvalidOperationException("Stock transfer was rejected by the remote inventory gateway.");
 
         await _context.ExecuteAsync(async () =>
         {
-            // Repeat the dedupe check inside the local transaction for retry safety.
-            if (await _idempotencyRepository.ExistsAsync(dto.RequestId, cancellationToken))
-                return;
-
             await _warehouseRepository.UpdateStockAsync(dto.SkuId, dto.Quantity);
             await _idempotencyRepository.MarkCompletedAsync(dto.RequestId, cancellationToken);
-
-            // The cross-system side effect is dispatched later from the outbox.
             await _outboxRepository.EnqueueAsync(
                 new StockTransferCommitted(dto.RequestId, dto.SkuId, dto.Quantity),
                 cancellationToken);

@@ -40,6 +40,16 @@ public abstract class BaseHttpAdapter
         return await _httpClient.PostAsJsonAsync(relativeUri, payload, cancellationToken);
     }
 
+    protected async Task<TResponse?> PostAsJsonAsync<TRequest, TResponse>(
+        string relativeUri,
+        TRequest payload,
+        CancellationToken cancellationToken)
+    {
+        var response = await PostAsJsonAsync(relativeUri, payload, cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken);
+    }
+
     private void EnsureSafeOutboundBoundary()
     {
         try
