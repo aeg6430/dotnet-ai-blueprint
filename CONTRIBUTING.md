@@ -1,0 +1,125 @@
+# Contributing Guide
+
+This repository is a portable .NET starter pack. Treat it as a source of truth for rules, templates, and collaboration patterns rather than as a finished product application.
+
+This guide is intentionally **tool-neutral**. Follow it whether you use Cursor, Visual Studio, VS Code, GitHub Copilot, another AI assistant, or plain manual editing.
+
+## Start here
+
+Before making substantial changes, read:
+
+1. [`README.md`](README.md)
+2. [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+3. [`docs/rules/architecture-protocol.md`](docs/rules/architecture-protocol.md)
+4. [`docs/rules/transactions.md`](docs/rules/transactions.md)
+5. The relevant spec under [`docs/specs/`](docs/specs/), if one exists
+
+If your task is setup-related, read [`docs/starter-pack/project-setup-protocol.md`](docs/starter-pack/project-setup-protocol.md) before editing.
+
+## Working model
+
+Use these defaults unless the target repo or spec says otherwise:
+
+- **Spec first**: raw requirement notes belong in `docs/requirements/raw/`; implementation-ready behavior belongs in `docs/specs/`
+- **Layering first**: keep API, Core, and Infrastructure responsibilities explicit
+- **Transaction first**: no remote IO inside active DB transactions
+- **Minimal change shape**: prefer small reviewable changes over broad cleanup
+- **Repo-local truth**: important rules should live in files, not only in chat history
+
+## Contribution types
+
+### New / greenfield work
+
+- write or update the relevant feature spec first
+- establish the smallest vertical slice that proves the architecture
+- prefer repo-local commands and templates over tool-specific magic
+
+### Legacy / existing project work
+
+- follow the legacy-safe path from [`docs/starter-pack/core/legacy-bugfix-feature-sop.md`](docs/starter-pack/core/legacy-bugfix-feature-sop.md)
+- prioritize reproducibility, bounded blast radius, and verification over cleanup
+
+## Before you implement
+
+For feature work:
+
+- confirm the feature spec exists or create/update it
+- identify transaction boundaries and external dependencies
+- note any ambiguity or blind spots explicitly
+
+For bugfix work:
+
+- capture a clear reproduction
+- define the expected result
+- choose the smallest safe change path
+- decide how the fix will be verified
+
+## Verification
+
+If CI is available, use it.
+
+If CI is not available yet, every change should still have a repeatable verification path:
+
+- documented local build command
+- documented test or smoke command
+- manual verification checklist when automation is not yet practical
+
+Do not rely on "it worked once on my machine" as the only evidence.
+
+If your repository uses a PR workflow, prefer the repo-local template at [`.github/pull_request_template.md`](.github/pull_request_template.md) so verification and residual risk are stated explicitly.
+If your repository uses GitHub issues, prefer the repo-local templates under [`.github/ISSUE_TEMPLATE/`](.github/ISSUE_TEMPLATE/) so bug reports and feature requests start with enough context to become engineering work.
+For urgent production fixes, prefer [`.github/ISSUE_TEMPLATE/incident_hotfix.md`](.github/ISSUE_TEMPLATE/incident_hotfix.md) so rollback and blast-radius thinking are captured up front.
+
+## Suggested local commands
+
+Projects built from this starter pack should standardize local entrypoints such as:
+
+```text
+dotnet build
+dotnet test
+dotnet run --project <your-api-project>
+```
+
+Document the real commands in the target repo's `README.md`.
+
+## Pull request / review expectations
+
+Keep changes reviewable. A good change set should tell the reviewer:
+
+- what changed
+- why it changed
+- how it was verified
+- what was intentionally left out
+- any residual risk or manual follow-up
+
+If the task touches a legacy hotspot, say so directly.
+
+## Do not add new debt casually
+
+Avoid introducing these into changed paths:
+
+- hardcoded environment detection in business logic
+- interpolated SQL
+- remote IO inside active transactions
+- sync-over-async (`.Result`, `.Wait()`)
+- direct leakage of internal exception details to clients
+
+## When rules and reality conflict
+
+If the target project or feature spec intentionally differs from the default starter-pack assumptions:
+
+- follow the spec first
+- document the decision
+- prefer an ADR or explicit note over silent divergence
+
+## Useful repo entrypoints
+
+- Starter-pack overview: [`docs/starter-pack/README.md`](docs/starter-pack/README.md)
+- Legacy maintenance SOP: [`docs/starter-pack/core/legacy-bugfix-feature-sop.md`](docs/starter-pack/core/legacy-bugfix-feature-sop.md)
+- New-project Day 0 checklist: [`docs/starter-pack/core/new-project-day0-collaboration-checklist.md`](docs/starter-pack/core/new-project-day0-collaboration-checklist.md)
+- Feature spec template: [`docs/specs/feature-spec-template.md`](docs/specs/feature-spec-template.md)
+- Filled feature spec example: [`docs/specs/example-warehouse-create.md`](docs/specs/example-warehouse-create.md)
+- PR template: [`.github/pull_request_template.md`](.github/pull_request_template.md)
+- Bug issue template: [`.github/ISSUE_TEMPLATE/bug_report.md`](.github/ISSUE_TEMPLATE/bug_report.md)
+- Feature issue template: [`.github/ISSUE_TEMPLATE/feature_request.md`](.github/ISSUE_TEMPLATE/feature_request.md)
+- Incident hotfix issue template: [`.github/ISSUE_TEMPLATE/incident_hotfix.md`](.github/ISSUE_TEMPLATE/incident_hotfix.md)

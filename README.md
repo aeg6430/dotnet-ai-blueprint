@@ -17,13 +17,18 @@
 
 ## 你要做什麼
 
-使用這個 repo 時，通常要先完成下面三件事：
+使用這個 repo 時，通常要先完成下面四件事：
 
 1. 準備一個**工作目錄**，讓 AI 或你自己先完成名稱、路徑與基本設定調整。
 2. 準備一個**目標專案**，用來承接最後要保留的內容，不論它是既有專案或新專案。
 3. 準備需求文件位置：
    - 原始需求文件放在目標專案的 `docs/requirements/raw/`
    - AI 可執行規格放在 `docs/specs/`
+   - 可從 `docs/specs/feature-spec-template.md` 開始整理白話需求
+   - 可參考 `docs/specs/example-warehouse-create.md` 看完整填寫範例
+4. 若多人協作且工具不一致，先補上 repo 內的 `CONTRIBUTING.md`、`.github/pull_request_template.md` 與必要的本機驗證命令。
+   - 若使用 GitHub issues，可搭配 `.github/ISSUE_TEMPLATE/bug_report.md` 與 `.github/ISSUE_TEMPLATE/feature_request.md`
+   - 若有 production incident / 緊急修復情境，可搭配 `.github/ISSUE_TEMPLATE/incident_hotfix.md` 與 `.github/ISSUE_TEMPLATE/config.yml`
 
 若 `docs/specs/` 已定義 feature spec，後續實作時應以 spec 優先。
 
