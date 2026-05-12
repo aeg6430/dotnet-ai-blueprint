@@ -11,6 +11,7 @@ For Cursor, the equivalent repository guidance lives under [`.cursor/rules/`](..
    - [`docs/rules/architecture-protocol.md`](../docs/rules/architecture-protocol.md)
    - [`docs/rules/transactions.md`](../docs/rules/transactions.md)
    - [`docs/rules/resilience.md`](../docs/rules/resilience.md)
+   - [`docs/rules/audit-log.md`](../docs/rules/audit-log.md)
    - [`docs/rules/external-integration-firewall.md`](../docs/rules/external-integration-firewall.md)
    - [`docs/rules/anti-corruption-layer.md`](../docs/rules/anti-corruption-layer.md)
    - [`docs/rules/sql.md`](../docs/rules/sql.md)
@@ -67,6 +68,7 @@ Docs: [Chat in your IDE (Visual Studio) — Plan mode](https://docs.github.com/e
 - **Repositories**: SQL + Dapper only. No business rules, no JSON parsing, no `SELECT *`, no interpolated SQL.
 - **Services / use cases**: Follow the explicit short-lived UoW rules in [`docs/rules/transactions.md`](../docs/rules/transactions.md): no transaction for read-only flows, no remote IO while the DB transaction is active, begin late, commit early, and prefer outbox for cross-system side effects.
 - **API**: Controllers are thin; Infrastructure wiring belongs in DI composition.
+- **Audit logging**: Capture security-relevant audit events at the API entry point / global exception boundary per [`docs/rules/audit-log.md`](../docs/rules/audit-log.md); include actor identity, action, target, result, and correlation metadata.
 - **Logging**: Prefer `ILogger<T>`; do not leak secrets/PII.
 
 ## Cross-cutting (“AOP”) meaning
@@ -80,6 +82,7 @@ When generating code:
 - For **multi-file** work or anything that touches **layering / transactions / security**, prefer **Plan mode first** (see above), then **Agent** mode or manual edits.
 - For project setup requests on a Seed folder, use the `Project Setup Protocol` before feature implementation or refactoring.
 - If a target repo provides `docs/specs/`, follow the feature spec before applying default blueprint assumptions.
+- If the task touches API-edge monitoring, traceability, security review, or audit evidence, also follow [`docs/rules/audit-log.md`](../docs/rules/audit-log.md).
 - Prefer patterns from `docs/starter-pack/shadow-examples/` or `templates/`.
 - Keep changes minimal and consistent with analyzers and architecture tests.
 - If a rule is unclear, add an ADR or update the rule instead of inventing a new convention.

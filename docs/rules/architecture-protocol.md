@@ -131,11 +131,19 @@ return FooMapping.ToDtos(rows);
 
 - This pack assumes **.NET 8** backends unless your repository standard differs. Do not depend on APIs or C# features that exist only in **.NET 9+** unless the repository explicitly upgrades.
 
+### 6.1 Boundary audit logging
+
+- API-edge audit logging belongs to the **HTTP boundary / global exception boundary**, not to scattered business methods.
+- Capture audit events through one consistent interception point so write paths, authorization failures, and unexpected faults are traceable without duplicating logging logic across services.
+- The minimum audit shape should include actor identity, action, target, result, and correlation metadata per `docs/rules/audit-log.md`.
+- Audit persistence must not accidentally extend or hide the main business transaction; when durability across rollback matters, use standalone sink/outbox semantics.
+
 ---
 
 ## 7. Relationship to other project rules
 
 - **`docs/ARCHITECTURE.md`** — folder layout and cross-cutting patterns.
+- **`docs/rules/audit-log.md`** — API-edge audit logging baseline, required fields, and transaction-decoupled audit persistence guidance.
 - **`docs/rules/cross-project-boundaries.md`** — how to collaborate with differently-styled internal projects without importing their coupling into Core/Application boundaries.
 - **`docs/rules/external-integration-firewall.md`** — the defensive integration rule for semantically hostile or runtime-unstable external systems.
 - **`docs/rules/anti-corruption-layer.md`** — how adapters/translators keep foreign payloads, names, and exceptions from leaking into Core.

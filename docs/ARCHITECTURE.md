@@ -202,6 +202,8 @@ See **`templates/WarehouseMapper.cs`** for extra examples.
 
 Implement **`IExceptionHandler`** (or equivalent) in the API layer so clients receive safe **`ProblemDetails`** while full exceptions are logged.
 
+For audit-sensitive environments, keep the API entry point and exception boundary aligned with [`docs/rules/audit-log.md`](rules/audit-log.md) so audit events are captured consistently with actor and correlation context.
+
 See **`templates/GlobalExceptionHandler.cs`**.
 
 ---
@@ -233,7 +235,7 @@ See **`templates/ServiceExtensions.cs`**.
 | Async | All I/O must be `async/await` |
 | SQL Safety | Parameterized only — no string interpolation |
 | Transactions | Explicit short-lived UoW at the use-case boundary; no remote IO inside the active DB transaction; see [`docs/rules/transactions.md`](rules/transactions.md) |
-| Logging | `ILogger<T>` in Services and Repositories; log full exception in `catch` |
+| Logging | `ILogger<T>` in Services and Repositories; log full exception in `catch`; keep API-edge audit capture aligned with [`docs/rules/audit-log.md`](rules/audit-log.md) |
 | Naming | Prefer descriptive field names (e.g. `_warehouseRepository` over vague abbreviations) |
 | DI | Extension registration classes under `{ApiNamespace}/Extensions/` |
 | Entities | Never expose Infrastructure entities above Infrastructure |
